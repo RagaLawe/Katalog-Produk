@@ -147,7 +147,7 @@ export default function Footer() {
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4 text-primary/50" />
                 <p className="text-xs text-foreground/50">
-                  © 2024 Dinas Perindag Kabupaten Ngada. Hak Cipta Dilindungi.
+                  © {new Date().getFullYear()} Dinas Perindag Kabupaten Ngada. Hak Cipta Dilindungi.
                 </p>
               </div>
               <p className="text-xs text-foreground/50">

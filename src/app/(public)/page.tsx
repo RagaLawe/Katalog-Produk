@@ -11,6 +11,8 @@ import TrustBadge from '@/components/TrustBadge';
 import PriceDisplay from '@/components/PriceDisplay';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import ProductCard from '@/components/ProductCard';
+import FloatingOrbs from '@/components/FloatingOrbs';
+import TestimonialsSection from '@/components/TestimonialsSection';
 import { ProductCardSkeletonGrid } from '@/components/ProductCardSkeleton';
 
 interface Product {
@@ -28,7 +30,7 @@ interface Product {
 const categories = [
   {
     title: 'Tenun Ikat Ngada',
-    description: 'Kain tenun tradisional dengan motif khas yang ditenun secara手工 oleh pengrajin lokal',
+    description: 'Kain tenun tradisional dengan motif khas yang ditenun secara tangan oleh pengrajin lokal',
     image: '/images/categories/tenun-ikat.png',
     href: '/katalog?category=tenun',
   },
@@ -106,6 +108,7 @@ export default function Home() {
           />
         </motion.div>
         <div className="hero-gradient absolute inset-0" />
+        <FloatingOrbs />
         <motion.div
           style={{ opacity: heroOpacity }}
           className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-end pb-16 sm:pb-20"
@@ -157,7 +160,7 @@ export default function Home() {
             transition={{ duration: 0.5 }}
             className="text-center mb-10 sm:mb-12"
           >
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 section-accent">
               Kategori Produk
             </h2>
             <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto">
@@ -214,7 +217,7 @@ export default function Home() {
             transition={{ duration: 0.5 }}
             className="text-center mb-10 sm:mb-12"
           >
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 section-accent">
               Produk Unggulan
             </h2>
             <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto">
@@ -241,6 +244,9 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      {/* Testimonials Section */}
+      <TestimonialsSection />
 
       {/* CTA Section */}
       <section className="py-16 sm:py-20 bg-primary">

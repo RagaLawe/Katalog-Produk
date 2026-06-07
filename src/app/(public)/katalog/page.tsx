@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, PackageOpen } from 'lucide-react';
+import { Search, PackageOpen, ArrowUpDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ProductCard from '@/components/ProductCard';
 import { ProductCardSkeletonGrid } from '@/components/ProductCardSkeleton';
 
@@ -46,6 +47,30 @@ function CatalogContent() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
+
+  const sortedProducts = useMemo(() => {
+    const sorted = [...products];
+    switch (sortBy) {
+      case 'price-asc':
+        sorted.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+        sorted.sort((a, b) => b.price - a.price);
+        break;
+      case 'name-asc':
+        sorted.sort((a, b) => a.name.localeCompare(b.name, 'id'));
+        break;
+      case 'name-desc':
+        sorted.sort((a, b) => b.name.localeCompare(a.name, 'id'));
+        break;
+      case 'newest':
+      default:
+        // Default order from API (newest first)
+        break;
+    }
+    return sorted;
+  }, [products, sortBy]);
 
   const fetchProducts = useCallback(async (category: string, search: string) => {
     setLoading(true);
@@ -97,7 +122,7 @@ function CatalogContent() {
             transition={{ duration: 0.5 }}
             className="text-center"
           >
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">
+            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3 section-accent">
               Katalog Produk
             </h1>
             <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto">
@@ -123,6 +148,21 @@ function CatalogContent() {
               />
             </form>
 
+            {/* Sort */}
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger size="sm" className="w-full sm:w-[180px]">
+                <ArrowUpDown className="h-4 w-4" />
+                <SelectValue placeholder="Urutkan" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Terbaru</SelectItem>
+                <SelectItem value="price-asc">Harga Terendah</SelectItem>
+                <SelectItem value="price-desc">Harga Tertinggi</SelectItem>
+                <SelectItem value="name-asc">Nama A-Z</SelectItem>
+                <SelectItem value="name-desc">Nama Z-A</SelectItem>
+              </SelectContent>
+            </Select>
+
             {/* Category Filters */}
             <div className="flex gap-2 flex-wrap">
               {categoryFilters.map((filter) => (
@@ -147,7 +187,7 @@ function CatalogContent() {
           <div className="mt-3">
             {!loading && (
               <p className="text-sm text-muted-foreground">
-                Menampilkan {products.length} produk
+                Menampilkan {sortedProducts.length} produk
               </p>
             )}
           </div>
@@ -159,7 +199,7 @@ function CatalogContent() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {loading ? (
             <ProductCardSkeletonGrid count={6} />
-          ) : products.length === 0 ? (
+          ) : sortedProducts.length === 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -190,7 +230,7 @@ function CatalogContent() {
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
             >
               <AnimatePresence mode="popLayout">
-                {products.map((product, i) => (
+                {sortedProducts.map((product, i) => (
                   <motion.div
                     key={product.id}
                     variants={fadeInUp}

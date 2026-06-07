@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
@@ -42,9 +42,18 @@ export const metadata: Metadata = {
     siteName: "Katalog Perindag Ngada",
   },
   robots: "index, follow",
+  manifest: "/manifest.json",
   icons: {
     icon: "/logo.svg",
+    apple: "/icons/icon-192.png",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#8B0000",
 };
 
 export default function RootLayout({

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -12,6 +12,8 @@ import TrustBadge from '@/components/TrustBadge';
 import PriceDisplay from '@/components/PriceDisplay';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import ShareButton from '@/components/ShareButton';
+import ImageLightbox from '@/components/ImageLightbox';
+import RecentlyViewedProducts, { addToRecentlyViewed } from '@/components/RecentlyViewedProducts';
 
 interface Product {
   id: string;
@@ -80,6 +82,8 @@ export default function ProductDetailContent({
 }: ProductDetailContentProps) {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const categoryLabel = categoryLabelMap[product.category] || product.category;
   const categoryIcon = categoryIconMap[product.category] || '📦';
@@ -111,6 +115,17 @@ export default function ProductDetailContent({
   if (api) {
     api.on('select', onSelect);
   }
+
+  // Track recently viewed product on mount
+  useEffect(() => {
+    addToRecentlyViewed({
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      imageUrl: product.imageUrl,
+      price: product.price,
+    });
+  }, [product]);
 
   return (
     <div className="min-h-screen">
@@ -160,7 +175,14 @@ export default function ProductDetailContent({
                 <CarouselContent>
                   {slides.map((slide, index) => (
                     <CarouselItem key={index}>
-                      <div className="relative aspect-square sm:aspect-[4/3] rounded-xl overflow-hidden bg-muted shadow-lg border-2 border-gold-accent/20">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLightboxIndex(index);
+                          setLightboxOpen(true);
+                        }}
+                        className="relative aspect-square sm:aspect-[4/3] rounded-xl overflow-hidden bg-muted shadow-lg border-2 border-gold-accent/20 w-full cursor-zoom-in block"
+                      >
                         <Image
                           src={slide.url}
                           alt={slide.alt}
@@ -173,7 +195,7 @@ export default function ProductDetailContent({
                         <div className="absolute inset-0 tenun-pattern opacity-30 pointer-events-none" />
                         {/* Subtle gold border glow */}
                         <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-gold-accent/10 pointer-events-none" />
-                      </div>
+                      </button>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
@@ -349,6 +371,9 @@ export default function ProductDetailContent({
         </section>
       )}
 
+      {/* Recently Viewed Products */}
+      <RecentlyViewedProducts />
+
       {/* WhatsApp CTA - Mobile (Sticky Bottom) */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border/50 p-4" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
         <div className="flex gap-3">
@@ -364,6 +389,14 @@ export default function ProductDetailContent({
 
       {/* Spacer for mobile sticky button */}
       <div className="lg:hidden h-20" />
+
+      {/* Image Lightbox */}
+      <ImageLightbox
+        images={slides}
+        initialIndex={lightboxIndex}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
     </div>
   );
 }

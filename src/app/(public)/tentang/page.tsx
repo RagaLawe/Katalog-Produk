@@ -1,6 +1,7 @@
 import { Mountain, Gem, Building2, Eye } from 'lucide-react';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import AboutStats from '@/components/AboutStats';
+import ContactForm from '@/components/ContactForm';
 
 export default function TentangPage() {
   return (
@@ -182,6 +183,9 @@ export default function TentangPage() {
 
       {/* Statistics Section */}
       <AboutStats />
+
+      {/* Contact Form Section */}
+      <ContactForm />
 
       {/* CTA Section */}
       <section className="py-14 sm:py-16 bg-warm-cream-dark/50">

@@ -241,3 +241,187 @@ html {
     rgba(26, 26, 26, 0.9) 100%
   );
 }
+
+/* Dark mode adjustments for custom patterns */
+.dark .tenun-pattern {
+  background-image: 
+    linear-gradient(30deg, rgba(165, 42, 42, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(165, 42, 42, 0.05) 87.5%, rgba(165, 42, 42, 0.05)),
+    linear-gradient(150deg, rgba(165, 42, 42, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(165, 42, 42, 0.05) 87.5%, rgba(165, 42, 42, 0.05)),
+    linear-gradient(30deg, rgba(165, 42, 42, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(165, 42, 42, 0.05) 87.5%, rgba(165, 42, 42, 0.05)),
+    linear-gradient(150deg, rgba(165, 42, 42, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(165, 42, 42, 0.05) 87.5%, rgba(165, 42, 42, 0.05)),
+    linear-gradient(60deg, rgba(139, 105, 20, 0.06) 25%, transparent 25.5%, transparent 75%, rgba(139, 105, 20, 0.06) 75%, rgba(139, 105, 20, 0.06)),
+    linear-gradient(60deg, rgba(139, 105, 20, 0.06) 25%, transparent 25.5%, transparent 75%, rgba(139, 105, 20, 0.06) 75%, rgba(139, 105, 20, 0.06));
+}
+
+.dark .tenun-border-top::before {
+  background: repeating-linear-gradient(
+    90deg,
+    #A52A2A 0px,
+    #A52A2A 8px,
+    #C5A55A 8px,
+    #C5A55A 12px,
+    #8B6914 12px,
+    #8B6914 20px,
+    #C5A55A 20px,
+    #C5A55A 24px
+  );
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #2A2A2A;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #A52A2A;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #C0392B;
+}
+
+.dark .category-card:hover {
+  box-shadow: 0 12px 40px rgba(165, 42, 42, 0.25);
+}
+
+.dark .product-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Section header decorative accent */
+.section-accent {
+  position: relative;
+  display: inline-block;
+}
+
+.section-accent::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #8B0000, #C5A55A, #6F4E37);
+}
+
+.dark .section-accent::after {
+  background: linear-gradient(90deg, #A52A2A, #C5A55A, #8B6914);
+}
+
+/* Shimmer loading animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Gradient text effect */
+.gradient-text {
+  background: linear-gradient(135deg, #8B0000, #C5A55A);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .gradient-text {
+  background: linear-gradient(135deg, #A52A2A, #C5A55A);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Enhanced focus ring */
+.focus-ring:focus-visible {
+  outline: 2px solid #8B0000;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.dark .focus-ring:focus-visible {
+  outline-color: #A52A2A;
+}
+
+/* Print styles */
+@media print {
+  header, footer, .back-to-top, .scroll-progress, .floating-orbs,
+  .whatsapp-button, .share-button, .theme-toggle, .back-to-top,
+  nav[aria-label="Breadcrumb"], .mobile-sticky-cta {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+  }
+
+  .tenun-pattern {
+    background: none !important;
+  }
+
+  .hero-gradient {
+    background: none !important;
+  }
+
+  section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  a {
+    color: black !important;
+    text-decoration: underline;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  img {
+    max-width: 300px !important;
+    border: 1px solid #ddd;
+  }
+
+  .product-card, .category-card {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Selection color */
+::selection {
+  background: rgba(139, 0, 0, 0.2);
+  color: inherit;
+}
+
+.dark ::selection {
+  background: rgba(165, 42, 42, 0.3);
+}

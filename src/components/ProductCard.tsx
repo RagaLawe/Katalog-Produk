@@ -49,7 +49,7 @@ export default function ProductCard({ product, showTrustBadge = true, imageHeigh
     >
       {/* Image Area */}
       <div className={`relative ${imageHeight || 'h-52 sm:h-56'} overflow-hidden`}>
-        <Link href={`/produk/${product.slug}`}>
+        <Link href={`/produk/${product.slug}`} className="relative block h-full">
           <Image
             src={product.imageUrl}
             alt={product.name}

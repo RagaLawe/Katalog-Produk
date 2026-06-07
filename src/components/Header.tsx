@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Shield, Menu, X } from 'lucide-react';
@@ -25,6 +25,16 @@ const navLinks = [
 export default function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
@@ -32,7 +42,14 @@ export default function Header() {
   };
 
   return (
-    <header className="tenun-border-top sticky top-0 z-50 w-full bg-background/90 backdrop-blur-md border-b border-border/50">
+    <header
+      className={cn(
+        'tenun-border-top sticky top-0 z-50 w-full border-b border-border/50 transition-all duration-300',
+        scrolled
+          ? 'bg-background/80 backdrop-blur-lg shadow-sm'
+          : 'bg-background/90 backdrop-blur-md'
+      )}
+    >
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">

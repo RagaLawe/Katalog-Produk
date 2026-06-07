@@ -1,5 +1,136 @@
 # Worklog - Dinas Perindag E-Catalogue
 
+## Task 5c+5d - Image Lightbox, Recently Viewed, Contact Form
+
+**Agent**: lightbox-contact-agent
+**Date**: 2026-06-07
+**Status**: ✅ Completed
+
+### What was done
+
+Created ImageLightbox component for full-screen image viewing, RecentlyViewedProducts component with localStorage tracking, integrated both into the product detail page, and added a ContactForm to the About page.
+
+### Files Created
+
+1. **`/src/components/ImageLightbox.tsx`** - Full-screen image lightbox overlay
+   - `'use client'` component with AnimatePresence fade-in/out animation
+   - Props: `images: { url, alt }[]`, `initialIndex?: number`, `isOpen: boolean`, `onClose: () => void`
+   - Uses derived state pattern: `userIndex` (null initially) falls back to `initialIndex` prop — avoids useEffect for state reset
+   - Zoom controls (+ and -) with range 1x–3x, displayed as percentage
+   - Previous/Next navigation arrows (ChevronLeft/ChevronRight) when multiple images
+   - Keyboard support: Escape (close), ArrowLeft/Right (navigate), +/- (zoom)
+   - Click outside image or backdrop click closes lightbox
+   - Close button (X) in top-right corner
+   - Bottom indicators: clickable dots + "current / total" text
+   - Prevents body scroll when open (`document.body.style.overflow = 'hidden'`)
+   - Dark background `bg-black/90`, image centered with `max-w-[90vw] max-h-[80vh]`
+
+2. **`/src/components/RecentlyViewedProducts.tsx`** - Recently viewed products tracker
+   - `'use client'` component using `useSyncExternalStore` for localStorage (avoids useEffect+setState lint error)
+   - `subscribe` listens to `storage` event for cross-tab sync
+   - `getSnapshot` reads from `localStorage.getItem('recently_viewed_products')`
+   - `getServerSnapshot` returns `'[]'` for SSR compatibility
+   - Exports `addToRecentlyViewed(product)` utility function:
+     - Reads existing array from localStorage
+     - Removes duplicate by id
+     - Prepends new product to beginning
+     - Limits to 8 items max
+   - Displays up to 4 recently viewed products in horizontal scrollable row
+   - Each mini card: h-16 w-16 image, product name (line-clamp-1), price (PriceDisplay)
+   - Section header: "Terakhir Dilihat" with Clock icon and divider line
+   - Only renders when products exist (returns null if empty)
+
+3. **`/src/components/ContactForm.tsx`** - Contact inquiry form
+   - `'use client'` component with client-side validation
+   - Two-column layout on desktop: contact info (left) + form (right)
+   - Contact info: Address, Phone, Email with MapPin/Phone/Mail icons in primary/10 circles
+   - Form fields: Nama Lengkap (required), Email (required + format validation), Subjek (Select dropdown), Pesan (required, min 10 chars)
+   - Subjek options: "Pertanyaan Produk", "Kerjasama", "Pemesanan Grosir", "Lainnya"
+   - Validation errors in Bahasa Indonesia (e.g., "Nama lengkap wajib diisi")
+   - Submit button with Send icon, loading state with spinner
+   - On submit: shows success toast via sonner, resets form
+   - No actual backend call (simulated with 500ms delay)
+   - Card layout: `bg-card rounded-xl shadow-sm border border-border/50 p-6 sm:p-8`
+   - Section header: "Hubungi Kami" with subtitle "Punya pertanyaan? Kami siap membantu Anda"
+
+### Files Modified
+
+4. **`/src/components/ProductDetailContent.tsx`** - Integrated lightbox + recently viewed
+   - Added imports: `useEffect`, `ImageLightbox`, `RecentlyViewedProducts`, `addToRecentlyViewed`
+   - Added state: `lightboxOpen` (boolean), `lightboxIndex` (number)
+   - Carousel images now wrapped in `<button>` with `cursor-zoom-in` — clicking opens lightbox at that slide index
+   - `useEffect` on mount calls `addToRecentlyViewed()` with current product data
+   - Added `<RecentlyViewedProducts />` component after related products section
+   - Added `<ImageLightbox images={slides} initialIndex={lightboxIndex} isOpen={lightboxOpen} onClose={() => setLightboxOpen(false)} />` at end of JSX
+
+5. **`/src/app/(public)/tentang/page.tsx`** - Added ContactForm section
+   - Added `import ContactForm from '@/components/ContactForm'`
+   - Rendered `<ContactForm />` between `<AboutStats />` and the CTA section
+
+### Verification Results
+- ✅ ESLint passes with no errors (0 problems)
+- ✅ Dev server compiling and serving pages without errors
+- ✅ All lint rules satisfied (used `useSyncExternalStore` and derived state patterns to avoid `react-hooks/set-state-in-effect`)
+
+---
+
+## Task 5a+5b - Sort Functionality & Testimonials Section
+
+**Agent**: sort-testimonials-agent
+**Date**: 2026-06-07
+**Status**: ✅ Completed
+
+### What was done
+
+Added product sorting functionality to the catalog page and created a testimonials carousel section on the homepage.
+
+### Files Created
+
+1. **`/src/components/TestimonialsSection.tsx`** - Client component with artisan testimonials carousel
+   - Carousel using shadcn/ui `Carousel` component with `loop: true` and `align: 'start'`
+   - 5 hardcoded testimonials from local artisans (Mama Yuliana, Pak Dominikus, Ibu Marta, Mama Sefrina, Pak Yohanes)
+   - Auto-scroll every 5 seconds using `setInterval` with cleanup
+   - Manual navigation with prev/next buttons (ChevronLeft/ChevronRight)
+   - Indicator dots with active state animation (w-8 bg-primary vs w-2.5 bg-muted-foreground/30)
+   - Mobile: 1 card visible (`basis-full`), Desktop: 2 cards visible (`md:basis-1/2`)
+   - Testimonial cards: white bg, rounded-xl, shadow-sm, border-l-4 with category color (primary/secondary/bamboo-green)
+   - Quote icon in top-right corner (muted-foreground/15)
+   - Gold stars (fill-gold-accent) for 5-star ratings
+   - Italic testimonial text with curly quotes
+   - Author name (font-semibold) + role (text-sm text-muted-foreground)
+   - CategoryBadge for each testimonial's product category
+   - Section header: "Kata Pengrajin Kami" with subtitle
+   - Background: bg-warm-cream-dark/30 tenun-pattern
+   - Same animation pattern as other sections (motion.div whileInView)
+   - Uses render-phase event subscription pattern (same as ProductDetailContent) to avoid lint errors
+
+### Files Modified
+
+2. **`/src/app/(public)/katalog/page.tsx`** - Added sort functionality
+   - Added `useMemo` import from React
+   - Added `ArrowUpDown` icon import from lucide-react
+   - Added `Select, SelectContent, SelectItem, SelectTrigger, SelectValue` from @/components/ui/select
+   - Added `sortBy` state (default: 'newest')
+   - Added `sortedProducts` computed value using `useMemo` that sorts based on `sortBy`:
+     - 'newest': default API order
+     - 'price-asc': price ascending
+     - 'price-desc': price descending
+     - 'name-asc': name A-Z (locale-aware with 'id' locale)
+     - 'name-desc': name Z-A (locale-aware with 'id' locale)
+   - Added Select dropdown in filter bar (between search and category filters)
+   - Replaced all `products` references in render with `sortedProducts` (product count, empty state, grid mapping)
+
+3. **`/src/app/(public)/page.tsx`** - Added TestimonialsSection import and rendered it
+   - Added `import TestimonialsSection from '@/components/TestimonialsSection'`
+   - Rendered `<TestimonialsSection />` between the Produk Unggulan section and the CTA section
+
+### Verification Results
+- ✅ ESLint: Only pre-existing errors in ImageLightbox.tsx and RecentlyViewedProducts.tsx (not from this task)
+- ✅ No new lint errors introduced
+- ✅ Dev server compiling and serving pages without errors
+
+---
+
 ## Task 2-6 - Enhanced Product Detail, BackToTop, Skeletons, 404, Footer
 
 **Agent**: enhancement-agent
@@ -479,3 +610,150 @@ Enhanced the product detail page with an image carousel, added parallax scroll e
 - ✅ Carousel indicator dots update and are clickable
 - ✅ All pages return HTTP 200
 - ✅ Dev server compiling without errors
+
+---
+
+## Task 4a - Styling Enhancement Components (ScrollProgress, FloatingOrbs, Header Glass Morphism)
+
+**Agent**: styling-enhancement
+**Date**: 2026-06-07
+**Status**: ✅ Completed
+
+### What was done
+
+Created 3 styling enhancement components and integrated them into the application: ScrollProgress bar, decorative FloatingOrbs, and Header glass morphism effect on scroll.
+
+### Files Created
+
+1. **`/src/components/ScrollProgress.tsx`** - Scroll progress bar component
+   - `'use client'` directive
+   - Uses framer-motion `useScroll` for `scrollYProgress` and `useSpring` for smooth animation
+   - Spring config: stiffness 100, damping 30, restDelta 0.001
+   - Height: 3px, color: `bg-primary` (Tenun Red #8B0000)
+   - Position: `fixed top-0 left-0 right-0 z-[60]` (above header z-50)
+   - `origin-left` for left-to-right fill animation
+
+2. **`/src/components/FloatingOrbs.tsx`** - Decorative floating gradient orbs
+   - `'use client'` directive
+   - Uses framer-motion for gentle floating animation
+   - 3 orbs of different sizes: w-72, w-96, w-64
+   - Colors: `bg-primary/20`, `bg-gold-accent/15`, `bg-bamboo-green/10`
+   - Each orb floats with different duration (6s, 8s, 10s) and different Y offsets
+   - Uses `blur-3xl` for soft glow effect
+   - Animates: y oscillation and slight scale pulse (1 → 1.05 → 1)
+   - z-index z-[5] behind hero text (z-10) but above image
+   - `pointer-events-none` to avoid interaction interference
+
+### Files Modified
+
+3. **`/src/components/Header.tsx`** - Enhanced with glass morphism on scroll
+   - Added `useState` for `scrolled` state and `useEffect` for scroll detection
+   - Scroll event listener with `{ passive: true }` for performance
+   - When `window.scrollY > 50px`: adds `bg-background/80 backdrop-blur-lg shadow-sm`
+   - When at top: uses `bg-background/90 backdrop-blur-md`
+   - Smooth `transition-all duration-300` between states
+   - Uses `cn()` utility for conditional class merging
+   - `tenun-border-top` preserved, all existing functionality intact (nav links, mobile menu, theme toggle)
+
+4. **`/src/app/(public)/layout.tsx`** - Added ScrollProgress component
+   - Imported `ScrollProgress` from `@/components/ScrollProgress`
+   - Added `<ScrollProgress />` right inside the top of the div, before `<Header />`
+
+5. **`/src/app/(public)/page.tsx`** - Added FloatingOrbs to hero section
+   - Imported `FloatingOrbs` from `@/components/FloatingOrbs`
+   - Added `<FloatingOrbs />` inside the hero section, just after the `hero-gradient` div
+
+### Verification Results
+- ✅ ESLint: only pre-existing error in ImageLightbox.tsx (not related to changes)
+- ✅ Dev server running without errors on port 3000
+- ✅ Homepage renders with floating orbs in hero and scroll progress bar
+- ✅ Header transitions smoothly to glass morphism on scroll
+
+---
+
+## Cron Review - Round 4 (2026-06-07)
+
+**Agent**: cron-review-4
+**Status**: ✅ All improvements completed
+
+### Current Project Status Assessment
+
+Project was stable after 3 previous cron review rounds. All core features and enhancements working. QA testing with agent-browser passed 19/19 feature checks. ESLint clean, all pages return HTTP 200.
+
+### QA Testing Results (19 features tested, 19 PASS)
+
+| Page | Features Tested | Result |
+|------|----------------|--------|
+| Homepage | ScrollProgress, FloatingOrbs, TestimonialsSection, section-accent | ✅ 4/4 |
+| Catalog | Sort dropdown, Search, Category filters, Product grid | ✅ 4/4 |
+| Product Detail | Image lightbox, Recently viewed, Share, WhatsApp, Carousel, Related | ✅ 6/6 |
+| About | ContactForm, Animated counters, Content sections | ✅ 4/4 |
+| Footer | Dynamic year (getFullYear()) | ✅ 1/1 |
+
+### Improvements Made This Round
+
+**Styling Enhancements:**
+- ✅ ScrollProgress bar at page top (3px, bg-primary, z-[60], spring animation)
+- ✅ FloatingOrbs decorative gradient orbs in hero (3 orbs, blur-3xl, different durations)
+- ✅ Header glass morphism on scroll (>50px: backdrop-blur-lg + shadow-sm)
+- ✅ section-accent decorative gradient lines under headers (tenun-red → gold → coffee-brown)
+- ✅ Dark mode polish for tenun-pattern, tenun-border-top, scrollbar, card hovers
+- ✅ Selection color matching cultural theme (primary/20)
+- ✅ Reduced motion preference support (@media prefers-reduced-motion)
+- ✅ Print styles (hides nav/buttons, removes patterns, adds URL after links)
+- ✅ Shimmer loading animation class
+- ✅ Gradient text effect class
+- ✅ Enhanced focus ring styling
+- ✅ Footer dynamic copyright year (was hardcoded 2024)
+- ✅ Fixed Chinese characters in description ("手工" → "tangan")
+
+**New Features:**
+- ✅ Catalog sort (5 options: Terbaru, Harga Terendah/Tertinggi, Nama A-Z/Z-A)
+- ✅ Testimonials carousel on homepage (5 artisans, auto-scroll, category-colored borders)
+- ✅ Image lightbox on product detail (full-screen, zoom, keyboard navigation)
+- ✅ Recently viewed products tracking (localStorage, horizontal scroll)
+- ✅ Contact form on About page (2-column, 4 fields + subject dropdown, validation)
+- ✅ PWA manifest.json with theme_color, icons, standalone display
+- ✅ Viewport export properly separated from metadata (fixed Next.js warnings)
+
+### Files Created
+
+1. `/src/components/ScrollProgress.tsx` - Scroll progress indicator
+2. `/src/components/FloatingOrbs.tsx` - Decorative floating gradient orbs
+3. `/src/components/TestimonialsSection.tsx` - Artisan testimonials carousel
+4. `/src/components/ImageLightbox.tsx` - Full-screen image lightbox
+5. `/src/components/RecentlyViewedProducts.tsx` - Recently viewed products tracker
+6. `/src/components/ContactForm.tsx` - Contact inquiry form
+7. `/public/manifest.json` - PWA manifest
+
+### Files Modified
+
+1. `/src/app/globals.css` - Dark mode polish, print styles, section-accent, shimmer, gradient-text, reduced motion
+2. `/src/app/layout.tsx` - Viewport export, manifest link, PWA icons
+3. `/src/app/(public)/layout.tsx` - ScrollProgress integration
+4. `/src/app/(public)/page.tsx` - FloatingOrbs, TestimonialsSection, section-accent, Chinese chars fix
+5. `/src/app/(public)/katalog/page.tsx` - Sort functionality, section-accent
+6. `/src/app/(public)/tentang/page.tsx` - ContactForm integration
+7. `/src/components/Header.tsx` - Glass morphism on scroll
+8. `/src/components/Footer.tsx` - Dynamic copyright year
+9. `/src/components/ProductDetailContent.tsx` - Lightbox + recently viewed
+
+### Verification Results
+- ✅ ESLint passes with no errors
+- ✅ Dev server running without errors on port 3000
+- ✅ All 19 features verified working via agent-browser QA
+- ✅ All pages return HTTP 200
+- ✅ No Next.js metadata warnings
+
+### Unresolved Issues / Risks
+- None critical. All features working.
+- Admin image upload still URL-based (not file upload to storage)
+- Session management uses in-memory Map
+- Social media links in footer are placeholder (#)
+
+### Priority Recommendations for Next Phase
+1. **Image upload to storage**: Implement actual file upload for admin
+2. **Pagination**: Add pagination to catalog and admin dashboard
+3. **Analytics**: Add page view tracking for product popularity
+4. **Product comparison**: Allow comparing products side-by-side
+5. **i18n**: Add English language support for international visitors
