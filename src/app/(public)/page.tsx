@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, MessageCircle } from 'lucide-react';
+import { ArrowRight, MessageCircle, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CategoryBadge from '@/components/CategoryBadge';
 import TrustBadge from '@/components/TrustBadge';
@@ -30,38 +30,42 @@ interface Product {
   isFeatured: boolean;
 }
 
-const categories = [
+interface CategoryCounts {
+  tenun: number;
+  kopi: number;
+  bambu: number;
+  total: number;
+}
+
+const categoryBase = [
   {
+    key: 'tenun' as const,
     title: 'Tenun Ikat Ngada',
     description: 'Kain tenun tradisional dengan motif khas yang ditenun secara tangan oleh pengrajin lokal',
     image: '/images/categories/tenun-ikat.png',
     href: '/katalog?category=tenun',
-    count: 3,
-    countLabel: '3 Produk',
     accentColor: 'bg-primary',
     accentBorder: 'border-b-primary',
     badgeBg: 'bg-primary/90',
     patternColor: 'rgba(139, 0, 0, 0.08)',
   },
   {
+    key: 'kopi' as const,
     title: 'Kopi Bajawa',
     description: 'Kopi arabika premium dari dataran tinggi Bajawa dengan cita rasa yang Mendunia',
     image: '/images/categories/kopi-bajawa.png',
     href: '/katalog?category=kopi',
-    count: 3,
-    countLabel: '3 Produk',
     accentColor: 'bg-secondary',
     accentBorder: 'border-b-secondary',
     badgeBg: 'bg-secondary/90',
     patternColor: 'rgba(111, 78, 55, 0.08)',
   },
   {
+    key: 'bambu' as const,
     title: 'Kerajinan Bambu',
     description: 'Aneka kerajinan tangan dari bambu yang dibuat dengan keahlian turun-temurun',
     image: '/images/categories/kerajinan-bambu.png',
     href: '/katalog?category=bambu',
-    count: 3,
-    countLabel: '3 Produk',
     accentColor: 'bg-bamboo-green',
     accentBorder: 'border-b-bamboo-green',
     badgeBg: 'bg-bamboo-green/90',
@@ -74,7 +78,7 @@ const fadeInUp = {
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.1, duration: 0.5, ease: 'easeOut' },
+    transition: { delay: i * 0.1, duration: 0.5, ease: 'easeOut' as const },
   }),
 };
 
@@ -91,13 +95,14 @@ const heroWordVariants = {
     opacity: 1,
     y: 0,
     filter: 'blur(0px)',
-    transition: { duration: 0.5, ease: 'easeOut' },
+    transition: { duration: 0.5, ease: 'easeOut' as const },
   },
 };
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categoryCounts, setCategoryCounts] = useState<CategoryCounts>({ tenun: 3, kopi: 3, bambu: 3, total: 9 });
 
   // Parallax scroll transforms
   const { scrollY } = useScroll();
@@ -105,8 +110,9 @@ export default function Home() {
   const heroOpacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   useEffect(() => {
-    async function fetchFeatured() {
+    async function fetchData() {
       try {
+        // Fetch featured products
         const res = await fetch('/api/products?featured=true');
         if (res.ok) {
           const data = await res.json();
@@ -117,8 +123,19 @@ export default function Home() {
       } finally {
         setLoading(false);
       }
+
+      // Fetch category counts
+      try {
+        const res = await fetch('/api/products/count');
+        if (res.ok) {
+          const data = await res.json();
+          setCategoryCounts(data);
+        }
+      } catch {
+        // Keep default counts on error
+      }
     }
-    fetchFeatured();
+    fetchData();
   }, []);
 
   return (
@@ -195,12 +212,48 @@ export default function Home() {
           </motion.div>
         </motion.div>
 
+        {/* Scroll Down Indicator */}
+        <motion.button
+          type="button"
+          onClick={() => {
+            const el = document.getElementById('kategori-produk');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 cursor-pointer group"
+          aria-label="Gulir ke bawah"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2, duration: 0.5 }}
+        >
+          <span className="text-white/70 text-xs font-medium tracking-wider uppercase group-hover:text-white/90 transition-colors">
+            Jelajahi
+          </span>
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <ChevronDown className="h-6 w-6 text-white/70 group-hover:text-white/90 transition-colors" />
+          </motion.div>
+          <motion.div
+            className="w-5 h-8 rounded-full border-2 border-white/40 flex items-start justify-center p-1"
+            initial={{ opacity: 0.6 }}
+            animate={{ opacity: [0.4, 0.8, 0.4] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <motion.div
+              className="w-1 h-2 bg-white/70 rounded-full"
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          </motion.div>
+        </motion.button>
+
         {/* Decorative gradient overlay at bottom blending into next section */}
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
       </section>
 
       {/* Kategori Produk Section */}
-      <section className="py-16 sm:py-20 bg-background">
+      <section id="kategori-produk" className="py-16 sm:py-20 bg-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -224,7 +277,7 @@ export default function Home() {
             viewport={{ once: true }}
             className="grid grid-cols-1 md:grid-cols-3 gap-6"
           >
-            {categories.map((cat, i) => (
+            {categoryBase.map((cat, i) => (
               <motion.div key={cat.title} variants={fadeInUp} custom={i}>
                 <Link href={cat.href} className={`category-card block rounded-xl overflow-hidden shadow-md group border-b-4 ${cat.accentBorder}`}>
                   <div className="relative h-64 sm:h-72 overflow-hidden">
@@ -247,7 +300,7 @@ export default function Home() {
                     />
                     {/* Product count badge */}
                     <div className={`absolute top-3 right-3 ${cat.badgeBg} backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm`}>
-                      {cat.countLabel}
+                      {categoryCounts[cat.key]} Produk
                     </div>
                     <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
                       <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
@@ -268,6 +321,22 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* Divider: Kategori Produk → HomeStatsSection */}
+      <div className="relative -mt-1 z-10">
+        <svg
+          viewBox="0 0 1440 60"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-auto block"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0 0H1440V20C1200 55 960 55 720 35C480 15 240 15 0 45V0Z"
+            className="fill-background"
+          />
+        </svg>
+      </div>
 
       {/* Stats/Impact Section */}
       <HomeStatsSection />
@@ -309,6 +378,22 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      {/* Divider: Produk Unggulan → TestimonialsSection */}
+      <div className="relative -mt-1 z-10">
+        <svg
+          viewBox="0 0 1440 60"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-auto block"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0 0H1440V25C1080 60 720 60 360 35C180 22 0 15 0 15V0Z"
+            className="fill-warm-cream-dark/50"
+          />
+        </svg>
+      </div>
 
       {/* Testimonials Section */}
       <TestimonialsSection />

@@ -11,17 +11,27 @@ datasource db {
 }
 
 model Product {
-  id          String   @id @default(cuid())
+  id          String        @id @default(cuid())
   name        String
-  slug        String   @unique
-  category    String   // 'tenun', 'kopi', or 'bambu'
-  price       Int      // Price in IDR
+  slug        String        @unique
+  category    String        // 'tenun', 'kopi', or 'bambu'
+  price       Int           // Price in IDR
   description String
-  artisanInfo String?  // "Dibuat oleh Ibu Maria dari Desa X"
+  artisanInfo String?       // "Dibuat oleh Ibu Maria dari Desa X"
   imageUrl    String
-  isFeatured  Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isFeatured  Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  views       ProductView[]
+}
+
+model ProductView {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  viewedAt  DateTime @default(now())
+
+  @@index([productId])
 }
 
 model Admin {

@@ -1,19 +1,23 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ChevronRight, User, Quote, CheckCircle, Star } from 'lucide-react';
+import { ChevronRight, User, Quote, CheckCircle, Star, Heart, Eye, Printer } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel';
+import { Button } from '@/components/ui/button';
 import type { CarouselApi } from '@/components/ui/carousel';
 import CategoryBadge from '@/components/CategoryBadge';
 import TrustBadge from '@/components/TrustBadge';
 import PriceDisplay from '@/components/PriceDisplay';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import ShareButton from '@/components/ShareButton';
+import ProductCard from '@/components/ProductCard';
 import ImageLightbox from '@/components/ImageLightbox';
 import RecentlyViewedProducts, { addToRecentlyViewed } from '@/components/RecentlyViewedProducts';
+import { useFavoritesStore } from '@/lib/favorites-store';
+import { toast } from 'sonner';
 
 interface Product {
   id: string;
@@ -84,6 +88,20 @@ export default function ProductDetailContent({
   const [current, setCurrent] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [viewCount, setViewCount] = useState<number | null>(null);
+  const hasRecordedView = useRef(false);
+
+  const { toggleFavorite, isFavorite } = useFavoritesStore();
+  const favorited = isFavorite(product.id);
+
+  const handleFavoriteToggle = () => {
+    toggleFavorite(product.id);
+    if (favorited) {
+      toast.success('Dihapus dari favorit');
+    } else {
+      toast.success('Ditambahkan ke favorit ❤️');
+    }
+  };
 
   const categoryLabel = categoryLabelMap[product.category] || product.category;
   const categoryIcon = categoryIconMap[product.category] || '📦';
@@ -116,7 +134,7 @@ export default function ProductDetailContent({
     api.on('select', onSelect);
   }
 
-  // Track recently viewed product on mount
+  // Track recently viewed product on mount and record view
   useEffect(() => {
     addToRecentlyViewed({
       id: product.id,
@@ -125,6 +143,21 @@ export default function ProductDetailContent({
       imageUrl: product.imageUrl,
       price: product.price,
     });
+
+    // Record a product view (only once per mount)
+    if (!hasRecordedView.current) {
+      hasRecordedView.current = true;
+      fetch(`/api/products/${product.slug}/view`, { method: 'POST' })
+        .then((res) => res.ok ? res.json() : null)
+        .then((data) => {
+          if (data?.viewCount !== undefined) {
+            setViewCount(data.viewCount);
+          }
+        })
+        .catch(() => {
+          // Silently fail - view tracking is non-essential
+        });
+    }
   }, [product]);
 
   return (
@@ -252,9 +285,17 @@ export default function ProductDetailContent({
               </div>
 
               {/* Product Name */}
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
                 {product.name}
               </h1>
+
+              {/* View Count */}
+              {viewCount !== null && (
+                <div className="flex items-center gap-1.5 text-sm text-muted-foreground mb-3">
+                  <Eye className="h-4 w-4" />
+                  <span>Dilihat {viewCount} kali</span>
+                </div>
+              )}
 
               {/* Price */}
               <div className="mb-5">
@@ -305,6 +346,29 @@ export default function ProductDetailContent({
                   className="flex-1 bg-[#25D366] hover:bg-[#20BD5A] text-white wa-pulse"
                 />
                 <ShareButton size="lg" />
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => window.print()}
+                  className="gap-2"
+                >
+                  <Printer className="h-4 w-4" />
+                  <span>Cetak</span>
+                </Button>
+                <motion.button
+                  type="button"
+                  onClick={handleFavoriteToggle}
+                  whileTap={{ scale: 0.9 }}
+                  className={`inline-flex items-center justify-center h-10 w-10 rounded-md border transition-all duration-200 cursor-pointer ${
+                    favorited
+                      ? 'bg-red-50 border-red-200 text-red-500 dark:bg-red-950/30 dark:border-red-800 dark:text-red-400'
+                      : 'bg-background border-input text-muted-foreground hover:text-red-500 hover:border-red-200'
+                  }`}
+                  aria-label={favorited ? 'Hapus dari favorit' : 'Tambah ke favorit'}
+                  title={favorited ? 'Hapus dari favorit' : 'Tambah ke favorit'}
+                >
+                  <Heart className={`h-4 w-4 ${favorited ? 'fill-current' : ''}`} />
+                </motion.button>
               </div>
             </div>
           </motion.div>
@@ -338,32 +402,7 @@ export default function ProductDetailContent({
             >
               {relatedProducts.map((related, i) => (
                 <motion.div key={related.id} variants={fadeInUp} custom={i}>
-                  <Link
-                    href={`/produk/${related.slug}`}
-                    className="product-card block bg-card rounded-xl overflow-hidden shadow-sm border border-border/50 h-full"
-                  >
-                    <div className="relative h-44 sm:h-48 overflow-hidden">
-                      <Image
-                        src={related.imageUrl}
-                        alt={related.name}
-                        fill
-                        className="object-cover transition-transform duration-500 hover:scale-105"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      />
-                      <div className="absolute top-3 left-3 flex gap-2">
-                        <CategoryBadge category={related.category as 'tenun' | 'kopi' | 'bambu'} />
-                      </div>
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-semibold text-foreground text-sm sm:text-base mb-1 line-clamp-1">
-                        {related.name}
-                      </h3>
-                      <PriceDisplay price={related.price} className="text-base" />
-                      <p className="text-xs text-muted-foreground line-clamp-2 mt-2">
-                        {related.description}
-                      </p>
-                    </div>
-                  </Link>
+                  <ProductCard product={related} imageHeight="h-44 sm:h-48" />
                 </motion.div>
               ))}
             </motion.div>
@@ -384,6 +423,20 @@ export default function ProductDetailContent({
             className="flex-1 bg-[#25D366] hover:bg-[#20BD5A] text-white wa-pulse"
           />
           <ShareButton size="lg" />
+          <motion.button
+            type="button"
+            onClick={handleFavoriteToggle}
+            whileTap={{ scale: 0.9 }}
+            className={`inline-flex items-center justify-center h-10 w-10 rounded-md border transition-all duration-200 cursor-pointer shrink-0 ${
+              favorited
+                ? 'bg-red-50 border-red-200 text-red-500 dark:bg-red-950/30 dark:border-red-800 dark:text-red-400'
+                : 'bg-background border-input text-muted-foreground hover:text-red-500 hover:border-red-200'
+            }`}
+            aria-label={favorited ? 'Hapus dari favorit' : 'Tambah ke favorit'}
+            title={favorited ? 'Hapus dari favorit' : 'Tambah ke favorit'}
+          >
+            <Heart className={`h-4 w-4 ${favorited ? 'fill-current' : ''}`} />
+          </motion.button>
         </div>
       </div>
 

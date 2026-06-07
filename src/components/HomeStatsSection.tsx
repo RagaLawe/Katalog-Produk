@@ -1,15 +1,24 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Package, Users, MapPin, Shield } from 'lucide-react';
 import AnimatedCounter from '@/components/AnimatedCounter';
 
-const stats = [
+interface CategoryCounts {
+  tenun: number;
+  kopi: number;
+  bambu: number;
+  total: number;
+}
+
+const statsConfig = [
   {
+    key: 'total',
     icon: Package,
-    value: 3,
+    valueKey: 'total' as const,
     suffix: '',
-    label: 'Kategori Produk',
+    label: 'Total Produk',
     color: 'primary',
     bgColor: 'bg-primary/10',
     iconColor: 'text-primary',
@@ -17,6 +26,7 @@ const stats = [
     accentBg: 'bg-primary',
   },
   {
+    key: 'pengrajin',
     icon: Users,
     value: 50,
     suffix: '+',
@@ -28,6 +38,7 @@ const stats = [
     accentBg: 'bg-secondary',
   },
   {
+    key: 'desa',
     icon: MapPin,
     value: 10,
     suffix: '+',
@@ -39,6 +50,7 @@ const stats = [
     accentBg: 'bg-bamboo-green',
   },
   {
+    key: 'kabupaten',
     icon: Shield,
     value: 1,
     suffix: '',
@@ -69,6 +81,23 @@ const cardVariants = {
 };
 
 export default function HomeStatsSection() {
+  const [categoryCounts, setCategoryCounts] = useState<CategoryCounts>({ tenun: 3, kopi: 3, bambu: 3, total: 9 });
+
+  useEffect(() => {
+    async function fetchCounts() {
+      try {
+        const res = await fetch('/api/products/count');
+        if (res.ok) {
+          const data = await res.json();
+          setCategoryCounts(data);
+        }
+      } catch {
+        // Keep default counts on error
+      }
+    }
+    fetchCounts();
+  }, []);
+
   return (
     <section className="py-14 sm:py-16 bg-warm-cream-dark/30 tenun-pattern relative overflow-hidden">
       {/* Decorative top/bottom gradient fades */}
@@ -98,8 +127,9 @@ export default function HomeStatsSection() {
           viewport={{ once: true, margin: '-50px' }}
           className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
         >
-          {stats.map((stat) => {
+          {statsConfig.map((stat) => {
             const Icon = stat.icon;
+            const displayValue = stat.key === 'total' ? categoryCounts.total : (stat.value ?? 0);
             return (
               <motion.div
                 key={stat.label}
@@ -121,7 +151,7 @@ export default function HomeStatsSection() {
                 </div>
                 <div className="text-3xl sm:text-4xl font-bold text-foreground mb-1.5">
                   <AnimatedCounter
-                    value={stat.value}
+                    value={displayValue}
                     suffix={stat.suffix}
                     duration={2000}
                   />

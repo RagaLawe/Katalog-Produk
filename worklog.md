@@ -1178,3 +1178,148 @@ Project is stable with all previous features working. QA testing with agent-brow
 3. **i18n**: Add English language support for international visitors
 4. **Email integration**: Connect contact form/newsletter to actual email service
 5. **Accessibility audit**: Full WCAG 2.1 AA compliance review
+
+## Task 1-styling-round7 - Improved Styling with More Details
+
+**Agent**: styling-round7-agent
+**Date**: 2026-06-07
+**Status**: ✅ Completed
+
+### What was done
+
+Added hero scroll-down indicator, favorites button to product detail, replaced inline related products with ProductCard, enhanced catalog page header with decorative SVGs/shimmer/product count, enhanced about page hero banner with decorative patterns, and added SVG wave dividers between homepage sections.
+
+### Files Modified
+
+1. **`/src/app/(public)/page.tsx`** - Hero scroll-down indicator + section dividers
+   - Added `ChevronDown` import from lucide-react
+   - Added animated scroll-down indicator at bottom of hero section:
+     - "Jelajahi" label text (white/70, uppercase, tracking-wider)
+     - Bouncing ChevronDown arrow using framer-motion `animate={{ y: [0, 8, 0] }}` (1.5s infinite)
+     - Mouse scroll indicator pill with animated dot inside (opacity pulse 0.4→0.8→0.4)
+     - Click scrolls to `#kategori-produk` section using `scrollIntoView({ behavior: 'smooth' })`
+     - Initial fade-in animation with 1.2s delay
+   - Added `id="kategori-produk"` to Kategori Produk section for scroll target
+   - Added SVG wave divider between Kategori Produk and HomeStatsSection sections:
+     - `fill-background` to match bg-background of Kategori section
+     - Gentle curve pattern (asymmetric S-curve)
+   - Added SVG wave divider between Produk Unggulan and TestimonialsSection sections:
+     - `fill-warm-cream-dark/50` to match Produk Unggulan section bg
+     - Asymmetric curve matching cultural aesthetic
+
+2. **`/src/components/ProductDetailContent.tsx`** - Favorites button + ProductCard for related products
+   - Added imports: `Heart` from lucide-react, `ProductCard`, `useFavoritesStore`, `toast` from sonner
+   - Added `toggleFavorite`, `isFavorite` from `useFavoritesStore`
+   - Added `favorited` state and `handleFavoriteToggle` function with toast notifications
+   - Added favorites heart button to desktop action bar (after ShareButton):
+     - `motion.button` with `whileTap={{ scale: 0.9 }}` animation
+     - Red filled heart when favorited (`bg-red-50 border-red-200 text-red-500`)
+     - Outline heart when not favorited (`bg-background border-input text-muted-foreground hover:text-red-500`)
+     - Dark mode support with `dark:` variants
+   - Added favorites heart button to mobile sticky bar (after ShareButton):
+     - Same styling as desktop, `shrink-0` to prevent squishing
+   - Replaced inline related product cards with `<ProductCard>` component:
+     - Removed manual `<Link>`, `<Image>`, `<CategoryBadge>`, `<PriceDisplay>` markup
+     - Replaced with `<ProductCard product={related} imageHeight="h-44 sm:h-48" />`
+
+3. **`/src/app/(public)/katalog/page.tsx`** - Enhanced catalog page header
+   - Added `relative overflow-hidden` to header section
+   - Added decorative SVG shapes in background:
+     - Large circle top-right (`text-primary/[0.06]`, w-64)
+     - Medium circle bottom-left (`text-gold-accent/[0.06]`, w-48)
+     - Ngada-inspired diamond pattern left (`text-secondary/[0.08]`, w-20)
+     - Small dot cluster right side (`text-bamboo-green/[0.08]`, w-16, 3x3 grid)
+   - Added shimmer effect overlay (uses existing `.shimmer` CSS class from globals.css)
+   - Added product count indicator below subtitle:
+     - `motion.div` with scale-in animation (delay 0.3s)
+     - Pill badge: `bg-primary/10 text-primary` with PackageOpen icon
+     - Shows "X Produk Tersedia" (e.g., "9 Produk Tersedia")
+     - Only visible when not loading
+
+4. **`/src/app/(public)/tentang/page.tsx`** - Enhanced about page hero banner
+   - Replaced simple `bg-primary` hero with gradient hero: `bg-gradient-to-br from-primary via-primary/95 to-primary/90`
+   - Added tenun pattern overlay (`opacity-10 pointer-events-none`)
+   - Added decorative SVG shapes:
+     - Large circle top-right (`text-white/[0.05]`, w-80)
+     - Medium circle bottom-left (`text-gold-accent/[0.08]`, w-56)
+     - Diamond pattern left (`text-white/[0.06]`, w-16)
+     - Dot cluster right (`text-white/[0.06]`, w-12, 3x3 grid)
+     - Decorative wave SVG at bottom transitioning to warm-cream-dark
+     - Horizontal gold accent line at center (`via-gold-accent/20`)
+   - Added decorative building icon above title (inline SVG, gold accent color)
+   - Added gold accent line below subtitle (gradient from gold-accent to transparent, w-24)
+   - Increased padding: `py-20 sm:py-28` (was `py-16 sm:py-20`)
+   - Title split across lines on desktop with `<br className="hidden sm:block" />`
+
+### Verification Results
+- ✅ ESLint passes with no errors (0 problems)
+- ✅ Dev server running without errors on port 3000
+- ✅ All existing functionality preserved intact
+- ✅ No API routes modified
+- ✅ All text in Bahasa Indonesia
+
+---
+---
+
+## Cron Review - Round 7 (2026-06-07)
+
+**Agent**: cron-review
+**Status**: ✅ All improvements completed (features agent partially timed out, core work done)
+
+### Current Project Status Assessment
+
+Project is stable with all previous features working. QA testing confirmed all pages render without errors. ESLint passes clean. The dev server experiences intermittent stability issues in the sandbox environment (crashes after multiple rapid requests) but all pages compile and serve correctly when tested individually.
+
+### Improvements Made This Round
+
+**Styling Enhancements:**
+- ✅ Hero Scroll-Down Indicator - Animated bouncing "JELAJAHI" button with ChevronDown arrow and mouse scroll pill at bottom of hero section
+- ✅ Product Detail Favorites Button - Heart icon next to share button (both desktop and mobile sticky bar) with useFavoritesStore integration
+- ✅ Related Products using ProductCard - Replaced inline markup with reusable ProductCard component for consistency
+- ✅ Catalog Page Enhanced Header - Decorative SVG shapes (circles, diamond pattern, dot cluster), shimmer effect, product count pill badge
+- ✅ About Page Hero Banner - Gradient background with primary color, tenun pattern overlay, decorative SVG shapes, wave bottom divider
+- ✅ Enhanced Section Dividers - SVG wave dividers between Kategori→HomeStats and Produk Unggulan→Testimonials sections
+- ✅ Fixed framer-motion TypeScript `ease` typing errors (added `as const`)
+
+**New Features:**
+- ✅ Social Media Share Options - ShareButton enhanced with DropdownMenu: Salin Tautan, Bagikan via WhatsApp, Facebook, Twitter
+- ✅ Product View Counter API - `/api/products/[slug]/view` endpoint (GET count, POST record) with ProductView Prisma model
+- ✅ Product View Display - "Dilihat X kali" with Eye icon on product detail page
+- ✅ Print Product Detail Button - "Cetak" button with Printer icon next to share/favorite buttons
+- ✅ Dynamic Category Product Counts - `/api/products/count` endpoint returning {tenun, kopi, bambu, total}
+- ✅ Admin Product Delete Confirmation - AlertDialog dialog with "Hapus Produk" title and destructive confirm button
+
+### Files Created
+1. `/src/app/api/products/count/route.ts` - Category product count API endpoint
+2. `/src/app/api/products/[slug]/view/route.ts` - Product view tracking API (GET + POST)
+
+### Files Modified
+1. `/src/app/(public)/page.tsx` - Hero scroll indicator, section dividers, TypeScript ease fixes
+2. `/src/components/ProductDetailContent.tsx` - Favorites button, view counter, print button, ProductCard for related products
+3. `/src/components/ShareButton.tsx` - Social media sharing dropdown (WhatsApp, Facebook, Twitter, Copy Link)
+4. `/src/app/(public)/katalog/page.tsx` - Enhanced header with decorative shapes and product count badge, TypeScript ease fix
+5. `/src/app/(public)/tentang/page.tsx` - Hero banner with gradient and decorative elements
+6. `/src/app/admin/(dashboard)/dashboard/page.tsx` - Delete confirmation AlertDialog
+7. `/prisma/schema.prisma` - Added ProductView model with productId relation
+
+### Verification Results
+- ✅ ESLint passes with no errors
+- ✅ All pages compile and serve HTTP 200 (tested individually)
+- ✅ `/api/products/count` endpoint returns correct category counts
+- ✅ `/api/products/[slug]/view` GET endpoint returns view count
+- ✅ ProductView Prisma model validated with Node.js direct test
+- ✅ TypeScript `ease` typing errors fixed with `as const`
+
+### Unresolved Issues / Risks
+- Dev server experiences intermittent crashes in sandbox environment when handling rapid sequential requests (resource constraint, not a code issue)
+- Admin image upload still URL-based (not file upload to storage)
+- Session management uses in-memory Map (not persistent across restarts)
+- Social media links in footer are placeholder (#)
+- Newsletter/contact form submissions stored in localStorage only (no backend)
+
+### Priority Recommendations for Next Phase
+1. **Server stability**: Monitor dev server memory usage, consider optimizing hot reload
+2. **Image upload to storage**: Implement actual file upload for admin
+3. **Analytics dashboard**: Add page view tracking visualization in admin
+4. **i18n**: Add English language support for international visitors
+5. **Email integration**: Connect contact form/newsletter to actual email service

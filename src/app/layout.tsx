@@ -75,6 +75,7 @@ export default function RootLayout({
           {children}
           <Toaster richColors position="top-right" />
         </ThemeProvider>
+        {/* Force rebuild trigger */}
       </body>
     </html>
   );

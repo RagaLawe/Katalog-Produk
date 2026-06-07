@@ -8,18 +8,62 @@ import NewsletterSection from '@/components/NewsletterSection';
 export default function TentangPage() {
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-primary py-16 sm:py-20 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
+      {/* Hero Banner */}
+      <section className="relative py-20 sm:py-28 bg-gradient-to-br from-primary via-primary/95 to-primary/90 overflow-hidden">
+        {/* Tenun pattern overlay */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none">
           <div className="tenun-pattern w-full h-full" />
         </div>
+
+        {/* Decorative shapes */}
+        <div className="absolute inset-0 pointer-events-none">
+          {/* Large circle - top right */}
+          <svg className="absolute -top-24 -right-24 w-80 h-80 text-white/[0.05]" viewBox="0 0 200 200" fill="currentColor">
+            <circle cx="100" cy="100" r="100" />
+          </svg>
+          {/* Medium circle - bottom left */}
+          <svg className="absolute -bottom-16 -left-16 w-56 h-56 text-gold-accent/[0.08]" viewBox="0 0 200 200" fill="currentColor">
+            <circle cx="100" cy="100" r="100" />
+          </svg>
+          {/* Diamond pattern - left */}
+          <svg className="absolute top-[20%] left-[8%] w-16 h-16 text-white/[0.06]" viewBox="0 0 80 80" fill="currentColor">
+            <path d="M40 0L80 40L40 80L0 40Z" />
+          </svg>
+          {/* Dot cluster - right */}
+          <svg className="absolute top-[60%] right-[12%] w-12 h-12 text-white/[0.06]" viewBox="0 0 60 60" fill="currentColor">
+            <circle cx="10" cy="10" r="3" />
+            <circle cx="30" cy="10" r="3" />
+            <circle cx="50" cy="10" r="3" />
+            <circle cx="20" cy="30" r="3" />
+            <circle cx="40" cy="30" r="3" />
+            <circle cx="10" cy="50" r="3" />
+            <circle cx="30" cy="50" r="3" />
+            <circle cx="50" cy="50" r="3" />
+          </svg>
+          {/* Decorative wave at bottom */}
+          <svg className="absolute bottom-0 left-0 right-0 w-full h-16 text-warm-cream-dark/50" viewBox="0 0 1440 60" preserveAspectRatio="none">
+            <path d="M0 60V30C240 0 480 0 720 30C960 60 1200 60 1440 30V60H0Z" fill="currentColor" />
+          </svg>
+          {/* Horizontal line accent */}
+          <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold-accent/20 to-transparent" />
+        </div>
+
+        {/* Content */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4">
-            Tentang Dinas Perindag Kabupaten Ngada
+          {/* Decorative icon above title */}
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm mb-6 border border-white/20">
+            <svg className="w-7 h-7 text-gold-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M3 21h18M3 21V8l9-5 9 5v13M9 21v-6h6v6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4 leading-tight">
+            Tentang Dinas Perindag<br className="hidden sm:block" /> Kabupaten Ngada
           </h1>
           <p className="text-primary-foreground/80 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
             Mendorong pertumbuhan ekonomi lokal dan melestarikan kearifan budaya melalui pemberdayaan UMKM di Kabupaten Ngada, Nusa Tenggara Timur.
           </p>
+          {/* Decorative gold accent line below subtitle */}
+          <div className="mt-6 mx-auto w-24 h-1 rounded-full bg-gradient-to-r from-gold-accent via-gold-accent/60 to-transparent" />
         </div>
       </section>
 

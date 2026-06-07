@@ -44,7 +44,7 @@ const fadeInUp = {
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.05, duration: 0.4, ease: 'easeOut' },
+    transition: { delay: i * 0.05, duration: 0.4, ease: 'easeOut' as const },
   }),
 };
 
@@ -208,8 +208,38 @@ function CatalogContent() {
       <Breadcrumb items={[{ label: 'Beranda', href: '/' }, { label: 'Katalog' }]} />
 
       {/* Page Header */}
-      <section className="bg-primary/5 tenun-pattern py-12 sm:py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-primary/5 tenun-pattern py-12 sm:py-16 relative overflow-hidden">
+        {/* Decorative SVG shapes */}
+        <div className="absolute inset-0 pointer-events-none">
+          {/* Large circle - top right */}
+          <svg className="absolute -top-20 -right-20 w-64 h-64 text-primary/[0.06]" viewBox="0 0 200 200" fill="currentColor">
+            <circle cx="100" cy="100" r="100" />
+          </svg>
+          {/* Medium circle - bottom left */}
+          <svg className="absolute -bottom-10 -left-16 w-48 h-48 text-gold-accent/[0.06]" viewBox="0 0 200 200" fill="currentColor">
+            <circle cx="100" cy="100" r="100" />
+          </svg>
+          {/* Ngada-inspired diamond pattern - center left */}
+          <svg className="absolute top-1/2 -translate-y-1/2 left-[10%] w-20 h-20 text-secondary/[0.08]" viewBox="0 0 80 80" fill="currentColor">
+            <path d="M40 0L80 40L40 80L0 40Z" />
+          </svg>
+          {/* Small dot cluster - right side */}
+          <svg className="absolute top-[30%] right-[15%] w-16 h-16 text-bamboo-green/[0.08]" viewBox="0 0 60 60" fill="currentColor">
+            <circle cx="10" cy="10" r="4" />
+            <circle cx="30" cy="10" r="4" />
+            <circle cx="50" cy="10" r="4" />
+            <circle cx="20" cy="30" r="4" />
+            <circle cx="40" cy="30" r="4" />
+            <circle cx="10" cy="50" r="4" />
+            <circle cx="30" cy="50" r="4" />
+            <circle cx="50" cy="50" r="4" />
+          </svg>
+        </div>
+
+        {/* Shimmer effect */}
+        <div className="absolute inset-0 shimmer pointer-events-none" />
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -222,6 +252,18 @@ function CatalogContent() {
             <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto">
               Jelajahi seluruh koleksi produk unggulan Kabupaten Ngada
             </p>
+            {/* Product count indicator */}
+            {!loading && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3, duration: 0.3 }}
+                className="mt-4 inline-flex items-center gap-2 bg-primary/10 text-primary text-sm font-medium px-4 py-1.5 rounded-full"
+              >
+                <PackageOpen className="h-4 w-4" />
+                {sortedProducts.length} Produk Tersedia
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </section>
