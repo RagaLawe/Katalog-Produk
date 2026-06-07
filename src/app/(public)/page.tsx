@@ -13,6 +13,8 @@ import WhatsAppButton from '@/components/WhatsAppButton';
 import ProductCard from '@/components/ProductCard';
 import FloatingOrbs from '@/components/FloatingOrbs';
 import TestimonialsSection from '@/components/TestimonialsSection';
+import HomeStatsSection from '@/components/HomeStatsSection';
+import NewsletterSection from '@/components/NewsletterSection';
 import CompareDrawer from '@/components/CompareDrawer';
 import { ProductCardSkeletonGrid } from '@/components/ProductCardSkeleton';
 
@@ -34,18 +36,36 @@ const categories = [
     description: 'Kain tenun tradisional dengan motif khas yang ditenun secara tangan oleh pengrajin lokal',
     image: '/images/categories/tenun-ikat.png',
     href: '/katalog?category=tenun',
+    count: 3,
+    countLabel: '3 Produk',
+    accentColor: 'bg-primary',
+    accentBorder: 'border-b-primary',
+    badgeBg: 'bg-primary/90',
+    patternColor: 'rgba(139, 0, 0, 0.08)',
   },
   {
     title: 'Kopi Bajawa',
     description: 'Kopi arabika premium dari dataran tinggi Bajawa dengan cita rasa yang Mendunia',
     image: '/images/categories/kopi-bajawa.png',
     href: '/katalog?category=kopi',
+    count: 3,
+    countLabel: '3 Produk',
+    accentColor: 'bg-secondary',
+    accentBorder: 'border-b-secondary',
+    badgeBg: 'bg-secondary/90',
+    patternColor: 'rgba(111, 78, 55, 0.08)',
   },
   {
     title: 'Kerajinan Bambu',
     description: 'Aneka kerajinan tangan dari bambu yang dibuat dengan keahlian turun-temurun',
     image: '/images/categories/kerajinan-bambu.png',
     href: '/katalog?category=bambu',
+    count: 3,
+    countLabel: '3 Produk',
+    accentColor: 'bg-bamboo-green',
+    accentBorder: 'border-b-bamboo-green',
+    badgeBg: 'bg-bamboo-green/90',
+    patternColor: 'rgba(91, 117, 83, 0.08)',
   },
 ];
 
@@ -62,6 +82,16 @@ const staggerContainer = {
   hidden: {},
   visible: {
     transition: { staggerChildren: 0.1 },
+  },
+};
+
+const heroWordVariants = {
+  hidden: { opacity: 0, y: 30, filter: 'blur(8px)' },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: { duration: 0.5, ease: 'easeOut' },
   },
 };
 
@@ -121,7 +151,25 @@ export default function Home() {
             className="max-w-2xl"
           >
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4">
-              Katalog Produk Unggulan Kabupaten Ngada
+              <motion.span
+                variants={{
+                  hidden: {},
+                  visible: { transition: { staggerChildren: 0.08 } },
+                }}
+                initial="hidden"
+                animate="visible"
+                className="inline-flex flex-wrap"
+              >
+                {'Katalog Produk Unggulan Kabupaten Ngada'.split(' ').map((word, i) => (
+                  <motion.span
+                    key={i}
+                    variants={heroWordVariants}
+                    className="inline-block mr-[0.3em]"
+                  >
+                    {word}
+                  </motion.span>
+                ))}
+              </motion.span>
             </h1>
             <p className="text-base sm:text-lg text-white/85 leading-relaxed mb-8">
               Temukan kekayaan budaya dan produk lokal dari Bumi Todo Ngada.
@@ -178,7 +226,7 @@ export default function Home() {
           >
             {categories.map((cat, i) => (
               <motion.div key={cat.title} variants={fadeInUp} custom={i}>
-                <Link href={cat.href} className="category-card block rounded-xl overflow-hidden shadow-md group">
+                <Link href={cat.href} className={`category-card block rounded-xl overflow-hidden shadow-md group border-b-4 ${cat.accentBorder}`}>
                   <div className="relative h-64 sm:h-72 overflow-hidden">
                     <Image
                       src={cat.image}
@@ -187,7 +235,20 @@ export default function Home() {
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
                       sizes="(max-width: 768px) 100vw, 33vw"
                     />
+                    {/* Gradient overlay with decorative pattern texture */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                    {/* Subtle decorative pattern overlay */}
+                    <div
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                      style={{
+                        backgroundImage: `repeating-linear-gradient(45deg, ${cat.patternColor} 0px, ${cat.patternColor} 1px, transparent 1px, transparent 8px), repeating-linear-gradient(-45deg, ${cat.patternColor} 0px, ${cat.patternColor} 1px, transparent 1px, transparent 8px)`,
+                        backgroundSize: '12px 12px',
+                      }}
+                    />
+                    {/* Product count badge */}
+                    <div className={`absolute top-3 right-3 ${cat.badgeBg} backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm`}>
+                      {cat.countLabel}
+                    </div>
                     <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
                       <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
                         {cat.title}
@@ -207,6 +268,9 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* Stats/Impact Section */}
+      <HomeStatsSection />
 
       {/* Produk Unggulan Section */}
       <section className="py-16 sm:py-20 bg-warm-cream-dark/50 tenun-pattern">
@@ -248,6 +312,9 @@ export default function Home() {
 
       {/* Testimonials Section */}
       <TestimonialsSection />
+
+      {/* Newsletter Section */}
+      <NewsletterSection />
 
       {/* CTA Section */}
       <section className="relative py-16 sm:py-20 bg-primary overflow-hidden">

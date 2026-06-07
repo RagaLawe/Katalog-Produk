@@ -16,6 +16,7 @@ import {
   Loader2,
   ImageOff,
   BarChart3,
+  Clock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -72,6 +73,25 @@ function formatPrice(price: number): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price);
+}
+
+function formatRelativeTime(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  const diffMonths = Math.floor(diffDays / 30);
+  const diffYears = Math.floor(diffDays / 365);
+
+  if (diffSeconds < 60) return 'Baru saja';
+  if (diffMinutes < 60) return `${diffMinutes} menit yang lalu`;
+  if (diffHours < 24) return `${diffHours} jam yang lalu`;
+  if (diffDays < 30) return `${diffDays} hari yang lalu`;
+  if (diffMonths < 12) return `${diffMonths} bulan yang lalu`;
+  return `${diffYears} tahun yang lalu`;
 }
 
 export default function AdminDashboardPage() {
@@ -234,6 +254,64 @@ export default function AdminDashboardPage() {
                   </div>
                 );
               })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Recent Activity Section */}
+      {products.length > 0 && (
+        <Card className="shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Clock className="h-5 w-5 text-primary" />
+              Aktivitas Terbaru
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {[...products]
+                .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+                .slice(0, 5)
+                .map((product) => {
+                  const createdTime = new Date(product.createdAt).getTime();
+                  const updatedTime = new Date(product.updatedAt).getTime();
+                  const isUpdate = (updatedTime - createdTime) > 1000; // more than 1s difference = update
+                  const ActionIcon = isUpdate ? Pencil : Plus;
+                  const actionText = isUpdate ? 'Diperbarui' : 'Ditambahkan';
+                  const actionColor = isUpdate ? 'text-coffee-brown' : 'text-bamboo-green';
+                  const actionBg = isUpdate ? 'bg-coffee-brown/10' : 'bg-bamboo-green/10';
+
+                  return (
+                    <div
+                      key={product.id}
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                    >
+                      <div className={`flex items-center justify-center w-8 h-8 rounded-full ${actionBg} shrink-0`}>
+                        <ActionIcon className={`h-4 w-4 ${actionColor}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-foreground text-sm truncate">
+                            {product.name}
+                          </span>
+                          <CategoryBadge category={product.category} />
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className={`text-xs font-medium ${actionColor}`}>
+                            {actionText}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            &middot; {formatRelativeTime(product.updatedAt)}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-sm font-medium text-foreground shrink-0">
+                        {formatPrice(product.price)}
+                      </span>
+                    </div>
+                  );
+                })}
             </div>
           </CardContent>
         </Card>

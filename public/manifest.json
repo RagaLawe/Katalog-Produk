@@ -1,7 +1,7 @@
 {
-  "name": "Katalog Perindag Ngada",
-  "short_name": "Perindag Ngada",
-  "description": "Katalog digital produk unggulan Kabupaten Ngada - Tenun Ikat, Kopi Bajawa, dan Kerajinan Bambu",
+  "name": "Katalog Produk Unggulan Ngada",
+  "short_name": "Katalog Ngada",
+  "description": "Katalog Produk Unggulan Kabupaten Ngada",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FAF9F6",

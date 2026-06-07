@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, PackageOpen, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -11,6 +11,8 @@ import ProductCard from '@/components/ProductCard';
 import { ProductCardSkeletonGrid } from '@/components/ProductCardSkeleton';
 import Breadcrumb from '@/components/Breadcrumb';
 import CompareDrawer from '@/components/CompareDrawer';
+import FavoritesSection from '@/components/FavoritesSection';
+import { useFavoritesStore } from '@/lib/favorites-store';
 
 interface Product {
   id: string;
@@ -22,6 +24,12 @@ interface Product {
   artisanInfo: string | null;
   imageUrl: string;
   isFeatured: boolean;
+}
+
+interface SearchSuggestion {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 const categoryFilters = [
@@ -48,10 +56,18 @@ function CatalogContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState(initialCategory);
+  const [inputValue, setInputValue] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('newest');
   const [currentPage, setCurrentPage] = useState(1);
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const itemsPerPage = 6;
+
+  // Get favorites for the section
+  const { favorites } = useFavoritesStore();
 
   const sortedProducts = useMemo(() => {
     const sorted = [...products];
@@ -107,6 +123,73 @@ function CatalogContent() {
     fetchProducts(activeCategory, searchQuery);
   }, [activeCategory, searchQuery, fetchProducts]);
 
+  // Search suggestions with debounce
+  const fetchSuggestions = useCallback(async (query: string) => {
+    if (query.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/products?search=${encodeURIComponent(query)}`);
+      if (res.ok) {
+        const data: Product[] = await res.json();
+        setSuggestions(data.slice(0, 5).map((p) => ({ id: p.id, name: p.name, slug: p.slug })));
+      }
+    } catch {
+      setSuggestions([]);
+    }
+  }, []);
+
+  const handleInputChange = useCallback((value: string) => {
+    setInputValue(value);
+    setCurrentPage(1);
+
+    // Clear previous timeout
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    if (value.length >= 2) {
+      // Debounce suggestions at 300ms
+      debounceRef.current = setTimeout(() => {
+        fetchSuggestions(value);
+        setShowSuggestions(true);
+      }, 300);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+
+    // Update search query with 400ms debounce
+    debounceRef.current = setTimeout(() => {
+      setSearchQuery(value);
+    }, 400);
+  }, [fetchSuggestions]);
+
+  const handleSuggestionClick = useCallback((slug: string) => {
+    setShowSuggestions(false);
+    setSuggestions([]);
+    router.push(`/produk/${slug}`);
+  }, [router]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setCurrentPage(1);
+    setShowSuggestions(false);
+    setSearchQuery(inputValue);
+  };
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleCategoryChange = (value: string) => {
     setActiveCategory(value);
     setCurrentPage(1);
@@ -117,12 +200,6 @@ function CatalogContent() {
       params.delete('category');
     }
     router.push(`/katalog?${params.toString()}`, { scroll: false });
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCurrentPage(1);
-    fetchProducts(activeCategory, searchQuery);
   };
 
   return (
@@ -153,17 +230,46 @@ function CatalogContent() {
       <section className="sticky top-16 z-30 bg-background/95 backdrop-blur-sm border-b border-border/50 py-4">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            {/* Search */}
-            <form onSubmit={handleSearch} className="relative w-full sm:w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Cari produk..."
-                value={searchQuery}
-                onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                className="pl-9 pr-4"
-              />
-            </form>
+            {/* Search with Suggestions */}
+            <div ref={searchRef} className="relative w-full sm:w-72">
+              <form onSubmit={handleSearch}>
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                <Input
+                  type="text"
+                  placeholder="Cari produk..."
+                  value={inputValue}
+                  onChange={(e) => handleInputChange(e.target.value)}
+                  onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
+                  className="pl-9 pr-4"
+                  autoComplete="off"
+                />
+              </form>
+
+              {/* Search Suggestions Dropdown */}
+              <AnimatePresence>
+                {showSuggestions && suggestions.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg overflow-hidden z-50"
+                  >
+                    {suggestions.map((suggestion) => (
+                      <button
+                        key={suggestion.id}
+                        type="button"
+                        onClick={() => handleSuggestionClick(suggestion.slug)}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-accent/50 transition-colors text-sm"
+                      >
+                        <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        <span className="text-foreground truncate">{suggestion.name}</span>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             {/* Sort */}
             <Select value={sortBy} onValueChange={(v) => { setSortBy(v); setCurrentPage(1); }}>
@@ -213,7 +319,12 @@ function CatalogContent() {
 
       {/* Product Grid */}
       <section className="py-8 sm:py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          {/* Favorites Section */}
+          {favorites.length > 0 && (
+            <FavoritesSection products={products} />
+          )}
+
           {loading ? (
             <ProductCardSkeletonGrid count={6} />
           ) : sortedProducts.length === 0 ? (
@@ -234,6 +345,7 @@ function CatalogContent() {
                 className="mt-4"
                 onClick={() => {
                   setActiveCategory('');
+                  setInputValue('');
                   setSearchQuery('');
                   setCurrentPage(1);
                   router.push('/katalog');

@@ -47,6 +47,11 @@ export const metadata: Metadata = {
     icon: "/icons/icon.svg",
     apple: "/icons/icon.svg",
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Katalog Ngada",
+  },
 };
 
 export const viewport: Viewport = {

@@ -3,6 +3,7 @@ import WhatsAppButton from '@/components/WhatsAppButton';
 import AboutStats from '@/components/AboutStats';
 import ContactForm from '@/components/ContactForm';
 import ScrollReveal from '@/components/ScrollReveal';
+import NewsletterSection from '@/components/NewsletterSection';
 
 export default function TentangPage() {
   return (
@@ -195,6 +196,9 @@ export default function TentangPage() {
 
       {/* Contact Form Section */}
       <ContactForm />
+
+      {/* Newsletter Section */}
+      <NewsletterSection />
 
       {/* CTA Section */}
       <section className="py-14 sm:py-16 bg-warm-cream-dark/50">

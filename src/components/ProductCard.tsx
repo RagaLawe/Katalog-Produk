@@ -4,11 +4,13 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Heart } from 'lucide-react';
+import { toast } from 'sonner';
 import CategoryBadge from '@/components/CategoryBadge';
 import TrustBadge from '@/components/TrustBadge';
 import PriceDisplay from '@/components/PriceDisplay';
 import CompareButton from '@/components/CompareButton';
+import { useFavoritesStore } from '@/lib/favorites-store';
 
 interface Product {
   id: string;
@@ -30,6 +32,8 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, showTrustBadge = true, imageHeight }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const { toggleFavorite, isFavorite } = useFavoritesStore();
+  const favorited = isFavorite(product.id);
 
   const formattedPrice = new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -41,6 +45,17 @@ export default function ProductCard({ product, showTrustBadge = true, imageHeigh
   const adminWa = process.env.NEXT_PUBLIC_ADMIN_WA || '6281234567890';
   const waMessage = `Halo Admin Perindag Ngada, saya tertarik dengan produk *${product.name}* seharga Rp *${formattedPrice}*. Apakah stok masih tersedia? Mohon informasinya. Terima kasih.`;
   const waUrl = `https://wa.me/${adminWa}?text=${encodeURIComponent(waMessage)}`;
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavorite(product.id);
+    if (favorited) {
+      toast.success('Dihapus dari favorit');
+    } else {
+      toast.success('Ditambahkan ke favorit');
+    }
+  };
 
   return (
     <div
@@ -66,8 +81,24 @@ export default function ProductCard({ product, showTrustBadge = true, imageHeigh
           {showTrustBadge && <TrustBadge type="asli" />}
         </div>
 
-        {/* Compare Button */}
+        {/* Compare Button - top right */}
         <CompareButton product={product} />
+
+        {/* Favorite Button - top right, below Compare Button */}
+        <motion.button
+          type="button"
+          onClick={handleFavoriteClick}
+          title={favorited ? 'Hapus dari favorit' : 'Tambah ke favorit'}
+          aria-label={favorited ? `Hapus ${product.name} dari favorit` : `Tambah ${product.name} ke favorit`}
+          whileTap={{ scale: 0.8 }}
+          className={`absolute top-12 right-3 z-[4] flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 cursor-pointer ${
+            favorited
+              ? 'bg-red-500/90 backdrop-blur-sm text-white shadow-md'
+              : 'bg-background/80 backdrop-blur-sm text-muted-foreground border border-border/50 hover:bg-background hover:text-red-500'
+          }`}
+        >
+          <Heart className={`h-4 w-4 ${favorited ? 'fill-current' : ''}`} />
+        </motion.button>
 
         {/* WhatsApp Quick-Action Button - appears on hover */}
         <motion.a
