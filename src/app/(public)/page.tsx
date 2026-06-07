@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, MessageCircle, Loader2 } from 'lucide-react';
+import { ArrowRight, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CategoryBadge from '@/components/CategoryBadge';
 import TrustBadge from '@/components/TrustBadge';
 import PriceDisplay from '@/components/PriceDisplay';
 import WhatsAppButton from '@/components/WhatsAppButton';
+import { ProductCardSkeletonGrid } from '@/components/ProductCardSkeleton';
 
 interface Product {
   id: string;
@@ -201,9 +202,7 @@ export default function Home() {
           </motion.div>
 
           {loading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="h-8 w-8 text-primary animate-spin" />
-            </div>
+            <ProductCardSkeletonGrid count={6} />
           ) : (
             <motion.div
               variants={staggerContainer}

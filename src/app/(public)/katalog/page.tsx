@@ -5,12 +5,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Loader2, PackageOpen } from 'lucide-react';
+import { Search, PackageOpen } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import CategoryBadge from '@/components/CategoryBadge';
 import TrustBadge from '@/components/TrustBadge';
 import PriceDisplay from '@/components/PriceDisplay';
+import { ProductCardSkeletonGrid } from '@/components/ProductCardSkeleton';
 
 interface Product {
   id: string;
@@ -161,9 +162,7 @@ function CatalogContent() {
       <section className="py-8 sm:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {loading ? (
-            <div className="flex justify-center py-16">
-              <Loader2 className="h-8 w-8 text-primary animate-spin" />
-            </div>
+            <ProductCardSkeletonGrid count={6} />
           ) : products.length === 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
@@ -249,8 +248,12 @@ export default function KatalogPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex justify-center py-24">
-          <Loader2 className="h-8 w-8 text-primary animate-spin" />
+        <div className="min-h-screen">
+          <section className="py-8 sm:py-12">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+              <ProductCardSkeletonGrid count={6} />
+            </div>
+          </section>
         </div>
       }
     >

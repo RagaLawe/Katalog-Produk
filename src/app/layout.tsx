@@ -14,27 +14,35 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Katalog Produk Unggulan - Dinas Perindag Kabupaten Ngada",
+  title: {
+    default: "Katalog Produk Unggulan - Dinas Perindag Kabupaten Ngada",
+    template: "%s | Katalog Perindag Ngada",
+  },
   description:
-    "Katalog digital produk unggulan Kabupaten Ngada, NTT. Temukan Tenun Ikat, Kopi Bajawa, dan Kerajinan Bambu berkualitas tinggi dari Dinas Perdagangan dan Perindustrian Kabupaten Ngada.",
+    "Katalog digital produk unggulan Kabupaten Ngada - Tenun Ikat, Kopi Bajawa, dan Kerajinan Bambu. Dikurasi oleh Dinas Perdagangan dan Perindustrian Kabupaten Ngada, NTT.",
   keywords: [
-    "Katalog Produk",
+    "katalog produk",
     "Ngada",
-    "NTT",
-    "Tenun Ikat",
-    "Kopi Bajawa",
-    "Kerajinan Bambu",
-    "Dinas Perindag",
-    "Produk Unggulan",
-    "Bajawa",
+    "tenun ikat",
+    "kopi bajawa",
+    "kerajinan bambu",
+    "UMKM NTT",
+    "Flores",
+    "Perindag",
+    "produk unggulan",
   ],
   authors: [{ name: "Dinas Perindag Kabupaten Ngada" }],
   openGraph: {
     title: "Katalog Produk Unggulan - Dinas Perindag Kabupaten Ngada",
     description:
-      "Katalog digital produk unggulan Kabupaten Ngada, NTT. Tenun Ikat, Kopi Bajawa, dan Kerajinan Bambu.",
+      "Katalog digital produk unggulan Kabupaten Ngada - Tenun Ikat, Kopi Bajawa, dan Kerajinan Bambu. Dikurasi oleh Dinas Perdagangan dan Perindustrian Kabupaten Ngada, NTT.",
     type: "website",
     locale: "id_ID",
+    siteName: "Katalog Perindag Ngada",
+  },
+  robots: "index, follow",
+  icons: {
+    icon: "/logo.svg",
   },
 };
 
