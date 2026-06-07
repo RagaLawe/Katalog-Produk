@@ -13,6 +13,7 @@ import WhatsAppButton from '@/components/WhatsAppButton';
 import ProductCard from '@/components/ProductCard';
 import FloatingOrbs from '@/components/FloatingOrbs';
 import TestimonialsSection from '@/components/TestimonialsSection';
+import CompareDrawer from '@/components/CompareDrawer';
 import { ProductCardSkeletonGrid } from '@/components/ProductCardSkeleton';
 
 interface Product {
@@ -249,8 +250,27 @@ export default function Home() {
       <TestimonialsSection />
 
       {/* CTA Section */}
-      <section className="py-16 sm:py-20 bg-primary">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="relative py-16 sm:py-20 bg-primary overflow-hidden">
+        {/* Decorative top wave divider */}
+        <div className="absolute top-0 left-0 right-0 -translate-y-[99%] z-10">
+          <svg
+            viewBox="0 0 1440 60"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-full h-auto block"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M0 60V30C240 0 480 0 720 30C960 60 1200 60 1440 30V60H0Z"
+              className="fill-primary"
+            />
+          </svg>
+        </div>
+        {/* Tenun pattern overlay */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none">
+          <div className="tenun-pattern w-full h-full" />
+        </div>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -273,6 +293,9 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* Compare Drawer */}
+      <CompareDrawer />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { MessageCircle } from 'lucide-react';
 import CategoryBadge from '@/components/CategoryBadge';
 import TrustBadge from '@/components/TrustBadge';
 import PriceDisplay from '@/components/PriceDisplay';
+import CompareButton from '@/components/CompareButton';
 
 interface Product {
   id: string;
@@ -43,7 +44,7 @@ export default function ProductCard({ product, showTrustBadge = true, imageHeigh
 
   return (
     <div
-      className="product-card bg-card rounded-xl overflow-hidden shadow-sm border border-border/50 h-full relative"
+      className="product-card group bg-card rounded-xl overflow-hidden shadow-sm border border-border/50 h-full relative transition-all duration-300 hover:ring-1 hover:ring-primary/20 hover:shadow-lg hover:shadow-primary/5"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -54,14 +55,19 @@ export default function ProductCard({ product, showTrustBadge = true, imageHeigh
             src={product.imageUrl}
             alt={product.name}
             fill
-            className="object-cover transition-transform duration-500 hover:scale-105"
+            className="object-cover transition-transform duration-500 group-hover:scale-110 hover:scale-110"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
+          {/* Hover overlay gradient */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
         </Link>
         <div className="absolute top-3 left-3 flex gap-2 flex-wrap z-[2]">
           <CategoryBadge category={product.category} />
           {showTrustBadge && <TrustBadge type="asli" />}
         </div>
+
+        {/* Compare Button */}
+        <CompareButton product={product} />
 
         {/* WhatsApp Quick-Action Button - appears on hover */}
         <motion.a

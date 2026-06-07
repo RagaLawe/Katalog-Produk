@@ -15,6 +15,7 @@ import {
   Star,
   Loader2,
   ImageOff,
+  BarChart3,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -201,6 +202,42 @@ export default function AdminDashboardPage() {
           );
         })}
       </div>
+
+      {/* Product Distribution Chart */}
+      {totalProducts > 0 && (
+        <Card className="shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              Distribusi Produk
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end justify-center gap-8 sm:gap-16">
+              {[
+                { name: 'Tenun Ikat', count: tenunCount, color: 'bg-primary' },
+                { name: 'Kopi Bajawa', count: kopiCount, color: 'bg-coffee-brown' },
+                { name: 'Kerajinan Bambu', count: bambuCount, color: 'bg-bamboo-green' },
+              ].map((cat) => {
+                const maxCount = Math.max(tenunCount, kopiCount, bambuCount, 1);
+                const barHeight = Math.max((cat.count / maxCount) * 120, 4);
+                return (
+                  <div key={cat.name} className="flex flex-col items-center gap-2">
+                    <div
+                      className={`${cat.color} rounded-t-md w-12 sm:w-16 transition-all duration-500`}
+                      style={{ height: `${barHeight}px` }}
+                    />
+                    <div className="text-center">
+                      <div className="text-sm font-semibold text-foreground">{cat.count}</div>
+                      <div className="text-xs text-muted-foreground whitespace-nowrap">{cat.name}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Product Table Section */}
       <Card className="shadow-sm">

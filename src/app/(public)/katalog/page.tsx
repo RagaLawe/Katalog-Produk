@@ -3,12 +3,14 @@
 import { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, PackageOpen, ArrowUpDown } from 'lucide-react';
+import { Search, PackageOpen, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ProductCard from '@/components/ProductCard';
 import { ProductCardSkeletonGrid } from '@/components/ProductCardSkeleton';
+import Breadcrumb from '@/components/Breadcrumb';
+import CompareDrawer from '@/components/CompareDrawer';
 
 interface Product {
   id: string;
@@ -48,6 +50,8 @@ function CatalogContent() {
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('newest');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   const sortedProducts = useMemo(() => {
     const sorted = [...products];
@@ -71,6 +75,14 @@ function CatalogContent() {
     }
     return sorted;
   }, [products, sortBy]);
+
+  const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
+  const paginatedProducts = sortedProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  const startItem = sortedProducts.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+  const endItem = Math.min(currentPage * itemsPerPage, sortedProducts.length);
 
   const fetchProducts = useCallback(async (category: string, search: string) => {
     setLoading(true);
@@ -97,6 +109,7 @@ function CatalogContent() {
 
   const handleCategoryChange = (value: string) => {
     setActiveCategory(value);
+    setCurrentPage(1);
     const params = new URLSearchParams(searchParams.toString());
     if (value) {
       params.set('category', value);
@@ -108,11 +121,15 @@ function CatalogContent() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setCurrentPage(1);
     fetchProducts(activeCategory, searchQuery);
   };
 
   return (
     <div className="min-h-screen">
+      {/* Breadcrumb */}
+      <Breadcrumb items={[{ label: 'Beranda', href: '/' }, { label: 'Katalog' }]} />
+
       {/* Page Header */}
       <section className="bg-primary/5 tenun-pattern py-12 sm:py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -143,13 +160,13 @@ function CatalogContent() {
                 type="text"
                 placeholder="Cari produk..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
                 className="pl-9 pr-4"
               />
             </form>
 
             {/* Sort */}
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select value={sortBy} onValueChange={(v) => { setSortBy(v); setCurrentPage(1); }}>
               <SelectTrigger size="sm" className="w-full sm:w-[180px]">
                 <ArrowUpDown className="h-4 w-4" />
                 <SelectValue placeholder="Urutkan" />
@@ -187,7 +204,7 @@ function CatalogContent() {
           <div className="mt-3">
             {!loading && (
               <p className="text-sm text-muted-foreground">
-                Menampilkan {sortedProducts.length} produk
+                Menampilkan {startItem}-{endItem} dari {sortedProducts.length} produk
               </p>
             )}
           </div>
@@ -218,6 +235,7 @@ function CatalogContent() {
                 onClick={() => {
                   setActiveCategory('');
                   setSearchQuery('');
+                  setCurrentPage(1);
                   router.push('/katalog');
                 }}
               >
@@ -230,7 +248,7 @@ function CatalogContent() {
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
             >
               <AnimatePresence mode="popLayout">
-                {sortedProducts.map((product, i) => (
+                {paginatedProducts.map((product, i) => (
                   <motion.div
                     key={product.id}
                     variants={fadeInUp}
@@ -246,8 +264,50 @@ function CatalogContent() {
               </AnimatePresence>
             </motion.div>
           )}
+
+          {/* Pagination */}
+          {totalPages > 1 && !loading && (
+            <div className="flex items-center justify-center gap-2 mt-8">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="gap-1"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Sebelumnya
+              </Button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setCurrentPage(page)}
+                    className={currentPage === page ? 'bg-primary text-primary-foreground' : ''}
+                  >
+                    {page}
+                  </Button>
+                ))}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="gap-1"
+              >
+                Selanjutnya
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
       </section>
+
+      {/* Compare Drawer */}
+      <CompareDrawer />
     </div>
   );
 }

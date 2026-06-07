@@ -44,8 +44,8 @@ export const metadata: Metadata = {
   robots: "index, follow",
   manifest: "/manifest.json",
   icons: {
-    icon: "/logo.svg",
-    apple: "/icons/icon-192.png",
+    icon: "/icons/icon.svg",
+    apple: "/icons/icon.svg",
   },
 };
 
