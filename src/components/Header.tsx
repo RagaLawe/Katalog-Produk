@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Shield, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import ThemeToggle from '@/components/ThemeToggle';
 import {
   Sheet,
   SheetContent,
@@ -65,16 +66,19 @@ export default function Header() {
               )}
             </Link>
           ))}
+          <ThemeToggle />
         </nav>
 
-        {/* Mobile Menu */}
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Buka menu navigasi</span>
-            </Button>
-          </SheetTrigger>
+        {/* Mobile: Theme toggle + Menu button */}
+        <div className="flex items-center gap-1 md:hidden">
+          <ThemeToggle />
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Buka menu navigasi</span>
+              </Button>
+            </SheetTrigger>
           <SheetContent side="right" className="w-72">
             <SheetHeader>
               <SheetTitle className="flex items-center gap-2">
@@ -102,6 +106,7 @@ export default function Header() {
             </nav>
           </SheetContent>
         </Sheet>
+        </div>
       </div>
     </header>
   );

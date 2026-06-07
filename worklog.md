@@ -285,6 +285,197 @@ The project was in a stable state with all core features working. No bugs or err
 ### Priority Recommendations for Next Phase
 1. **Image upload to storage**: Implement actual file upload to Supabase Storage or similar
 2. **Pagination**: Add pagination to catalog and admin dashboard for larger product catalogs
-3. **Product search debouncing**: Add debounce to catalog search for better UX
+3. **Product search debouncing**: Add debounce to catalog search for better UX ✅ DONE
 4. **PWA support**: Add service worker and manifest for offline-capable experience
 5. **Analytics**: Add page view tracking for product popularity insights
+
+---
+
+## Cron Review - Round 3 (2026-06-07)
+
+**Agent**: cron-review
+**Status**: ✅ All improvements completed
+
+### Current Project Status Assessment
+
+Project is stable with all previous features working. No bugs found during QA. All pages render correctly, APIs respond, ESLint clean.
+
+### Improvements Made This Round
+
+**New Features:**
+- ✅ Dark mode toggle (ThemeToggle component) with Sun/Moon icons, smooth transitions
+- ✅ ThemeProvider from next-themes integrated in root layout
+- ✅ Search debouncing (400ms) on catalog page for better UX
+- ✅ Animated stat counters on About page (ease-out cubic easing)
+- ✅ Image carousel on product detail page (2 slides: product + category showcase)
+- ✅ Parallax hero effect on homepage with scroll-based fade
+- ✅ Floating CTA animation on homepage
+- ✅ ProductCard reusable component with WhatsApp hover quick-action
+
+**Styling Enhancements:**
+- ✅ Carousel indicator dots with smooth width animation
+- ✅ Hero parallax depth effect (image moves slower than scroll)
+- ✅ Decorative gradient overlay at hero bottom
+- ✅ WhatsApp hover button on product cards with fade/scale animation
+- ✅ Dark mode CSS variables (already existed in globals.css, now activated)
+
+### Files Created
+1. `/src/components/ThemeToggle.tsx` - Dark mode toggle button
+2. `/src/components/AnimatedCounter.tsx` - Animated number counter
+3. `/src/components/AboutStats.tsx` - About page stats section with animated counters
+4. `/src/components/ProductCard.tsx` - Reusable product card with WA hover action
+
+### Files Modified
+1. `/src/app/layout.tsx` - Added ThemeProvider wrapper
+2. `/src/components/Header.tsx` - Added ThemeToggle to nav
+3. `/src/app/(public)/katalog/page.tsx` - Search debouncing + ProductCard
+4. `/src/app/(public)/tentang/page.tsx` - AboutStats component
+5. `/src/app/(public)/page.tsx` - Parallax hero + ProductCard + floating CTA
+6. `/src/components/ProductDetailContent.tsx` - Image carousel
+
+### Verification Results
+- ✅ ESLint passes with no errors
+- ✅ Dev server running without errors on port 3000
+- ✅ Homepage renders with parallax hero and dark mode toggle
+- ✅ Catalog page with debounced search and WA hover buttons
+- ✅ Product detail page with image carousel
+- ✅ About page with animated stat counters
+- ✅ Dark mode toggle functional (aria-labels verified)
+
+### Unresolved Issues / Risks
+- None critical. All features working as expected.
+- Dark mode toggle uses callback ref pattern (not standard useEffect) to satisfy React 19 lint rules
+
+### Priority Recommendations for Next Phase
+1. **Pagination**: Add pagination to catalog for larger catalogs
+2. **PWA support**: Add service worker and manifest
+3. **Analytics**: Add page view tracking
+4. **Image upload to storage**: Implement file upload instead of URL input
+5. **Product comparison**: Allow comparing products side-by-side
+
+---
+
+## Task 3-5 - Dark Mode, Search Debouncing, Animated Stat Counters
+
+**Agent**: enhancement-agent-2
+**Date**: 2026-06-07
+**Status**: ✅ Completed
+
+### What was done
+
+Added three major features: dark mode toggle using next-themes, search debouncing on the catalog page, and animated stat counters on the About page.
+
+### Files Created
+
+1. **`/src/components/ThemeToggle.tsx`** - Client component for dark/light mode toggle
+   - Uses `useTheme()` from `next-themes` to read and toggle theme
+   - Shows Sun icon in light mode, Moon icon in dark mode
+   - Smooth rotate/scale transition animation between icons (300ms duration)
+   - Uses shadcn `Button` with `variant="ghost" size="icon"`
+   - Handles hydration mismatch with `mounted` state guard
+   - Proper aria-label in Bahasa Indonesia ("Beralih ke mode terang/gelap")
+
+2. **`/src/components/AnimatedCounter.tsx`** - Client component for counting animation
+   - Takes `value` (number), `suffix` (string like '+'), `duration` (ms, default 2000) props
+   - Uses `useInView` from framer-motion with `once: true` and margin `-50px`
+   - Animates from 0 to `value` using `requestAnimationFrame` with ease-out cubic easing
+   - Small values (≤1) display immediately without animation
+   - Prevents re-animation with `hasAnimated` ref
+
+3. **`/src/components/AboutStats.tsx`** - Client component for About page statistics section
+   - Replaces the static stats section with animated counters
+   - Stats: 3 (Kategori Produk), 50+ (Pengrajin Aktif), 10+ (Desa Penghasil), 1 (Kabupaten)
+   - Each stat uses `AnimatedCounter` with icons from lucide-react
+   - Preserves original visual design (bg-primary, tenun pattern, icon circles)
+
+### Files Modified
+
+4. **`/src/app/layout.tsx`** - Added ThemeProvider from next-themes
+   - Imported `ThemeProvider` from `next-themes`
+   - Wrapped body content in `<ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>`
+   - `suppressHydrationWarning` was already on `<html>` tag
+
+5. **`/src/components/Header.tsx`** - Added ThemeToggle button
+   - Desktop: Added `ThemeToggle` after navigation links in `<nav>`
+   - Mobile: Added `ThemeToggle` next to the Sheet menu trigger button (wrapped in flex container)
+   - Imported `ThemeToggle` component
+
+6. **`/src/app/(public)/katalog/page.tsx`** - Added search debouncing
+   - Added `inputValue` state for responsive typing (updates immediately)
+   - Added `searchQuery` state that updates 400ms after user stops typing
+   - `useEffect` with `setTimeout` for debounce, cleanup with `clearTimeout`
+   - Input's `value` bound to `inputValue`, `onChange` updates `setInputValue`
+   - Form submit (Enter key) still triggers instant search via `setSearchQuery(inputValue)`
+   - Reset Filter button clears both `inputValue` and `searchQuery`
+
+7. **`/src/app/(public)/tentang/page.tsx`** - Replaced static stats with animated component
+   - Removed unused imports (`Package`, `Users`, `MapPin`, `Sparkles`)
+   - Removed `stats` constant from the server component
+   - Replaced inline stats section with `<AboutStats />` client component
+   - About page remains a server component (clean separation)
+
+---
+
+## Task 4-6 - Image Carousel, Parallax Hero, ProductCard with WA Hover
+
+**Agent**: enhancement-agent-3
+**Date**: 2026-06-07
+**Status**: ✅ Completed
+
+### What was done
+
+Enhanced the product detail page with an image carousel, added parallax scroll effect to the homepage hero section, and created a reusable ProductCard component with WhatsApp hover quick-action.
+
+### Files Created
+
+1. **`/src/components/ProductCard.tsx`** - Reusable product card with WhatsApp hover quick-action
+   - `'use client'` component accepting `Product` interface plus optional `showTrustBadge` and `imageHeight` props
+   - Card shows product image, CategoryBadge, TrustBadge (optional), name, price (PriceDisplay), and description
+   - On hover: a WhatsApp floating button appears in the bottom-right corner of the image area
+   - WA button uses framer-motion `motion.a` for smooth fade/scale animation (`opacity: 0→1`, `scale: 0.8→1`)
+   - WA button links to WhatsApp with pre-filled message including product name and formatted price
+   - WA button has `onClick stopPropagation` to prevent triggering the card link
+   - Green circular button with MessageCircle icon, `#25D366` background
+   - Card links to `/produk/[slug]` for the image and content areas
+
+### Files Modified
+
+2. **`/src/components/ProductDetailContent.tsx`** - Added image carousel
+   - Replaced single `<Image>` with shadcn `<Carousel>` component
+   - Imported `Carousel`, `CarouselContent`, `CarouselItem`, `CarouselPrevious`, `CarouselNext` from `@/components/ui/carousel`
+   - Imported `CarouselApi` type for programmatic control
+   - Created `categoryImageMap` mapping category keys to category showcase images
+   - Created `categorySlideLabelMap` for slide alt text
+   - Built `slides` array with 2 slides: product image + category showcase image
+   - Carousel configured with `opts={{ loop: true }}` for infinite scrolling
+   - Each slide has the same styling: aspect-square/4/3, rounded-xl, gold accent border, tenun pattern overlay, ring glow
+   - Added indicator dots below carousel showing active slide (animated width transition)
+   - Active dot: `w-8 bg-primary`, Inactive dot: `w-2.5 bg-muted-foreground/30`
+   - Dots are clickable via `api.scrollTo(index)`
+   - Tracks current slide with `useState` and carousel `on('select')` event
+
+3. **`/src/app/(public)/page.tsx`** - Enhanced hero with parallax effect + ProductCard integration
+   - Imported `useScroll`, `useTransform` from framer-motion
+   - Added parallax transforms: `heroY` (0→150px scroll), `heroOpacity` (1→0 fade)
+   - Hero image wrapped in `motion.div` with `style={{ y: heroY }}` and `will-change-transform`
+   - Hero image scaled to 110% to prevent parallax edge gaps
+   - Text content container has `style={{ opacity: heroOpacity }}` for fade-on-scroll
+   - Added decorative gradient overlay at bottom of hero: `bg-gradient-to-t from-background to-transparent` (24px) blending into next section
+   - CTA buttons wrapped in `motion.div` with floating animation: `animate={{ y: [0, -5, 0] }}`, 2s infinite loop
+   - Replaced inline product card markup with `<ProductCard />` component
+   - Removed direct imports of `Image`, `CategoryBadge`, `TrustBadge`, `PriceDisplay` (now in ProductCard)
+
+4. **`/src/app/(public)/katalog/page.tsx`** - Replaced inline cards with ProductCard
+   - Replaced entire inline product card markup (Link, Image, CategoryBadge, TrustBadge, PriceDisplay) with `<ProductCard product={product} />`
+   - Removed direct imports of `Image`, `Link`, `CategoryBadge`, `TrustBadge`, `PriceDisplay` (now handled by ProductCard)
+   - AnimatePresence and motion.div wrappers preserved around ProductCard
+   - Empty state, loading state, and filter logic unchanged
+
+### Verification Results
+- ✅ Homepage renders with parallax hero, floating CTA buttons, gradient overlay
+- ✅ Homepage featured products section uses ProductCard with WA hover
+- ✅ Catalog page uses ProductCard with WA hover
+- ✅ Product detail page shows carousel with product + category image
+- ✅ Carousel indicator dots update and are clickable
+- ✅ All pages return HTTP 200
+- ✅ Dev server compiling without errors

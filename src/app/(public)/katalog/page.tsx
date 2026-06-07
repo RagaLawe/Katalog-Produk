@@ -1,16 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, PackageOpen } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import CategoryBadge from '@/components/CategoryBadge';
-import TrustBadge from '@/components/TrustBadge';
-import PriceDisplay from '@/components/PriceDisplay';
+import ProductCard from '@/components/ProductCard';
 import { ProductCardSkeletonGrid } from '@/components/ProductCardSkeleton';
 
 interface Product {
@@ -204,35 +200,7 @@ function CatalogContent() {
                     custom={i}
                     layout
                   >
-                    <Link
-                      href={`/produk/${product.slug}`}
-                      className="product-card block bg-card rounded-xl overflow-hidden shadow-sm border border-border/50 h-full"
-                    >
-                      <div className="relative h-52 sm:h-56 overflow-hidden">
-                        <Image
-                          src={product.imageUrl}
-                          alt={product.name}
-                          fill
-                          className="object-cover transition-transform duration-500 hover:scale-105"
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        />
-                        <div className="absolute top-3 left-3 flex gap-2 flex-wrap">
-                          <CategoryBadge category={product.category} />
-                          <TrustBadge type="asli" />
-                        </div>
-                      </div>
-                      <div className="p-4 sm:p-5">
-                        <h3 className="font-semibold text-foreground text-base sm:text-lg mb-1 line-clamp-1">
-                          {product.name}
-                        </h3>
-                        <div className="mb-2">
-                          <PriceDisplay price={product.price} className="text-lg" />
-                        </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {product.description}
-                        </p>
-                      </div>
-                    </Link>
+                    <ProductCard product={product} />
                   </motion.div>
                 ))}
               </AnimatePresence>

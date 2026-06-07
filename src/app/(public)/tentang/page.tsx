@@ -1,12 +1,6 @@
-import { Mountain, Gem, Building2, Eye, MessageCircle, Package, Users, MapPin, Sparkles } from 'lucide-react';
+import { Mountain, Gem, Building2, Eye } from 'lucide-react';
 import WhatsAppButton from '@/components/WhatsAppButton';
-
-const stats = [
-  { icon: Package, value: '3', label: 'Kategori Produk' },
-  { icon: Users, value: '50+', label: 'Pengrajin Aktif' },
-  { icon: MapPin, value: '10+', label: 'Desa Penghasil' },
-  { icon: Sparkles, value: '1', label: 'Kabupaten, Banyak Potensi' },
-];
+import AboutStats from '@/components/AboutStats';
 
 export default function TentangPage() {
   return (
@@ -187,31 +181,7 @@ export default function TentangPage() {
       </section>
 
       {/* Statistics Section */}
-      <section className="py-14 sm:py-16 bg-primary relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
-          <div className="tenun-pattern w-full h-full" />
-        </div>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-            {stats.map((stat) => {
-              const Icon = stat.icon;
-              return (
-                <div key={stat.label} className="text-center">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary-foreground/10 mb-3">
-                    <Icon className="h-6 w-6 text-primary-foreground" />
-                  </div>
-                  <div className="text-3xl sm:text-4xl font-bold text-primary-foreground mb-1">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-primary-foreground/70">
-                    {stat.label}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      <AboutStats />
 
       {/* CTA Section */}
       <section className="py-14 sm:py-16 bg-warm-cream-dark/50">

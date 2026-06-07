@@ -1,9 +1,12 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ChevronRight, User, Quote, CheckCircle, Star } from 'lucide-react';
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel';
+import type { CarouselApi } from '@/components/ui/carousel';
 import CategoryBadge from '@/components/CategoryBadge';
 import TrustBadge from '@/components/TrustBadge';
 import PriceDisplay from '@/components/PriceDisplay';
@@ -50,6 +53,18 @@ const categoryLabelMap: Record<string, string> = {
   bambu: 'Kerajinan Bambu',
 };
 
+const categoryImageMap: Record<string, string> = {
+  tenun: '/images/categories/tenun-ikat.png',
+  kopi: '/images/categories/kopi-bajawa.png',
+  bambu: '/images/categories/kerajinan-bambu.png',
+};
+
+const categorySlideLabelMap: Record<string, string> = {
+  tenun: 'Koleksi Tenun Ikat Ngada',
+  kopi: 'Koleksi Kopi Bajawa',
+  bambu: 'Koleksi Kerajinan Bambu',
+};
+
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({
@@ -63,6 +78,9 @@ export default function ProductDetailContent({
   product,
   relatedProducts,
 }: ProductDetailContentProps) {
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+
   const categoryLabel = categoryLabelMap[product.category] || product.category;
   const categoryIcon = categoryIconMap[product.category] || '📦';
   const formattedPrice = new Intl.NumberFormat('id-ID', {
@@ -71,6 +89,28 @@ export default function ProductDetailContent({
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(product.price);
+
+  // Build carousel slides: product image + category showcase image
+  const slides = [
+    {
+      url: product.imageUrl,
+      alt: product.name,
+    },
+    {
+      url: categoryImageMap[product.category] || product.imageUrl,
+      alt: categorySlideLabelMap[product.category] || categoryLabel,
+    },
+  ];
+
+  const onSelect = useCallback(() => {
+    if (!api) return;
+    setCurrent(api.selectedScrollSnap());
+  }, [api]);
+
+  // Listen to carousel changes
+  if (api) {
+    api.on('select', onSelect);
+  }
 
   return (
     <div className="min-h-screen">
@@ -110,20 +150,52 @@ export default function ProductDetailContent({
             transition={{ duration: 0.5 }}
             className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12"
           >
-            {/* Product Image - Enhanced */}
-            <div className="relative aspect-square sm:aspect-[4/3] rounded-xl overflow-hidden bg-muted shadow-lg border-2 border-gold-accent/20">
-              <Image
-                src={product.imageUrl}
-                alt={product.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                priority
-              />
-              {/* Decorative pattern overlay */}
-              <div className="absolute inset-0 tenun-pattern opacity-30 pointer-events-none" />
-              {/* Subtle gold border glow */}
-              <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-gold-accent/10 pointer-events-none" />
+            {/* Product Image Carousel */}
+            <div>
+              <Carousel
+                setApi={setApi}
+                className="w-full"
+                opts={{ loop: true }}
+              >
+                <CarouselContent>
+                  {slides.map((slide, index) => (
+                    <CarouselItem key={index}>
+                      <div className="relative aspect-square sm:aspect-[4/3] rounded-xl overflow-hidden bg-muted shadow-lg border-2 border-gold-accent/20">
+                        <Image
+                          src={slide.url}
+                          alt={slide.alt}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 1024px) 100vw, 50vw"
+                          priority={index === 0}
+                        />
+                        {/* Decorative pattern overlay */}
+                        <div className="absolute inset-0 tenun-pattern opacity-30 pointer-events-none" />
+                        {/* Subtle gold border glow */}
+                        <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-gold-accent/10 pointer-events-none" />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="left-2" />
+                <CarouselNext className="right-2" />
+              </Carousel>
+
+              {/* Indicator Dots */}
+              <div className="flex items-center justify-center gap-2 mt-4">
+                {slides.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => api?.scrollTo(index)}
+                    className={`h-2.5 rounded-full transition-all duration-300 ${
+                      current === index
+                        ? 'w-8 bg-primary'
+                        : 'w-2.5 bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                    }`}
+                    aria-label={`Slide ${index + 1}`}
+                  />
+                ))}
+              </div>
             </div>
 
             {/* Product Info */}

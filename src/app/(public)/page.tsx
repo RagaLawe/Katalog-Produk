@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CategoryBadge from '@/components/CategoryBadge';
 import TrustBadge from '@/components/TrustBadge';
 import PriceDisplay from '@/components/PriceDisplay';
 import WhatsAppButton from '@/components/WhatsAppButton';
+import ProductCard from '@/components/ProductCard';
 import { ProductCardSkeletonGrid } from '@/components/ProductCardSkeleton';
 
 interface Product {
@@ -65,6 +66,11 @@ export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Parallax scroll transforms
+  const { scrollY } = useScroll();
+  const heroY = useTransform(scrollY, [0, 500], [0, 150]);
+  const heroOpacity = useTransform(scrollY, [0, 300], [1, 0]);
+
   useEffect(() => {
     async function fetchFeatured() {
       try {
@@ -84,18 +90,26 @@ export default function Home() {
 
   return (
     <div>
-      {/* Hero Section */}
+      {/* Hero Section with Parallax */}
       <section className="relative w-full h-[70vh] min-h-[500px] max-h-[800px] overflow-hidden">
-        <Image
-          src="/images/hero-ngada.png"
-          alt="Pemandangan Kabupaten Ngada - Bumi Todo Ngada"
-          fill
-          className="object-cover"
-          sizes="100vw"
-          priority
-        />
+        <motion.div
+          style={{ y: heroY }}
+          className="absolute inset-0 will-change-transform"
+        >
+          <Image
+            src="/images/hero-ngada.png"
+            alt="Pemandangan Kabupaten Ngada - Bumi Todo Ngada"
+            fill
+            className="object-cover scale-110"
+            sizes="100vw"
+            priority
+          />
+        </motion.div>
         <div className="hero-gradient absolute inset-0" />
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-end pb-16 sm:pb-20">
+        <motion.div
+          style={{ opacity: heroOpacity }}
+          className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-end pb-16 sm:pb-20"
+        >
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -109,7 +123,11 @@ export default function Home() {
               Temukan kekayaan budaya dan produk lokal dari Bumi Todo Ngada.
               Dari tenun ikat yang memukau hingga kopi Bajawa yang Mendunia.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <motion.div
+              animate={{ y: [0, -5, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              className="flex flex-col sm:flex-row gap-3"
+            >
               <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
                 <Link href="/katalog">
                   Jelajahi Katalog
@@ -121,9 +139,12 @@ export default function Home() {
                   Tentang Kami
                 </Link>
               </Button>
-            </div>
+            </motion.div>
           </motion.div>
-        </div>
+        </motion.div>
+
+        {/* Decorative gradient overlay at bottom blending into next section */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
       </section>
 
       {/* Kategori Produk Section */}
@@ -213,32 +234,7 @@ export default function Home() {
             >
               {products.map((product, i) => (
                 <motion.div key={product.id} variants={fadeInUp} custom={i}>
-                  <Link href={`/produk/${product.slug}`} className="product-card block bg-card rounded-xl overflow-hidden shadow-sm border border-border/50">
-                    <div className="relative h-52 sm:h-56 overflow-hidden">
-                      <Image
-                        src={product.imageUrl}
-                        alt={product.name}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      />
-                      <div className="absolute top-3 left-3 flex gap-2">
-                        <CategoryBadge category={product.category} />
-                        <TrustBadge type="asli" />
-                      </div>
-                    </div>
-                    <div className="p-4 sm:p-5">
-                      <h3 className="font-semibold text-foreground text-base sm:text-lg mb-1 line-clamp-1">
-                        {product.name}
-                      </h3>
-                      <div className="mb-2">
-                        <PriceDisplay price={product.price} className="text-lg" />
-                      </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {product.description}
-                      </p>
-                    </div>
-                  </Link>
+                  <ProductCard product={product} />
                 </motion.div>
               ))}
             </motion.div>
