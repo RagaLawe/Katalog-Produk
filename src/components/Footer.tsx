@@ -36,7 +36,7 @@ export default function Footer() {
               asChild
               size="lg"
               variant="outline"
-              className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground shrink-0"
+              className="border-white/40 text-white hover:bg-white/15 hover:text-white shrink-0 bg-white/10"
             >
               <Link href="/katalog">
                 Lihat Katalog
@@ -161,17 +161,17 @@ export default function Footer() {
 
             {/* Quick Stats Mini Section */}
             <div className="mt-8 pt-5 border-t border-border/40">
-              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-sm text-foreground/80">
+              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-sm text-foreground">
                 <div className="flex items-center gap-1.5">
                   <Package className="h-3.5 w-3.5" />
                   <span>3 Kategori</span>
                 </div>
-                <span className="text-border/80">•</span>
+                <span className="text-foreground/25">•</span>
                 <div className="flex items-center gap-1.5">
                   <Users className="h-3.5 w-3.5" />
                   <span>50+ Pengrajin</span>
                 </div>
-                <span className="text-border/80">•</span>
+                <span className="text-foreground/25">•</span>
                 <div className="flex items-center gap-1.5">
                   <MapPinIcon className="h-3.5 w-3.5" />
                   <span>10+ Desa</span>
