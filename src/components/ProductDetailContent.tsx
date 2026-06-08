@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ChevronRight, User, Quote, CheckCircle, Star, Heart, Eye, Printer } from 'lucide-react';
+import { ChevronRight, User, Quote, CheckCircle, Star, Heart, Eye, Printer, Package } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
 import type { CarouselApi } from '@/components/ui/carousel';
@@ -16,6 +16,8 @@ import ShareButton from '@/components/ShareButton';
 import ProductCard from '@/components/ProductCard';
 import ImageLightbox from '@/components/ImageLightbox';
 import RecentlyViewedProducts, { addToRecentlyViewed } from '@/components/RecentlyViewedProducts';
+import StarRating from '@/components/StarRating';
+import ProductReviews from '@/components/ProductReviews';
 import { useFavoritesStore } from '@/lib/favorites-store';
 import { toast } from 'sonner';
 
@@ -45,6 +47,7 @@ interface RelatedProduct {
 interface ProductDetailContentProps {
   product: Product;
   relatedProducts: RelatedProduct[];
+  crossCategoryProducts: RelatedProduct[];
 }
 
 const categoryIconMap: Record<string, string> = {
@@ -57,6 +60,12 @@ const categoryLabelMap: Record<string, string> = {
   tenun: 'Tenun Ikat',
   kopi: 'Kopi Bajawa',
   bambu: 'Kerajinan Bambu',
+};
+
+const categorySlugMap: Record<string, string> = {
+  tenun: 'tenun',
+  kopi: 'kopi',
+  bambu: 'bambu',
 };
 
 const categoryImageMap: Record<string, string> = {
@@ -80,9 +89,14 @@ const fadeInUp = {
   }),
 };
 
+// Price range constants
+const PRICE_MIN = 50000;
+const PRICE_MAX = 750000;
+
 export default function ProductDetailContent({
   product,
   relatedProducts,
+  crossCategoryProducts,
 }: ProductDetailContentProps) {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
@@ -111,6 +125,14 @@ export default function ProductDetailContent({
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(product.price);
+
+  // Availability status based on product
+  const availabilityStatus = product.isFeatured
+    ? { label: 'Stok Terbatas', icon: '⚡', color: 'text-amber-600 dark:text-amber-500', bg: 'bg-amber-50 dark:bg-amber-950/30', border: 'border-amber-200 dark:border-amber-800' }
+    : { label: 'Tersedia', icon: '✓', color: 'text-emerald-600 dark:text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-950/30', border: 'border-emerald-200 dark:border-emerald-800' };
+
+  // Price range calculation
+  const pricePosition = Math.max(0, Math.min(100, ((product.price - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100));
 
   // Build carousel slides: product image + category showcase image
   const slides = [
@@ -162,10 +184,10 @@ export default function ProductDetailContent({
 
   return (
     <div className="min-h-screen">
-      {/* Breadcrumb */}
+      {/* Enhanced Breadcrumb */}
       <nav className="bg-primary/5 border-b border-border/50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <ol className="flex items-center gap-1.5 text-sm text-muted-foreground">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+          <ol className="flex items-center gap-2 text-sm text-muted-foreground">
             <li>
               <Link href="/" className="hover:text-primary transition-colors">
                 Beranda
@@ -182,7 +204,18 @@ export default function ProductDetailContent({
             <li>
               <ChevronRight className="h-3.5 w-3.5" />
             </li>
-            <li className="text-foreground font-medium truncate max-w-[200px]">
+            <li>
+              <Link
+                href={`/katalog?kategori=${categorySlugMap[product.category] || product.category}`}
+                className="hover:text-primary transition-colors"
+              >
+                {categoryLabel}
+              </Link>
+            </li>
+            <li>
+              <ChevronRight className="h-3.5 w-3.5" />
+            </li>
+            <li className="text-primary font-semibold truncate max-w-[200px]">
               {product.name}
             </li>
           </ol>
@@ -298,8 +331,37 @@ export default function ProductDetailContent({
               )}
 
               {/* Price */}
-              <div className="mb-5">
+              <div className="mb-3">
                 <PriceDisplay price={product.price} className="text-2xl sm:text-3xl" />
+              </div>
+
+              {/* Availability Status Badge */}
+              <div className="mb-4">
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border ${availabilityStatus.bg} ${availabilityStatus.color} ${availabilityStatus.border}`}>
+                  <span>{availabilityStatus.icon}</span>
+                  {availabilityStatus.label}
+                </span>
+              </div>
+
+              {/* Price Range Indicator */}
+              <div className="mb-5 p-3 bg-muted/50 rounded-lg border border-border/40">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-medium text-muted-foreground">Kisaran Harga</span>
+                  <span className="text-xs text-muted-foreground">
+                    Rp50.000 — Rp750.000
+                  </span>
+                </div>
+                <div className="relative h-2 bg-gradient-to-r from-emerald-200 via-amber-200 to-primary/30 rounded-full overflow-visible">
+                  {/* Marker dot */}
+                  <div
+                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-primary border-2 border-white shadow-md transition-all duration-500"
+                    style={{ left: `${pricePosition}%` }}
+                  />
+                </div>
+                <div className="flex items-center justify-between mt-1.5">
+                  <span className="text-[10px] text-muted-foreground">Murah</span>
+                  <span className="text-[10px] text-muted-foreground">Mahal</span>
+                </div>
               </div>
 
               {/* Description */}
@@ -312,21 +374,64 @@ export default function ProductDetailContent({
                 </p>
               </div>
 
-              {/* Artisan Info - Enhanced */}
+              {/* Star Rating */}
+              <div className="mb-6">
+                <StarRating
+                  productId={product.id}
+                  interactive={true}
+                  size="lg"
+                  showCount={true}
+                />
+              </div>
+
+              {/* Artisan Info - Enhanced with decorative elements */}
               {product.artisanInfo && (
-                <div className="mb-6 relative overflow-hidden rounded-lg border-l-4 border-l-primary bg-gradient-to-r from-primary/5 to-transparent p-5 pl-6">
-                  {/* Decorative quote icon */}
-                  <Quote className="absolute top-3 right-4 h-10 w-10 text-primary/10" />
-                  <div className="flex items-center gap-2 mb-3">
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-50px' }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  className="mb-6 relative overflow-hidden rounded-xl border-l-4 border-l-primary bg-gradient-to-br from-primary/5 via-primary/3 to-transparent p-6 pl-7"
+                >
+                  {/* Large decorative quote mark SVG - behind text */}
+                  <svg
+                    className="absolute top-2 right-3 h-24 w-24 text-primary/[0.06] pointer-events-none"
+                    viewBox="0 0 100 100"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M25 45 C25 30, 35 20, 50 20 L50 30 C40 30, 35 35, 35 45 L35 55 L50 55 L50 75 L25 75 Z" />
+                    <path d="M60 45 C60 30, 70 20, 85 20 L85 30 C75 30, 70 35, 70 45 L70 55 L85 55 L85 75 L60 75 Z" />
+                  </svg>
+
+                  {/* Section header with decorative line */}
+                  <div className="flex items-center gap-2 mb-4">
                     <User className="h-4 w-4 text-primary" />
                     <h3 className="text-sm font-semibold text-foreground">
                       Cerita Pengrajin
                     </h3>
                   </div>
+
+                  {/* Decorative line above artisan name */}
+                  <div className="w-10 h-0.5 bg-primary/30 rounded-full mb-3" />
+
+                  {/* Artisan name with Pengrajin Lokal badge */}
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-sm font-semibold text-foreground">{product.artisanInfo.split('.')[0]}</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gold-accent/10 text-gold-accent border border-gold-accent/20">
+                      <Package className="h-2.5 w-2.5" />
+                      Pengrajin Lokal
+                    </span>
+                  </div>
+
+                  {/* Artisan story text */}
                   <p className="text-sm text-muted-foreground leading-relaxed relative z-10 italic">
-                    {product.artisanInfo}
+                    {product.artisanInfo.includes('.') 
+                      ? product.artisanInfo.split('.').slice(1).join('.').trim() || product.artisanInfo
+                      : product.artisanInfo
+                    }
                   </p>
-                </div>
+                </motion.div>
               )}
 
               {/* Category Info */}
@@ -375,7 +480,14 @@ export default function ProductDetailContent({
         </div>
       </section>
 
-      {/* Related Products Section */}
+      {/* Product Reviews Section */}
+      <section className="py-8 sm:py-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <ProductReviews productId={product.id} />
+        </div>
+      </section>
+
+      {/* Related Products Section (Same Category) */}
       {relatedProducts.length > 0 && (
         <section className="py-12 sm:py-16 bg-warm-cream-dark/50 tenun-pattern">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -403,6 +515,41 @@ export default function ProductDetailContent({
               {relatedProducts.map((related, i) => (
                 <motion.div key={related.id} variants={fadeInUp} custom={i}>
                   <ProductCard product={related} imageHeight="h-44 sm:h-48" />
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+      )}
+
+      {/* Cross-Category Recommendations Section */}
+      {crossCategoryProducts.length > 0 && (
+        <section className="py-12 sm:py-16">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="text-center mb-8 sm:mb-10"
+            >
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
+                Anda Juga Mungkin Suka
+              </h2>
+              <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto">
+                Produk dari kategori lain yang mungkin menarik
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {crossCategoryProducts.map((crossProduct, i) => (
+                <motion.div key={crossProduct.id} variants={fadeInUp} custom={i}>
+                  <ProductCard product={crossProduct} imageHeight="h-44 sm:h-48" />
                 </motion.div>
               ))}
             </motion.div>

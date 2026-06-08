@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -17,6 +17,9 @@ import {
   ImageOff,
   BarChart3,
   Clock,
+  TrendingUp,
+  TrendingDown,
+  Minus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -94,6 +97,34 @@ function formatRelativeTime(dateString: string): string {
   return `${diffYears} tahun yang lalu`;
 }
 
+function formatDateLong(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('id-ID', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+// Decorative background SVG pattern for stats cards
+function StatsCardPattern({ color }: { color: string }) {
+  return (
+    <svg
+      className="absolute inset-0 h-full w-full opacity-[0.04]"
+      viewBox="0 0 200 200"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle cx="150" cy="50" r="80" fill={color} />
+      <circle cx="50" cy="180" r="60" fill={color} />
+      <circle cx="180" cy="170" r="40" fill={color} />
+    </svg>
+  );
+}
+
 export default function AdminDashboardPage() {
   const router = useRouter();
   const { token } = useAdminAuth();
@@ -106,10 +137,7 @@ export default function AdminDashboardPage() {
   const fetchProducts = useCallback(async () => {
     try {
       setIsLoading(true);
-      const params = new URLSearchParams();
-      if (categoryFilter !== 'all') params.set('category', categoryFilter);
-      if (searchQuery) params.set('search', searchQuery);
-      const response = await fetch(`/api/products?${params.toString()}`);
+      const response = await fetch('/api/products');
       if (response.ok) {
         const data = await response.json();
         setProducts(data);
@@ -119,7 +147,7 @@ export default function AdminDashboardPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [categoryFilter, searchQuery]);
+  }, []);
 
   useEffect(() => {
     fetchProducts();
@@ -146,7 +174,35 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Stats
+  // Client-side filtering for search and category
+  const filteredProducts = useMemo(() => {
+    let result = products;
+
+    // Filter by category
+    if (categoryFilter !== 'all') {
+      result = result.filter((p) => p.category === categoryFilter);
+    }
+
+    // Filter by search query (name or category label)
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      const categoryLabels: Record<string, string> = {
+        tenun: 'tenun ikat',
+        kopi: 'kopi bajawa',
+        bambu: 'kerajinan bambu',
+      };
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(query) ||
+          categoryLabels[p.category]?.includes(query) ||
+          p.category.toLowerCase().includes(query)
+      );
+    }
+
+    return result;
+  }, [products, searchQuery, categoryFilter]);
+
+  // Stats (based on all products, not filtered)
   const totalProducts = products.length;
   const tenunCount = products.filter((p) => p.category === 'tenun').length;
   const kopiCount = products.filter((p) => p.category === 'kopi').length;
@@ -159,6 +215,9 @@ export default function AdminDashboardPage() {
       icon: Package,
       color: 'text-primary',
       bgColor: 'bg-primary/10',
+      trend: '+2',
+      trendUp: true,
+      patternColor: '#8B0000',
     },
     {
       title: 'Produk Tenun',
@@ -166,6 +225,9 @@ export default function AdminDashboardPage() {
       icon: Palette,
       color: 'text-tenun-red',
       bgColor: 'bg-tenun-red/10',
+      trend: '+1',
+      trendUp: true,
+      patternColor: '#8B0000',
     },
     {
       title: 'Produk Kopi',
@@ -173,6 +235,10 @@ export default function AdminDashboardPage() {
       icon: Coffee,
       color: 'text-coffee-brown',
       bgColor: 'bg-coffee-brown/10',
+      trend: '0',
+      trendUp: false,
+      trendFlat: true,
+      patternColor: '#6F4E37',
     },
     {
       title: 'Produk Bambu',
@@ -180,6 +246,9 @@ export default function AdminDashboardPage() {
       icon: Sprout,
       color: 'text-bamboo-green',
       bgColor: 'bg-bamboo-green/10',
+      trend: '+1',
+      trendUp: true,
+      patternColor: '#5B7553',
     },
   ];
 
@@ -201,13 +270,14 @@ export default function AdminDashboardPage() {
         </Button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards - Enhanced */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <Card key={stat.title} className="shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <Card key={stat.title} className="shadow-sm relative overflow-hidden">
+              <StatsCardPattern color={stat.patternColor} />
+              <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   {stat.title}
                 </CardTitle>
@@ -215,8 +285,26 @@ export default function AdminDashboardPage() {
                   <Icon className={`h-4 w-4 ${stat.color}`} />
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="relative z-10">
                 <div className="text-2xl font-bold">{stat.value}</div>
+                <div className="flex items-center gap-1 mt-1">
+                  {stat.trendFlat ? (
+                    <Minus className="h-3 w-3 text-muted-foreground" />
+                  ) : stat.trendUp ? (
+                    <TrendingUp className="h-3 w-3 text-emerald-500" />
+                  ) : (
+                    <TrendingDown className="h-3 w-3 text-red-500" />
+                  )}
+                  <span className={`text-xs font-medium ${
+                    stat.trendFlat
+                      ? 'text-muted-foreground'
+                      : stat.trendUp
+                        ? 'text-emerald-500'
+                        : 'text-red-500'
+                  }`}>
+                    {stat.trend} bulan ini
+                  </span>
+                </div>
               </CardContent>
             </Card>
           );
@@ -259,7 +347,7 @@ export default function AdminDashboardPage() {
         </Card>
       )}
 
-      {/* Recent Activity Section */}
+      {/* Recent Activity Section - Enhanced */}
       {products.length > 0 && (
         <Card className="shadow-sm">
           <CardHeader className="pb-4">
@@ -277,18 +365,23 @@ export default function AdminDashboardPage() {
                   const createdTime = new Date(product.createdAt).getTime();
                   const updatedTime = new Date(product.updatedAt).getTime();
                   const isUpdate = (updatedTime - createdTime) > 1000; // more than 1s difference = update
-                  const ActionIcon = isUpdate ? Pencil : Plus;
+                  // Color-coded dots: green=created, blue=updated, red=deleted
+                  const dotColor = isUpdate ? 'bg-blue-500' : 'bg-emerald-500';
                   const actionText = isUpdate ? 'Diperbarui' : 'Ditambahkan';
-                  const actionColor = isUpdate ? 'text-coffee-brown' : 'text-bamboo-green';
-                  const actionBg = isUpdate ? 'bg-coffee-brown/10' : 'bg-bamboo-green/10';
+                  const actionColor = isUpdate ? 'text-blue-600 dark:text-blue-400' : 'text-emerald-600 dark:text-emerald-400';
+                  const ActionIcon = isUpdate ? Pencil : Plus;
 
                   return (
                     <div
                       key={product.id}
                       className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
                     >
-                      <div className={`flex items-center justify-center w-8 h-8 rounded-full ${actionBg} shrink-0`}>
-                        <ActionIcon className={`h-4 w-4 ${actionColor}`} />
+                      {/* Color-coded dot */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className={`w-2.5 h-2.5 rounded-full ${dotColor}`} />
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted shrink-0">
+                          <ActionIcon className={`h-4 w-4 ${actionColor}`} />
+                        </div>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
@@ -306,7 +399,10 @@ export default function AdminDashboardPage() {
                           </span>
                         </div>
                       </div>
-                      <span className="text-sm font-medium text-foreground shrink-0">
+                      <span
+                        className="text-sm font-medium text-foreground shrink-0"
+                        title={formatDateLong(product.updatedAt)}
+                      >
                         {formatPrice(product.price)}
                       </span>
                     </div>
@@ -317,16 +413,22 @@ export default function AdminDashboardPage() {
         </Card>
       )}
 
-      {/* Product Table Section */}
+      {/* Product Table Section - Enhanced with client-side search */}
       <Card className="shadow-sm">
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <CardTitle className="text-lg">Daftar Produk</CardTitle>
+            <div className="flex items-center gap-3">
+              <CardTitle className="text-lg">Daftar Produk</CardTitle>
+              <Badge variant="secondary" className="text-xs font-normal">
+                {filteredProducts.length} {filteredProducts.length === 1 ? 'produk' : 'produk'}
+                {searchQuery.trim() || categoryFilter !== 'all' ? ' ditemukan' : ''}
+              </Badge>
+            </div>
             <div className="flex flex-col sm:flex-row gap-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Cari produk..."
+                  placeholder="Cari nama atau kategori..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9 w-full sm:w-64"
@@ -352,12 +454,18 @@ export default function AdminDashboardPage() {
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
               <span className="ml-2 text-muted-foreground">Memuat produk...</span>
             </div>
-          ) : products.length === 0 ? (
+          ) : filteredProducts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Package className="h-12 w-12 text-muted-foreground/40 mb-3" />
-              <p className="text-muted-foreground font-medium">Belum ada produk</p>
+              <p className="text-muted-foreground font-medium">
+                {searchQuery.trim() || categoryFilter !== 'all'
+                  ? 'Tidak ada produk yang cocok'
+                  : 'Belum ada produk'}
+              </p>
               <p className="text-sm text-muted-foreground/70 mt-1">
-                Klik &quot;Tambah Produk&quot; untuk menambahkan produk baru
+                {searchQuery.trim() || categoryFilter !== 'all'
+                  ? 'Coba ubah kata kunci atau filter pencarian'
+                  : 'Klik "Tambah Produk" untuk menambahkan produk baru'}
               </p>
             </div>
           ) : (
@@ -374,7 +482,7 @@ export default function AdminDashboardPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {products.map((product) => (
+                  {filteredProducts.map((product) => (
                     <TableRow key={product.id}>
                       <TableCell className="pl-6">
                         <div className="h-12 w-12 rounded-md overflow-hidden bg-muted border">

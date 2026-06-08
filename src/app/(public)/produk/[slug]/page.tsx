@@ -27,10 +27,32 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     orderBy: { createdAt: 'desc' },
   });
 
+  // Fetch cross-category products (from OTHER categories, limit 3, random selection)
+  const crossCategoryProducts = await db.product.findMany({
+    where: {
+      NOT: { category: product.category },
+    },
+  });
+
+  // Shuffle and take 3
+  const shuffled = crossCategoryProducts
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3);
+
   return (
     <ProductDetailContent
       product={product}
       relatedProducts={relatedProducts.map((p) => ({
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        category: p.category,
+        price: p.price,
+        description: p.description,
+        imageUrl: p.imageUrl,
+        isFeatured: p.isFeatured,
+      }))}
+      crossCategoryProducts={shuffled.map((p) => ({
         id: p.id,
         name: p.name,
         slug: p.slug,

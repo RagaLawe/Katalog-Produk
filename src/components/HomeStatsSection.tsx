@@ -81,7 +81,7 @@ const cardVariants = {
 };
 
 export default function HomeStatsSection() {
-  const [categoryCounts, setCategoryCounts] = useState<CategoryCounts>({ tenun: 3, kopi: 3, bambu: 3, total: 9 });
+  const [categoryCounts, setCategoryCounts] = useState<CategoryCounts | null>(null);
 
   useEffect(() => {
     async function fetchCounts() {
@@ -129,7 +129,7 @@ export default function HomeStatsSection() {
         >
           {statsConfig.map((stat) => {
             const Icon = stat.icon;
-            const displayValue = stat.key === 'total' ? categoryCounts.total : (stat.value ?? 0);
+            const displayValue = stat.key === 'total' ? (categoryCounts?.total ?? 0) : (stat.value ?? 0);
             return (
               <motion.div
                 key={stat.label}

@@ -10,6 +10,8 @@ import CategoryBadge from '@/components/CategoryBadge';
 import TrustBadge from '@/components/TrustBadge';
 import PriceDisplay from '@/components/PriceDisplay';
 import CompareButton from '@/components/CompareButton';
+import StarRating from '@/components/StarRating';
+import QuickViewModal, { QuickViewButton } from '@/components/QuickViewModal';
 import { useFavoritesStore } from '@/lib/favorites-store';
 
 interface Product {
@@ -32,6 +34,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, showTrustBadge = true, imageHeight }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [quickViewOpen, setQuickViewOpen] = useState(false);
   const { toggleFavorite, isFavorite } = useFavoritesStore();
   const favorited = isFavorite(product.id);
 
@@ -100,6 +103,11 @@ export default function ProductCard({ product, showTrustBadge = true, imageHeigh
           <Heart className={`h-4 w-4 ${favorited ? 'fill-current' : ''}`} />
         </motion.button>
 
+        {/* Quick View Button - appears on hover */}
+        {isHovered && (
+          <QuickViewButton onClick={() => setQuickViewOpen(true)} />
+        )}
+
         {/* WhatsApp Quick-Action Button - appears on hover */}
         <motion.a
           href={waUrl}
@@ -125,14 +133,25 @@ export default function ProductCard({ product, showTrustBadge = true, imageHeigh
           <h3 className="font-semibold text-foreground text-base sm:text-lg mb-1 line-clamp-1">
             {product.name}
           </h3>
-          <div className="mb-2">
+          <div className="mb-1.5">
             <PriceDisplay price={product.price} className="text-lg" />
+          </div>
+          <div className="mb-2">
+            <StarRating
+              productId={product.id}
+              interactive={false}
+              size="sm"
+              showCount={true}
+            />
           </div>
           <p className="text-sm text-muted-foreground line-clamp-2">
             {product.description}
           </p>
         </div>
       </Link>
+
+      {/* Quick View Modal */}
+      <QuickViewModal product={product} open={quickViewOpen} onOpenChange={setQuickViewOpen} />
     </div>
   );
 }
