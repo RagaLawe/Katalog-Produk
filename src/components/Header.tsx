@@ -46,8 +46,8 @@ export default function Header() {
       className={cn(
         'tenun-border-top sticky top-0 z-50 w-full border-b border-border/50 transition-all duration-300',
         scrolled
-          ? 'bg-background/80 backdrop-blur-lg shadow-sm'
-          : 'bg-background/90 backdrop-blur-md'
+          ? 'bg-background/95 backdrop-blur-lg shadow-md'
+          : 'bg-background backdrop-blur-sm'
       )}
     >
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -84,6 +84,14 @@ export default function Header() {
             </Link>
           ))}
           <ThemeToggle />
+          <Link
+            href="/admin"
+            className="relative px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-foreground/40 hover:text-primary hover:bg-primary/5 border border-border/30 hover:border-primary/30"
+            title="Login Admin"
+          >
+            <Shield className="h-3.5 w-3.5 inline-block mr-1 -mt-0.5" />
+            Admin
+          </Link>
         </nav>
 
         {/* Mobile: Theme toggle + Menu button */}
@@ -120,6 +128,18 @@ export default function Header() {
                   </Link>
                 </SheetClose>
               ))}
+              <div className="mt-3 pt-3 border-t border-border/30">
+                <SheetClose asChild>
+                  <Link
+                    href="/admin"
+                    className="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors text-foreground/50 hover:text-primary hover:bg-primary/5"
+                    onClick={() => setOpen(false)}
+                  >
+                    <Shield className="h-4 w-4 mr-2" />
+                    Login Admin
+                  </Link>
+                </SheetClose>
+              </div>
             </nav>
           </SheetContent>
         </Sheet>

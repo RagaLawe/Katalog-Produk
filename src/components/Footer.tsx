@@ -8,6 +8,7 @@ const quickLinks = [
   { href: '/', label: 'Beranda' },
   { href: '/katalog', label: 'Katalog Produk' },
   { href: '/tentang', label: 'Tentang Kami' },
+  { href: '/admin', label: 'Admin' },
 ];
 
 const socialLinks = [
@@ -47,7 +48,7 @@ export default function Footer() {
       </div>
 
       {/* Decorative Wave Divider */}
-      <div className="relative bg-warm-cream-dark">
+      <div className="relative bg-card">
         <div className="absolute top-0 left-0 right-0 -translate-y-[99%] z-10">
           <svg
             viewBox="0 0 1440 60"
@@ -58,7 +59,7 @@ export default function Footer() {
           >
             <path
               d="M0 60V30C240 0 480 0 720 30C960 60 1200 60 1440 30V60H0Z"
-              className="fill-warm-cream-dark"
+              className="fill-card"
             />
           </svg>
         </div>
@@ -82,21 +83,21 @@ export default function Footer() {
                     </span>
                   </div>
                 </div>
-                <p className="text-sm text-foreground/80 leading-relaxed">
+                <p className="text-sm text-foreground leading-relaxed">
                   Dinas Perdagangan dan Perindustrian Kabupaten Ngada
                 </p>
                 <div className="space-y-2.5">
-                  <div className="flex items-start gap-2 text-sm text-foreground/70">
+                  <div className="flex items-start gap-2 text-sm text-foreground/80">
                     <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                     <span>
                       Jl. Soekarno No. 1, Bajawa, Kabupaten Ngada, NTT
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-foreground/70">
+                  <div className="flex items-center gap-2 text-sm text-foreground/80">
                     <Phone className="h-4 w-4 text-primary shrink-0" />
                     <span>(0384) 21001</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-foreground/70">
+                  <div className="flex items-center gap-2 text-sm text-foreground/80">
                     <Mail className="h-4 w-4 text-primary shrink-0" />
                     <span>perindag@ngadakab.go.id</span>
                   </div>
@@ -113,7 +114,7 @@ export default function Footer() {
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="text-sm text-foreground/70 hover:text-primary transition-colors w-fit group"
+                      className="text-sm text-foreground/80 hover:text-primary transition-colors w-fit group"
                     >
                       <span className="relative">
                         {link.label}
@@ -129,7 +130,7 @@ export default function Footer() {
                 <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
                   Tentang Katalog
                 </h3>
-                <p className="text-sm text-foreground/70 leading-relaxed">
+                <p className="text-sm text-foreground/80 leading-relaxed">
                   Katalog digital produk unggulan Kabupaten Ngada yang dikurasi oleh
                   Dinas Perdagangan dan Perindustrian. Mendukung UMKM lokal dan
                   melestarikan kearifan budaya NTT.
@@ -148,7 +149,7 @@ export default function Footer() {
                       href={social.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/5 text-foreground/60 hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/25 transition-all duration-300"
+                      className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-foreground/70 hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/25 transition-all duration-300"
                       aria-label={social.label}
                     >
                       <social.icon className="h-4 w-4" />
@@ -159,18 +160,18 @@ export default function Footer() {
             </div>
 
             {/* Quick Stats Mini Section */}
-            <div className="mt-8 pt-5 border-t border-border/30">
-              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-sm text-foreground/50">
+            <div className="mt-8 pt-5 border-t border-border/40">
+              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-sm text-foreground/60">
                 <div className="flex items-center gap-1.5">
                   <Package className="h-3.5 w-3.5" />
                   <span>3 Kategori</span>
                 </div>
-                <span className="text-border/50">•</span>
+                <span className="text-border/60">•</span>
                 <div className="flex items-center gap-1.5">
                   <Users className="h-3.5 w-3.5" />
                   <span>50+ Pengrajin</span>
                 </div>
-                <span className="text-border/50">•</span>
+                <span className="text-border/60">•</span>
                 <div className="flex items-center gap-1.5">
                   <MapPinIcon className="h-3.5 w-3.5" />
                   <span>10+ Desa</span>
@@ -179,15 +180,15 @@ export default function Footer() {
             </div>
 
             {/* Separator & Copyright */}
-            <div className="mt-5 pt-5 border-t border-border/50">
+            <div className="mt-5 pt-5 border-t border-border/40">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-primary/50" />
-                  <p className="text-xs text-foreground/50">
+                  <Shield className="h-4 w-4 text-primary/60" />
+                  <p className="text-xs text-foreground/60">
                     © {new Date().getFullYear()} Dinas Perindag Kabupaten Ngada. Hak Cipta Dilindungi.
                   </p>
                 </div>
-                <p className="text-xs text-foreground/50">
+                <p className="text-xs text-foreground/60">
                   Dibuat dengan ❤️ untuk UMKM Ngada
                 </p>
               </div>

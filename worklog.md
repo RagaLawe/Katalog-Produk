@@ -1552,3 +1552,52 @@ Enhanced the product detail page with improved artisan story, cross-category rec
 - ✅ Client-side filtering working in admin dashboard
 - ✅ All UI text in Bahasa Indonesia
 
+---
+
+## Bug Fixes - Header Sticky, Footer Readability, Admin Link
+
+**Agent**: main
+**Date**: 2026-06-08
+**Status**: ✅ All 3 user-reported issues fixed
+
+### Issues Reported by User
+1. Header shifts down when scrolling instead of staying fixed at top
+2. Footer text at bottom of page is not readable
+3. Admin login menu is not visible on the website
+
+### Root Causes & Fixes
+
+**Issue 1: Header not sticky**
+- **Root Cause**: CSS class `.tenun-border-top` had `position: relative` which overrode Tailwind's `sticky top-0` class. The CSS specificity caused the relative positioning to take precedence.
+- **Fix**: Removed `position: relative` from `.tenun-border-top` in `globals.css`. The `::before` pseudo-element still works because `sticky` also establishes a positioning context.
+- **Verification**: After fix, `getComputedStyle(header).position` returns `"sticky"` and header stays at `top: 0` after scrolling.
+
+**Issue 2: Footer text not readable**
+- **Root Cause**: Footer used `bg-warm-cream-dark` (#F0EDE5) background with `text-foreground/70` and `text-foreground/50` which created very low contrast, especially in light mode.
+- **Fix**: 
+  - Changed footer background from `bg-warm-cream-dark` to `bg-card` (white in light mode, dark gray in dark mode) for better contrast
+  - Changed SVG wave fill from `fill-warm-cream-dark` to `fill-card`
+  - Increased text opacity: `text-foreground/70` → `text-foreground/80`, `text-foreground/50` → `text-foreground/60`
+  - Changed social icon background from `bg-primary/5` to `bg-primary/10` for better visibility
+  - Changed border opacity from `border-border/30` to `border-border/40` for better visibility
+  - Changed header text from `text-foreground/80` to `text-foreground` for full contrast
+  - Also improved header glass morphism: scrolled state now uses `bg-background/95` with `shadow-md` for better visual anchoring
+
+**Issue 3: Admin login not visible**
+- **Fix**: Added "Admin" link to 3 locations:
+  1. **Desktop navigation** (Header): Small subtle button with Shield icon after ThemeToggle, styled with low opacity (`text-foreground/40`) so it's discoverable but not intrusive
+  2. **Mobile navigation** (Sheet menu): "Login Admin" link with Shield icon, in a separated section below main nav links with top border
+  3. **Footer quick links**: Added "Admin" to the Tautan Cepat navigation
+
+### Files Modified
+1. `/src/app/globals.css` - Removed `position: relative` from `.tenun-border-top`
+2. `/src/components/Header.tsx` - Added Admin link to desktop nav and mobile Sheet menu; improved glass morphism styling
+3. `/src/components/Footer.tsx` - Changed bg from warm-cream-dark to card; increased text contrast; added Admin to quick links
+4. `/src/components/ScrollProgress.tsx` - Added `pointer-events-none` to prevent interaction interference
+
+### Verification Results
+- ✅ ESLint passes with no errors
+- ✅ Header stays sticky at top-0 when scrolling (verified with getBoundingClientRect)
+- ✅ Footer text now fully readable with improved contrast ratios
+- ✅ Admin link visible in desktop nav, mobile menu, and footer
+- ✅ ScrollProgress bar properly overlays header without interference

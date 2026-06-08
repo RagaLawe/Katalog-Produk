@@ -151,7 +151,6 @@
 
 /* Tenun border accent */
 .tenun-border-top {
-  position: relative;
 }
 
 .tenun-border-top::before {
