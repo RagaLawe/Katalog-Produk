@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Shield, Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import Link from 'next/link';
 import { useAdminAuth } from '@/lib/admin-auth';
 import { toast } from 'sonner';
 
@@ -142,7 +143,15 @@ export default function AdminLoginPage() {
           </CardContent>
         </Card>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">
+        <Link
+          href="/"
+          className="mt-6 flex items-center justify-center gap-2 text-sm text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Kembali ke Website
+        </Link>
+
+        <p className="mt-4 text-center text-xs text-muted-foreground">
           Dinas Perdagangan & Perindustrian Kabupaten Ngada
         </p>
       </div>

@@ -65,8 +65,8 @@ export default function Footer() {
         </div>
 
         {/* Tenun border between CTA and main footer */}
-        <div className="tenun-border-top tenun-pattern">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+        <div className="tenun-border-top bg-muted/50">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 relative z-10 bg-background/95 backdrop-blur-sm rounded-t-lg">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
               {/* Dinas Info */}
               <div className="space-y-4 sm:col-span-2 lg:col-span-1">
@@ -87,17 +87,17 @@ export default function Footer() {
                   Dinas Perdagangan dan Perindustrian Kabupaten Ngada
                 </p>
                 <div className="space-y-2.5">
-                  <div className="flex items-start gap-2 text-sm text-foreground/80">
+                  <div className="flex items-start gap-2 text-sm text-foreground/90">
                     <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                     <span>
                       Jl. Soekarno No. 1, Bajawa, Kabupaten Ngada, NTT
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-foreground/80">
+                  <div className="flex items-center gap-2 text-sm text-foreground/90">
                     <Phone className="h-4 w-4 text-primary shrink-0" />
                     <span>(0384) 21001</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-foreground/80">
+                  <div className="flex items-center gap-2 text-sm text-foreground/90">
                     <Mail className="h-4 w-4 text-primary shrink-0" />
                     <span>perindag@ngadakab.go.id</span>
                   </div>
@@ -106,7 +106,7 @@ export default function Footer() {
 
               {/* Quick Links */}
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
                   Tautan Cepat
                 </h3>
                 <nav className="flex flex-col gap-2.5">
@@ -114,7 +114,7 @@ export default function Footer() {
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="text-sm text-foreground/80 hover:text-primary transition-colors w-fit group"
+                      className="text-sm text-foreground/90 hover:text-primary transition-colors w-fit group"
                     >
                       <span className="relative">
                         {link.label}
@@ -127,10 +127,10 @@ export default function Footer() {
 
               {/* About Section */}
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
                   Tentang Katalog
                 </h3>
-                <p className="text-sm text-foreground/80 leading-relaxed">
+                <p className="text-sm text-foreground/90 leading-relaxed">
                   Katalog digital produk unggulan Kabupaten Ngada yang dikurasi oleh
                   Dinas Perdagangan dan Perindustrian. Mendukung UMKM lokal dan
                   melestarikan kearifan budaya NTT.
@@ -139,7 +139,7 @@ export default function Footer() {
 
               {/* Social Media */}
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
                   Ikuti Kami
                 </h3>
                 <div className="flex gap-3">
@@ -149,7 +149,7 @@ export default function Footer() {
                       href={social.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-foreground/70 hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/25 transition-all duration-300"
+                      className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-foreground/80 hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/25 transition-all duration-300"
                       aria-label={social.label}
                     >
                       <social.icon className="h-4 w-4" />
@@ -161,17 +161,17 @@ export default function Footer() {
 
             {/* Quick Stats Mini Section */}
             <div className="mt-8 pt-5 border-t border-border/40">
-              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-sm text-foreground/60">
+              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-sm text-foreground/80">
                 <div className="flex items-center gap-1.5">
                   <Package className="h-3.5 w-3.5" />
                   <span>3 Kategori</span>
                 </div>
-                <span className="text-border/60">•</span>
+                <span className="text-border/80">•</span>
                 <div className="flex items-center gap-1.5">
                   <Users className="h-3.5 w-3.5" />
                   <span>50+ Pengrajin</span>
                 </div>
-                <span className="text-border/60">•</span>
+                <span className="text-border/80">•</span>
                 <div className="flex items-center gap-1.5">
                   <MapPinIcon className="h-3.5 w-3.5" />
                   <span>10+ Desa</span>
@@ -183,12 +183,12 @@ export default function Footer() {
             <div className="mt-5 pt-5 border-t border-border/40">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-primary/60" />
-                  <p className="text-xs text-foreground/60">
+                  <Shield className="h-4 w-4 text-primary/80" />
+                  <p className="text-xs text-foreground/80">
                     © {new Date().getFullYear()} Dinas Perindag Kabupaten Ngada. Hak Cipta Dilindungi.
                   </p>
                 </div>
-                <p className="text-xs text-foreground/60">
+                <p className="text-xs text-foreground/80">
                   Dibuat dengan ❤️ untuk UMKM Ngada
                 </p>
               </div>

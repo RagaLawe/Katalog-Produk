@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState, useCallback } from 'react';
+import { Suspense, useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -10,6 +10,9 @@ import {
   Loader2,
   Save,
   ImageIcon,
+  Upload,
+  Link2,
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,7 +45,7 @@ const productSchema = z.object({
   price: z.coerce.number().min(1, 'Harga wajib diisi'),
   description: z.string().min(10, 'Deskripsi minimal 10 karakter'),
   artisanInfo: z.string().optional(),
-  imageUrl: z.string().min(1, 'URL gambar wajib diisi').url('URL gambar tidak valid'),
+  imageUrl: z.string().min(1, 'Gambar wajib disediakan'),
   isFeatured: z.boolean().default(false),
 });
 
@@ -81,6 +84,10 @@ function ProductFormContent() {
   const [isLoadingProduct, setIsLoadingProduct] = useState(!!editSlug);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   const [imagePreviewError, setImagePreviewError] = useState(false);
+  const [imageMode, setImageMode] = useState<'upload' | 'url'>('upload');
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isEditMode = !!editSlug;
 
@@ -126,6 +133,12 @@ function ProductFormContent() {
       }
       const product: Product = await response.json();
       setSlugManuallyEdited(true);
+      // If the product has a local upload path, switch to URL mode to show it
+      if (product.imageUrl.startsWith('/uploads/')) {
+        setImageMode('upload');
+      } else {
+        setImageMode('url');
+      }
       form.reset({
         name: product.name,
         slug: product.slug,
@@ -147,6 +160,70 @@ function ProductFormContent() {
   useEffect(() => {
     fetchProduct();
   }, [fetchProduct]);
+
+  const handleFileUpload = async (file: File) => {
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        toast.error(result.error || 'Gagal mengunggah gambar');
+        return;
+      }
+
+      form.setValue('imageUrl', result.url);
+      toast.success('Gambar berhasil diunggah');
+    } catch {
+      toast.error('Gagal mengunggah gambar');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        handleFileUpload(file);
+      } else {
+        toast.error('Hanya file gambar yang diizinkan');
+      }
+    }
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+    // Reset input so same file can be selected again
+    e.target.value = '';
+  };
 
   const onSubmit = async (data: ProductFormValues) => {
     setIsSubmitting(true);
@@ -357,21 +434,144 @@ function ProductFormContent() {
                     )}
                   />
 
-                  {/* Image URL */}
+                  {/* Image Upload / URL */}
                   <FormField
                     control={form.control}
                     name="imageUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>URL Gambar *</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="https://contoh.com/gambar.jpg"
-                            {...field}
-                          />
-                        </FormControl>
+                        <FormLabel>Gambar Produk *</FormLabel>
+
+                        {/* Mode Toggle Tabs */}
+                        <div className="flex gap-1 p-1 bg-muted rounded-lg w-fit mb-3">
+                          <button
+                            type="button"
+                            onClick={() => setImageMode('upload')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                              imageMode === 'upload'
+                                ? 'bg-background shadow-sm text-foreground'
+                                : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                          >
+                            <Upload className="h-3.5 w-3.5" />
+                            Unggah File
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setImageMode('url')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                              imageMode === 'url'
+                                ? 'bg-background shadow-sm text-foreground'
+                                : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                          >
+                            <Link2 className="h-3.5 w-3.5" />
+                            Tautan URL
+                          </button>
+                        </div>
+
+                        {/* Upload Mode */}
+                        {imageMode === 'upload' && (
+                          <div className="space-y-3">
+                            <div
+                              onDragOver={handleDragOver}
+                              onDragLeave={handleDragLeave}
+                              onDrop={handleDrop}
+                              className={`relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors cursor-pointer ${
+                                isDragging
+                                  ? 'border-primary bg-primary/5'
+                                  : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50'
+                              } ${isUploading ? 'pointer-events-none opacity-60' : ''}`}
+                              onClick={() => fileInputRef.current?.click()}
+                              role="button"
+                              tabIndex={0}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  fileInputRef.current?.click();
+                                }
+                              }}
+                            >
+                              <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                className="hidden"
+                                onChange={handleFileInputChange}
+                              />
+
+                              {isUploading ? (
+                                <>
+                                  <Loader2 className="h-8 w-8 text-primary animate-spin mb-3" />
+                                  <p className="text-sm font-medium text-foreground">
+                                    Mengunggah gambar...
+                                  </p>
+                                </>
+                              ) : watchedImageUrl && watchedImageUrl.startsWith('/uploads/') ? (
+                                <>
+                                  <div className="relative mb-3">
+                                    <img
+                                      src={watchedImageUrl}
+                                      alt="Gambar terunggah"
+                                      className="h-20 w-20 object-cover rounded-lg border shadow-sm"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        form.setValue('imageUrl', '');
+                                      }}
+                                      className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow-sm hover:bg-destructive/90 transition-colors"
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </button>
+                                  </div>
+                                  <p className="text-sm text-muted-foreground">
+                                    Klik atau seret file untuk mengganti gambar
+                                  </p>
+                                </>
+                              ) : (
+                                <>
+                                  <Upload className="h-8 w-8 text-muted-foreground/60 mb-3" />
+                                  <p className="text-sm font-medium text-foreground mb-1">
+                                    Klik atau seret file ke sini
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    JPG, PNG, WebP (maks 5MB)
+                                  </p>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="mt-3"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      fileInputRef.current?.click();
+                                    }}
+                                  >
+                                    <Upload className="h-3.5 w-3.5 mr-1.5" />
+                                    Pilih File
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* URL Mode */}
+                        {imageMode === 'url' && (
+                          <FormControl>
+                            <Input
+                              placeholder="https://contoh.com/gambar.jpg"
+                              {...field}
+                            />
+                          </FormControl>
+                        )}
+
                         <FormDescription>
-                          Masukkan URL gambar produk
+                          {imageMode === 'upload'
+                            ? 'Unggah file gambar dari perangkat Anda'
+                            : 'Masukkan URL gambar produk'}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>

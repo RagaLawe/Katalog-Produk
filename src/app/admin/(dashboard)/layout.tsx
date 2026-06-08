@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   Loader2,
+  ArrowLeft,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -90,6 +91,19 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           );
         })}
       </nav>
+
+      {/* Back to Website */}
+      <div className="px-3 pb-2">
+        <Separator className="mb-3" />
+        <Link
+          href="/"
+          onClick={onNavigate}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Kembali ke Website
+        </Link>
+      </div>
 
       {/* User section */}
       <div className="p-3 border-t">
@@ -179,6 +193,13 @@ export default function AdminLayout({
             <Shield className="h-5 w-5 text-primary" />
             <span className="font-bold text-primary">Perindag Admin</span>
           </div>
+          <Link
+            href="/"
+            className="ml-auto flex items-center gap-1.5 text-sm text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden sm:inline">Kembali ke Website</span>
+          </Link>
         </header>
 
         <main className="p-4 sm:p-6 lg:p-8">

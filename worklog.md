@@ -1601,3 +1601,172 @@ Enhanced the product detail page with improved artisan story, cross-category rec
 - ✅ Footer text now fully readable with improved contrast ratios
 - ✅ Admin link visible in desktop nav, mobile menu, and footer
 - ✅ ScrollProgress bar properly overlays header without interference
+## Task 2 - Add "Kembali ke Website" Back Navigation Button
+
+**Agent**: back-to-website-agent
+**Date**: 2026-06-07
+**Status**: ✅ Completed
+
+### What was done
+
+Added "Kembali ke Website" (Back to Website) navigation links in two admin area locations so users can easily navigate back to the public website.
+
+### Files Modified
+
+1. **`/src/app/admin/(dashboard)/layout.tsx`** - Added back-to-website links in sidebar and mobile header
+   - Added `ArrowLeft` icon import from lucide-react
+   - Added "Kembali ke Website" link in `SidebarContent` component, positioned between the navigation section and the user section
+   - Link uses `Separator` component above it for visual separation from nav items
+   - Styled with emerald-700/emerald-400 (dark mode) color to distinguish it from regular nav items
+   - Hover states: emerald-50/emerald-950/30 background for light/dark modes
+   - Added "Kembali ke Website" link in mobile top header bar (`lg:hidden` header), positioned with `ml-auto` on the right side
+   - Mobile header link shows icon always, text label hidden on small screens (`hidden sm:inline`)
+   - Both links point to `/` (public homepage)
+
+2. **`/src/app/admin/page.tsx`** - Added back-to-website link on login page
+   - Added `ArrowLeft` icon import from lucide-react
+   - Added `Link` import from `next/link`
+   - Added "Kembali ke Website" link below the login form card, before the footer text
+   - Centered with flex layout, emerald-700/emerald-400 color scheme matching sidebar
+   - Simple text link with arrow icon, hover color transitions
+
+### Verification Results
+- ✅ ESLint passes with no errors (0 problems)
+- ✅ All changes follow existing code patterns and component structure
+
+---
+
+## Task 1 - Footer Text Readability Fix
+
+**Agent**: footer-readability-fix
+**Date**: 2026-06-07
+**Status**: ✅ Completed
+
+### What was done
+
+Fixed Footer component text readability issues. The footer had a `tenun-pattern` class on the main body that created a subtle background pattern making text hard to read, combined with low-contrast text opacity values (`text-foreground/80`, `text-foreground/60`).
+
+### Files Modified
+
+1. **`/src/components/Footer.tsx`** - Fixed text readability
+   - Removed `tenun-pattern` class from the main footer body div (was interfering with text readability)
+   - Changed outer background from `bg-card` to `bg-muted/50` for better contrast separation
+   - Added solid background layer to content container: `bg-background/95 backdrop-blur-sm rounded-t-lg` — provides a nearly-opaque white/dark surface under content
+   - Increased all text opacity values for better contrast:
+     - Contact info items (MapPin, Phone, Mail): `text-foreground/80` → `text-foreground/90`
+     - Quick links: `text-foreground/80` → `text-foreground/90`
+     - About section paragraph: `text-foreground/80` → `text-foreground/90`
+     - Social media icons: `text-foreground/70` → `text-foreground/80`
+     - Stats mini section: `text-foreground/60` → `text-foreground/80`
+     - Bullet separators: `text-border/60` → `text-border/80`
+     - Copyright text: `text-foreground/60` → `text-foreground/80`
+     - Copyright shield icon: `text-primary/60` → `text-primary/80`
+     - "Dibuat dengan" text: `text-foreground/60` → `text-foreground/80`
+   - Made section headings bolder: `font-semibold` → `font-bold` for all three headings (Tautan Cepat, Tentang Katalog, Ikuti Kami)
+   - CTA bar at top left unchanged (was already readable with `bg-primary text-primary-foreground`)
+   - `tenun-border-top` class preserved as decorative top border accent
+
+### Verification Results
+- ✅ ESLint passes with no errors (0 problems)
+- ✅ Footer text now clearly readable in both light and dark mode
+- ✅ Solid background layer ensures text doesn't compete with any background patterns
+
+---
+
+## Task 3 - Image Upload for Admin Product Form
+
+**Agent**: image-upload-agent
+**Date**: 2026-06-07
+**Status**: ✅ Completed
+
+### What was done
+
+Added image upload functionality to the admin product form, enabling admins to either upload an image file from their device or provide a URL. Previously, the form only supported URL input.
+
+### Files Created
+
+1. **`/src/app/api/upload/route.ts`** - Image upload API route
+   - `POST /api/upload` - Handles file uploads via FormData
+   - Validates file type: only JPG, PNG, WebP allowed
+   - Validates file size: max 5MB
+   - Generates unique filename using `uuid` package
+   - Saves uploaded images to `/public/uploads/` directory
+   - Creates `public/uploads` directory if it doesn't exist using `mkdir` with `{ recursive: true }`
+   - Returns public URL path like `/uploads/{uuid}.jpg`
+   - Uses `node:fs/promises` for file operations and `node:path` for path joining
+   - Error messages in Bahasa Indonesia
+
+2. **`/public/uploads/`** - Directory for uploaded images (created with `mkdir -p`)
+
+### Files Modified
+
+3. **`/src/app/admin/(dashboard)/dashboard/produk/page.tsx`** - Admin product form with image upload/URL toggle
+   - Added imports: `Upload`, `Link2`, `X` from lucide-react, `useRef` from React
+   - Added state variables: `imageMode` ('upload' | 'url'), `isUploading` (boolean), `isDragging` (boolean), `fileInputRef` (useRef<HTMLInputElement>)
+   - Changed zod schema `imageUrl` validation from `.url('URL gambar tidak valid')` to `.min(1, 'Gambar wajib disediakan')` to accept both URLs and local paths like `/uploads/filename.jpg`
+   - Added mode toggle tabs: "Unggah File" (Upload icon) and "Tautan URL" (Link2 icon) with active state styling
+   - Upload mode features:
+     - Drag-and-drop area with dashed border, visual highlight on drag-over
+     - Click-to-upload functionality via hidden file input
+     - Upload progress indicator (Loader2 spinner with "Mengunggah gambar..." text)
+     - After upload: shows thumbnail preview with X button to remove
+     - "Pilih File" button for manual file selection
+     - File type filter on input: `accept="image/jpeg,image/png,image/webp"`
+   - URL mode: preserves existing URL input behavior
+   - `handleFileUpload` function: sends file to `/api/upload`, sets `imageUrl` form value on success, shows toast notifications
+   - Drag-and-drop handlers: `handleDragOver`, `handleDragLeave`, `handleDrop` with visual feedback
+   - Edit mode: auto-detects upload vs URL mode based on imageUrl prefix (`/uploads/` → upload mode)
+   - Keyboard accessible: upload area supports Enter/Space key to trigger file picker
+
+### Verification Results
+- ✅ ESLint passes with no errors (0 problems)
+- ✅ Dev server compiling and serving pages without errors
+- ✅ No new lint errors introduced
+
+---
+
+## Bug Fixes & Feature Additions - User Request
+
+**Agent**: main
+**Date**: 2026-06-07
+**Status**: ✅ All Completed
+
+### User-Reported Bugs Fixed
+
+1. **Sticky Header Shift** - Changed header from `sticky top-0` to `fixed top-0 left-0 right-0` with a `h-16` spacer div below it to prevent content from going under the header. Header now stays perfectly fixed at top during scroll with no shifting.
+
+2. **Footer Text Readability** - Removed `tenun-pattern` class from footer body (was making text blend in), changed background from `bg-card` to `bg-muted/50`, added solid `bg-background/95 backdrop-blur-sm` layer under content, increased all text opacity (`/80` → `/90`, `/60` → `/80`), made section headings bolder (`font-semibold` → `font-bold`).
+
+3. **Admin Login Not Visible** - Made the "Admin" link in the header more visible with a `LogIn` icon, proper text size, visible border, and hover effects. Added in both desktop nav and mobile sheet menu.
+
+### New Features Added
+
+4. **"Kembali ke Website" (Back to Website) Button** - Added in three places:
+   - Admin sidebar (between nav links and user section, with Separator)
+   - Mobile admin top header bar
+   - Admin login page (below the login form card)
+   - Uses ArrowLeft icon, emerald color scheme for distinction
+
+5. **Image Upload for Products** - Admins can now upload images directly instead of only using URLs:
+   - Created `/api/upload` route that saves files to `/public/uploads/` with UUID filenames
+   - Validates file type (JPG, PNG, WebP) and size (max 5MB)
+   - Product form has toggle tabs: "Unggah File" (Upload) vs "Tautan URL" (URL)
+   - Upload mode: drag-and-drop area with dashed border, click-to-upload, file preview
+   - URL mode: existing URL input preserved
+   - Zod schema updated to accept both URLs and local paths like `/uploads/filename.jpg`
+
+6. **next/image Config Fix** - Added `remotePatterns` to `next.config.ts` to allow external image hostnames (was causing runtime crash with certain product images).
+
+### Verification Results
+- ✅ All 6 QA test scenarios passed with agent-browser
+- ✅ Header stays fixed at `top: 0` at all scroll positions
+- ✅ Footer text has good contrast and readability
+- ✅ Admin login link visible in header navigation
+- ✅ "Kembali ke Website" link works from admin sidebar and login page
+- ✅ Product form upload/URL toggle works correctly
+- ✅ ESLint passes with no errors
+- ✅ Dev server running without errors
+
+### Admin Credentials
+- Email: `admin@perindag-ngada.go.id`
+- Password: `perindag2024`
