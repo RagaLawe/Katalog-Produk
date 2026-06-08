@@ -16,7 +16,7 @@ export default function WhatsAppButton({
   className,
   size = 'default',
 }: WhatsAppButtonProps) {
-  const adminWa = process.env.NEXT_PUBLIC_ADMIN_WA || '6281234567890';
+  const adminWa = process.env.NEXT_PUBLIC_ADMIN_WA || '6281313620658';
 
   const message = `Halo Admin Perindag Ngada, saya tertarik dengan produk *${productName}* seharga Rp *${price}*. Apakah stok masih tersedia? Mohon informasinya. Terima kasih.`;
 

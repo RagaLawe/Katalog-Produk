@@ -113,7 +113,7 @@ export default function NewsletterSection() {
             </Button>
           </form>
 
-          <p className="text-xs text-muted-foreground/60 mt-4">
+          <p className="text-xs text-muted-foreground mt-4">
             Kami menghormati privasi Anda. Berhenti berlangganan kapan saja.
           </p>
         </motion.div>

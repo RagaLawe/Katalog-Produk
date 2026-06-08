@@ -28,7 +28,7 @@ export default function Footer() {
               <h3 className="text-lg sm:text-xl font-bold mb-1">
                 Tertarik dengan Produk Kami?
               </h3>
-              <p className="text-primary-foreground/75 text-sm sm:text-base">
+              <p className="text-primary-foreground/90 text-sm sm:text-base">
                 Jelajahi koleksi produk unggulan Kabupaten Ngada
               </p>
             </div>

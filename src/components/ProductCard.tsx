@@ -45,7 +45,7 @@ export default function ProductCard({ product, showTrustBadge = true, imageHeigh
     maximumFractionDigits: 0,
   }).format(product.price);
 
-  const adminWa = process.env.NEXT_PUBLIC_ADMIN_WA || '6281234567890';
+  const adminWa = process.env.NEXT_PUBLIC_ADMIN_WA || '6281313620658';
   const waMessage = `Halo Admin Perindag Ngada, saya tertarik dengan produk *${product.name}* seharga Rp *${formattedPrice}*. Apakah stok masih tersedia? Mohon informasinya. Terima kasih.`;
   const waUrl = `https://wa.me/${adminWa}?text=${encodeURIComponent(waMessage)}`;
 

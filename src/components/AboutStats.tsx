@@ -32,7 +32,7 @@ export default function AboutStats() {
                     duration={2000}
                   />
                 </div>
-                <div className="text-sm text-primary-foreground/70">
+                <div className="text-sm text-primary-foreground/90">
                   {stat.label}
                 </div>
               </div>

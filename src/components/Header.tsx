@@ -89,7 +89,7 @@ export default function Header() {
             <ThemeToggle />
             <Link
               href="/admin"
-              className="relative flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200 text-foreground/60 hover:text-primary hover:bg-primary/5 border border-border/40 hover:border-primary/30 hover:shadow-sm"
+              className="relative flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200 text-foreground/80 hover:text-primary hover:bg-primary/5 border border-border/50 hover:border-primary/30 hover:shadow-sm"
               title="Login Admin"
             >
               <LogIn className="h-4 w-4" />

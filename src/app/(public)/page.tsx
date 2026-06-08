@@ -433,7 +433,7 @@ export default function Home() {
             <h2 className="text-2xl sm:text-3xl font-bold text-primary-foreground mb-4">
               Tertarik dengan Produk Kami?
             </h2>
-            <p className="text-primary-foreground/80 text-base sm:text-lg mb-8 leading-relaxed">
+            <p className="text-primary-foreground/90 text-base sm:text-lg mb-8 leading-relaxed">
               Hubungi admin kami melalui WhatsApp untuk informasi lebih lanjut tentang produk yang Anda minati.
             </p>
             <WhatsAppButton

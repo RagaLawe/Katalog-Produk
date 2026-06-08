@@ -47,7 +47,7 @@ export default function QuickViewModal({
   if (!product) return null;
 
   const favorited = isFavorite(product.id);
-  const adminWa = process.env.NEXT_PUBLIC_ADMIN_WA || '6281234567890';
+  const adminWa = process.env.NEXT_PUBLIC_ADMIN_WA || '6281313620658';
 
   const formattedPrice = new Intl.NumberFormat('id-ID', {
     style: 'currency',

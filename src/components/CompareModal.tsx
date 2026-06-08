@@ -21,7 +21,7 @@ interface CompareModalProps {
 export default function CompareModal({ open, onOpenChange }: CompareModalProps) {
   const { compareItems, removeItem } = useCompareStore();
 
-  const adminWa = process.env.NEXT_PUBLIC_ADMIN_WA || '6281234567890';
+  const adminWa = process.env.NEXT_PUBLIC_ADMIN_WA || '6281313620658';
 
   const getWaUrl = (productName: string, price: number) => {
     const formattedPrice = new Intl.NumberFormat('id-ID', {

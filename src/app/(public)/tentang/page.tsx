@@ -59,7 +59,7 @@ export default function TentangPage() {
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4 leading-tight">
             Tentang Dinas Perindag<br className="hidden sm:block" /> Kabupaten Ngada
           </h1>
-          <p className="text-primary-foreground/80 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="text-primary-foreground/90 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
             Mendorong pertumbuhan ekonomi lokal dan melestarikan kearifan budaya melalui pemberdayaan UMKM di Kabupaten Ngada, Nusa Tenggara Timur.
           </p>
           {/* Decorative gold accent line below subtitle */}
