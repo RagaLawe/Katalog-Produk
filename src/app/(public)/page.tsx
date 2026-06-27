@@ -4,14 +4,9 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, MessageCircle, ChevronDown } from 'lucide-react';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import CategoryBadge from '@/components/CategoryBadge';
-import TrustBadge from '@/components/TrustBadge';
-import PriceDisplay from '@/components/PriceDisplay';
-import WhatsAppButton from '@/components/WhatsAppButton';
 import ProductCard from '@/components/ProductCard';
-import FloatingOrbs from '@/components/FloatingOrbs';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import HomeStatsSection from '@/components/HomeStatsSection';
 import NewsletterSection from '@/components/NewsletterSection';
@@ -37,65 +32,52 @@ interface CategoryCounts {
   total: number;
 }
 
-const categoryBase = [
+const categories = [
   {
     key: 'tenun' as const,
-    title: 'Tenun Ikat Ngada',
+    title: 'Tenun Ikat',
+    subtitle: 'Warisan Budaya',
     description: 'Kain tenun tradisional dengan motif khas yang ditenun secara tangan oleh pengrajin lokal',
     image: '/images/categories/tenun-ikat.png',
     href: '/katalog?category=tenun',
-    accentColor: 'bg-primary',
-    accentBorder: 'border-b-primary',
-    badgeBg: 'bg-primary/90',
-    patternColor: 'rgba(139, 0, 0, 0.08)',
+    accent: 'bg-tenun-red',
+    textAccent: 'text-tenun-red',
   },
   {
     key: 'kopi' as const,
     title: 'Kopi Bajawa',
+    subtitle: 'Cita Rasa Mendunia',
     description: 'Kopi arabika premium dari dataran tinggi Bajawa dengan cita rasa yang Mendunia',
     image: '/images/categories/kopi-bajawa.png',
     href: '/katalog?category=kopi',
-    accentColor: 'bg-secondary',
-    accentBorder: 'border-b-secondary',
-    badgeBg: 'bg-secondary/90',
-    patternColor: 'rgba(111, 78, 55, 0.08)',
+    accent: 'bg-coffee-brown',
+    textAccent: 'text-coffee-brown',
   },
   {
     key: 'bambu' as const,
     title: 'Kerajinan Bambu',
+    subtitle: 'Keahlian Turun-Temurun',
     description: 'Aneka kerajinan tangan dari bambu yang dibuat dengan keahlian turun-temurun',
     image: '/images/categories/kerajinan-bambu.png',
     href: '/katalog?category=bambu',
-    accentColor: 'bg-bamboo-green',
-    accentBorder: 'border-b-bamboo-green',
-    badgeBg: 'bg-bamboo-green/90',
-    patternColor: 'rgba(91, 117, 83, 0.08)',
+    accent: 'bg-bamboo-green',
+    textAccent: 'text-bamboo-green',
   },
 ];
 
 const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.1, duration: 0.5, ease: 'easeOut' as const },
+    transition: { delay: i * 0.08, duration: 0.4, ease: 'easeOut' as const },
   }),
 };
 
 const staggerContainer = {
   hidden: {},
   visible: {
-    transition: { staggerChildren: 0.1 },
-  },
-};
-
-const heroWordVariants = {
-  hidden: { opacity: 0, y: 30, filter: 'blur(8px)' },
-  visible: {
-    opacity: 1,
-    y: 0,
-    filter: 'blur(0px)',
-    transition: { duration: 0.5, ease: 'easeOut' as const },
+    transition: { staggerChildren: 0.08 },
   },
 };
 
@@ -104,15 +86,13 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [categoryCounts, setCategoryCounts] = useState<CategoryCounts>({ tenun: 3, kopi: 3, bambu: 3, total: 9 });
 
-  // Parallax scroll transforms
   const { scrollY } = useScroll();
-  const heroY = useTransform(scrollY, [0, 500], [0, 150]);
+  const heroY = useTransform(scrollY, [0, 500], [0, 120]);
   const heroOpacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        // Fetch featured products
         const res = await fetch('/api/products?featured=true');
         if (res.ok) {
           const data = await res.json();
@@ -124,7 +104,6 @@ export default function Home() {
         setLoading(false);
       }
 
-      // Fetch category counts
       try {
         const res = await fetch('/api/products/count');
         if (res.ok) {
@@ -140,8 +119,8 @@ export default function Home() {
 
   return (
     <div>
-      {/* Hero Section with Parallax */}
-      <section className="relative w-full h-[70vh] min-h-[500px] max-h-[800px] overflow-hidden">
+      {/* Hero Section */}
+      <section className="relative w-full h-[75vh] min-h-[520px] max-h-[800px] overflow-hidden">
         <motion.div
           style={{ y: heroY }}
           className="absolute inset-0 will-change-transform"
@@ -156,116 +135,85 @@ export default function Home() {
           />
         </motion.div>
         <div className="hero-gradient absolute inset-0" />
-        <FloatingOrbs />
+
         <motion.div
           style={{ opacity: heroOpacity }}
           className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-end pb-16 sm:pb-20"
         >
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: 'easeOut' }}
-            className="max-w-2xl"
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="max-w-xl"
           >
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4">
-              <motion.span
-                variants={{
-                  hidden: {},
-                  visible: { transition: { staggerChildren: 0.08 } },
-                }}
-                initial="hidden"
-                animate="visible"
-                className="inline-flex flex-wrap"
-              >
-                {'Katalog Produk Unggulan Kabupaten Ngada'.split(' ').map((word, i) => (
-                  <motion.span
-                    key={i}
-                    variants={heroWordVariants}
-                    className="inline-block mr-[0.3em]"
-                  >
-                    {word}
-                  </motion.span>
-                ))}
-              </motion.span>
+            <p className="text-sm font-medium text-white/60 uppercase tracking-widest mb-3">
+              Dinas Perindag Kabupaten Ngada
+            </p>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-[1.1] mb-4 tracking-tight">
+              Katalog Produk Unggulan
             </h1>
-            <p className="text-base sm:text-lg text-white/85 leading-relaxed mb-8">
+            <p className="text-base sm:text-lg text-white/70 leading-relaxed mb-8">
               Temukan kekayaan budaya dan produk lokal dari Bumi Todo Ngada.
               Dari tenun ikat yang memukau hingga kopi Bajawa yang Mendunia.
             </p>
-            <motion.div
-              animate={{ y: [0, -5, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              className="flex flex-col sm:flex-row gap-3"
-            >
-              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg h-11">
                 <Link href="/katalog">
                   Jelajahi Katalog
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white">
+              <Button asChild size="lg" className="bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:text-white rounded-lg h-11">
                 <Link href="/tentang">
                   Tentang Kami
                 </Link>
               </Button>
-            </motion.div>
+            </div>
           </motion.div>
         </motion.div>
 
-        {/* Scroll Down Indicator */}
+        {/* Scroll Indicator */}
         <motion.button
           type="button"
           onClick={() => {
             const el = document.getElementById('kategori-produk');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 cursor-pointer group"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1.5 cursor-pointer group"
           aria-label="Gulir ke bawah"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 1.2, duration: 0.5 }}
         >
-          <span className="text-white/70 text-xs font-medium tracking-wider uppercase group-hover:text-white/90 transition-colors">
-            Jelajahi
+          <span className="text-white/50 text-[10px] font-medium tracking-widest uppercase">
+            Scroll
           </span>
           <motion.div
-            animate={{ y: [0, 8, 0] }}
+            animate={{ y: [0, 5, 0] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <ChevronDown className="h-6 w-6 text-white/70 group-hover:text-white/90 transition-colors" />
-          </motion.div>
-          <motion.div
-            className="w-5 h-8 rounded-full border-2 border-white/40 flex items-start justify-center p-1"
-            initial={{ opacity: 0.6 }}
-            animate={{ opacity: [0.4, 0.8, 0.4] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <motion.div
-              className="w-1 h-2 bg-white/70 rounded-full"
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-            />
+            <ChevronDown className="h-4 w-4 text-white/50" />
           </motion.div>
         </motion.button>
 
-        {/* Decorative gradient overlay at bottom blending into next section */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
+        {/* Bottom gradient blend */}
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
       </section>
 
       {/* Kategori Produk Section */}
-      <section id="kategori-produk" className="py-16 sm:py-20 bg-background">
+      <section id="kategori-produk" className="py-16 sm:py-24 bg-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-10 sm:mb-12"
+            transition={{ duration: 0.4 }}
+            className="text-center mb-12 sm:mb-16"
           >
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 section-accent">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
               Kategori Produk
             </h2>
-            <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto">
+            <p className="text-muted-foreground text-base max-w-md mx-auto">
               Jelajahi produk unggulan berdasarkan kategori
             </p>
           </motion.div>
@@ -275,43 +223,37 @@ export default function Home() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6"
           >
-            {categoryBase.map((cat, i) => (
+            {categories.map((cat, i) => (
               <motion.div key={cat.title} variants={fadeInUp} custom={i}>
-                <Link href={cat.href} className={`category-card block rounded-xl overflow-hidden shadow-md group border-b-4 ${cat.accentBorder}`}>
-                  <div className="relative h-64 sm:h-72 overflow-hidden">
+                <Link href={cat.href} className="category-card block rounded-xl overflow-hidden group">
+                  <div className="relative h-64 sm:h-80 overflow-hidden">
                     <Image
                       src={cat.image}
                       alt={cat.title}
                       fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
                       sizes="(max-width: 768px) 100vw, 33vw"
                     />
-                    {/* Gradient overlay with decorative pattern texture */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-                    {/* Subtle decorative pattern overlay */}
-                    <div
-                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                      style={{
-                        backgroundImage: `repeating-linear-gradient(45deg, ${cat.patternColor} 0px, ${cat.patternColor} 1px, transparent 1px, transparent 8px), repeating-linear-gradient(-45deg, ${cat.patternColor} 0px, ${cat.patternColor} 1px, transparent 1px, transparent 8px)`,
-                        backgroundSize: '12px 12px',
-                      }}
-                    />
-                    {/* Product count badge */}
-                    <div className={`absolute top-3 right-3 ${cat.badgeBg} backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm`}>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                    {/* Count badge */}
+                    <div className={`absolute top-3 right-3 ${cat.accent} text-white text-xs font-semibold px-2.5 py-1 rounded-md`}>
                       {categoryCounts[cat.key]} Produk
                     </div>
                     <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
+                      <p className="text-xs font-medium text-white/60 uppercase tracking-wider mb-1">
+                        {cat.subtitle}
+                      </p>
                       <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
                         {cat.title}
                       </h3>
-                      <p className="text-sm text-white/80 line-clamp-2 mb-3">
+                      <p className="text-sm text-white/70 line-clamp-2 mb-3">
                         {cat.description}
                       </p>
-                      <span className="inline-flex items-center text-sm font-medium text-gold-accent group-hover:translate-x-1 transition-transform">
+                      <span className="inline-flex items-center text-sm font-medium text-white/90 group-hover:text-white transition-colors">
                         Lihat Produk
-                        <ArrowRight className="ml-1 h-4 w-4" />
+                        <ArrowRight className="ml-1 h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                       </span>
                     </div>
                   </div>
@@ -322,41 +264,33 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Divider: Kategori Produk → HomeStatsSection */}
-      <div className="relative -mt-1 z-10">
-        <svg
-          viewBox="0 0 1440 60"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-auto block"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0 0H1440V20C1200 55 960 55 720 35C480 15 240 15 0 45V0Z"
-            className="fill-background"
-          />
-        </svg>
-      </div>
-
-      {/* Stats/Impact Section */}
+      {/* Stats Section */}
       <HomeStatsSection />
 
       {/* Produk Unggulan Section */}
-      <section className="py-16 sm:py-20 bg-warm-cream-dark/50 tenun-pattern">
+      <section className="py-16 sm:py-24 bg-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-10 sm:mb-12"
+            transition={{ duration: 0.4 }}
+            className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-10 sm:mb-12"
           >
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 section-accent">
-              Produk Unggulan
-            </h2>
-            <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto">
-              Pilihan terbaik dari koleksi kami
-            </p>
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+                Produk Unggulan
+              </h2>
+              <p className="text-muted-foreground text-base">
+                Pilihan terbaik dari koleksi kami
+              </p>
+            </div>
+            <Button asChild variant="outline" className="rounded-lg shrink-0">
+              <Link href="/katalog">
+                Lihat Semua
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
           </motion.div>
 
           {loading ? (
@@ -367,7 +301,7 @@ export default function Home() {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"
             >
               {products.map((product, i) => (
                 <motion.div key={product.id} variants={fadeInUp} custom={i}>
@@ -379,22 +313,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Divider: Produk Unggulan → TestimonialsSection */}
-      <div className="relative -mt-1 z-10">
-        <svg
-          viewBox="0 0 1440 60"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-auto block"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0 0H1440V25C1080 60 720 60 360 35C180 22 0 15 0 15V0Z"
-            className="fill-warm-cream-dark/50"
-          />
-        </svg>
-      </div>
-
       {/* Testimonials Section */}
       <TestimonialsSection />
 
@@ -402,46 +320,34 @@ export default function Home() {
       <NewsletterSection />
 
       {/* CTA Section */}
-      <section className="relative py-16 sm:py-20 bg-primary overflow-hidden">
-        {/* Decorative top wave divider */}
-        <div className="absolute top-0 left-0 right-0 -translate-y-[99%] z-10">
-          <svg
-            viewBox="0 0 1440 60"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-full h-auto block"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M0 60V30C240 0 480 0 720 30C960 60 1200 60 1440 30V60H0Z"
-              className="fill-primary"
-            />
-          </svg>
-        </div>
-        {/* Tenun pattern overlay */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <div className="tenun-pattern w-full h-full" />
-        </div>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+      <section className="py-16 sm:py-24 bg-primary">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="max-w-2xl mx-auto"
+            transition={{ duration: 0.4 }}
+            className="max-w-lg mx-auto"
           >
-            <h2 className="text-2xl sm:text-3xl font-bold text-primary-foreground mb-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 tracking-tight">
               Tertarik dengan Produk Kami?
             </h2>
-            <p className="text-primary-foreground/90 text-base sm:text-lg mb-8 leading-relaxed">
+            <p className="text-white/70 text-base sm:text-lg mb-8 leading-relaxed">
               Hubungi admin kami melalui WhatsApp untuk informasi lebih lanjut tentang produk yang Anda minati.
             </p>
-            <WhatsAppButton
-              productName="Produk Unggulan Ngada"
-              price="sesuai katalog"
+            <Button
+              asChild
               size="lg"
-              className="bg-[#25D366] hover:bg-[#20BD5A] text-white"
-            />
+              className="bg-[#25D366] hover:bg-[#20BD5A] text-white rounded-lg h-12 px-8 wa-pulse"
+            >
+              <a
+                href={`https://wa.me/6281313620658?text=${encodeURIComponent('Halo Admin Perindag Ngada, saya tertarik dengan produk unggulan Ngada. Mohon informasinya. Terima kasih.')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Tanya via WhatsApp
+              </a>
+            </Button>
           </motion.div>
         </div>
       </section>

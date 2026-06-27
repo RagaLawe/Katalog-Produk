@@ -43,25 +43,26 @@ export default function Header() {
 
   return (
     <>
-      {/* Fixed header - never moves */}
       <header
         className={cn(
-          'tenun-border-top fixed top-0 left-0 right-0 z-50 w-full transition-[background-color,box-shadow] duration-300',
+          'fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300',
           scrolled
-            ? 'bg-background/95 backdrop-blur-lg shadow-md'
-            : 'bg-background backdrop-blur-sm'
+            ? 'bg-background/90 backdrop-blur-xl shadow-[0_1px_0_0_rgba(0,0,0,0.05)]'
+            : 'bg-background/50 backdrop-blur-sm'
         )}
       >
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <Shield className="h-7 w-7 text-primary transition-transform group-hover:scale-110" />
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+              <Shield className="h-4.5 w-4.5 text-primary-foreground" />
+            </div>
             <div className="flex flex-col">
-              <span className="text-lg font-bold text-primary leading-tight">
+              <span className="text-sm font-bold text-foreground leading-tight tracking-tight">
                 Perindag
               </span>
-              <span className="text-xs text-secondary leading-tight -mt-0.5">
-                Kabupaten Ngada
+              <span className="text-[10px] text-muted-foreground leading-tight tracking-wide uppercase">
+                Kab. Ngada
               </span>
             </div>
           </Link>
@@ -73,26 +74,23 @@ export default function Header() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  'relative px-4 py-2 text-sm font-medium rounded-md transition-colors',
+                  'px-4 py-2 text-sm font-medium rounded-lg transition-colors',
                   isActive(link.href)
-                    ? 'text-primary bg-primary/10'
-                    : 'text-foreground/70 hover:text-primary hover:bg-primary/5'
+                    ? 'text-primary bg-primary/5'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                 )}
               >
                 {link.label}
-                {isActive(link.href) && (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-6 bg-primary rounded-full" />
-                )}
               </Link>
             ))}
-            <div className="w-px h-5 bg-border/50 mx-1" />
+            <div className="w-px h-4 bg-border mx-2" />
             <ThemeToggle />
             <Link
               href="/admin"
-              className="relative flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200 text-foreground/80 hover:text-primary hover:bg-primary/5 border border-border/50 hover:border-primary/30 hover:shadow-sm"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-accent"
               title="Login Admin"
             >
-              <LogIn className="h-4 w-4" />
+              <LogIn className="h-3.5 w-3.5" />
               <span>Admin</span>
             </Link>
           </nav>
@@ -102,7 +100,7 @@ export default function Header() {
             <ThemeToggle />
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="rounded-lg">
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Buka menu navigasi</span>
                 </Button>
@@ -110,11 +108,13 @@ export default function Header() {
             <SheetContent side="right" className="w-72">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-primary" />
-                  <span className="text-primary font-bold">Perindag Ngada</span>
+                  <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
+                    <Shield className="h-3.5 w-3.5 text-primary-foreground" />
+                  </div>
+                  <span className="font-bold text-foreground">Perindag Ngada</span>
                 </SheetTitle>
               </SheetHeader>
-              <nav className="flex flex-col gap-1 px-4 mt-4">
+              <nav className="flex flex-col gap-1 px-4 mt-6">
                 {navLinks.map((link) => (
                   <SheetClose asChild key={link.href}>
                     <Link
@@ -122,8 +122,8 @@ export default function Header() {
                       className={cn(
                         'flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors',
                         isActive(link.href)
-                          ? 'text-primary bg-primary/10 border-l-2 border-primary'
-                          : 'text-foreground/70 hover:text-primary hover:bg-primary/5'
+                          ? 'text-primary bg-primary/5'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                       )}
                       onClick={() => setOpen(false)}
                     >
@@ -131,11 +131,11 @@ export default function Header() {
                     </Link>
                   </SheetClose>
                 ))}
-                <div className="mt-3 pt-3 border-t border-border/50">
+                <div className="mt-4 pt-4 border-t border-border">
                   <SheetClose asChild>
                     <Link
                       href="/admin"
-                      className="flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-lg transition-colors text-foreground/70 hover:text-primary hover:bg-primary/5 hover:shadow-sm border border-border/40"
+                      className="flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-accent"
                       onClick={() => setOpen(false)}
                     >
                       <LogIn className="h-4 w-4" />
@@ -149,7 +149,7 @@ export default function Header() {
           </div>
         </div>
       </header>
-      {/* Spacer to prevent content from going behind the fixed header */}
+      {/* Spacer */}
       <div className="h-16" />
     </>
   );

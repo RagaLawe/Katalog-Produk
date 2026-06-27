@@ -9,8 +9,8 @@ interface TrustBadgeProps {
 }
 
 const trustConfig: Record<TrustType, { label: string }> = {
-  asli: { label: 'Produk Asli Ngada' },
-  dikurasi: { label: 'Dikurasi oleh Dinas Perindag' },
+  asli: { label: 'Asli Ngada' },
+  dikurasi: { label: 'Dikurasi' },
 };
 
 export default function TrustBadge({ type, className }: TrustBadgeProps) {
@@ -19,7 +19,7 @@ export default function TrustBadge({ type, className }: TrustBadgeProps) {
   return (
     <Badge
       variant="outline"
-      className={`bg-coffee-brown/10 text-coffee-brown border-coffee-brown/20 font-medium gap-1 ${className || ''}`}
+      className={`bg-coffee-brown/5 text-coffee-brown border-coffee-brown/10 font-medium text-[10px] sm:text-xs gap-1 px-2 py-0.5 ${className || ''}`}
     >
       <CheckCircle className="h-3 w-3" />
       {config.label}

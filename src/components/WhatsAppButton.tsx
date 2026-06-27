@@ -26,7 +26,7 @@ export default function WhatsAppButton({
     <Button
       asChild
       size={size}
-      className={`bg-[#25D366] hover:bg-[#20BD5A] text-white wa-pulse ${className || ''}`}
+      className={`bg-[#25D366] hover:bg-[#20BD5A] text-white rounded-lg ${className || ''}`}
     >
       <a href={waUrl} target="_blank" rel="noopener noreferrer">
         <MessageCircle className="h-4 w-4" />

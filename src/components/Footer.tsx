@@ -1,42 +1,40 @@
 'use client';
 
 import Link from 'next/link';
-import { Shield, Phone, Mail, MapPin, Facebook, Instagram, Youtube, ArrowRight, Package, Users, MapPin as MapPinIcon } from 'lucide-react';
+import { Shield, Phone, Mail, MapPin, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const quickLinks = [
   { href: '/', label: 'Beranda' },
-  { href: '/katalog', label: 'Katalog Produk' },
+  { href: '/katalog', label: 'Katalog' },
   { href: '/tentang', label: 'Tentang Kami' },
-  { href: '/admin', label: 'Admin' },
 ];
 
-const socialLinks = [
-  { href: '#', label: 'Facebook', icon: Facebook },
-  { href: '#', label: 'Instagram', icon: Instagram },
-  { href: '#', label: 'YouTube', icon: Youtube },
+const categoryLinks = [
+  { href: '/katalog?category=tenun', label: 'Tenun Ikat' },
+  { href: '/katalog?category=kopi', label: 'Kopi Bajawa' },
+  { href: '/katalog?category=bambu', label: 'Kerajinan Bambu' },
 ];
 
 export default function Footer() {
   return (
-    <footer className="mt-auto">
+    <footer className="mt-auto border-t border-border/50">
       {/* CTA Bar */}
-      <div className="bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-primary">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
             <div>
-              <h3 className="text-lg sm:text-xl font-bold mb-1">
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">
                 Tertarik dengan Produk Kami?
               </h3>
-              <p className="text-primary-foreground/90 text-sm sm:text-base">
+              <p className="text-white/70 text-sm sm:text-base">
                 Jelajahi koleksi produk unggulan Kabupaten Ngada
               </p>
             </div>
             <Button
               asChild
               size="lg"
-              variant="outline"
-              className="border-white/40 text-white hover:bg-white/15 hover:text-white shrink-0 bg-white/10"
+              className="bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:text-white shrink-0 rounded-lg"
             >
               <Link href="/katalog">
                 Lihat Katalog
@@ -47,151 +45,101 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Decorative Wave Divider */}
-      <div className="relative bg-card">
-        <div className="absolute top-0 left-0 right-0 -translate-y-[99%] z-10">
-          <svg
-            viewBox="0 0 1440 60"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-full h-auto block"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M0 60V30C240 0 480 0 720 30C960 60 1200 60 1440 30V60H0Z"
-              className="fill-card"
-            />
-          </svg>
-        </div>
-
-        {/* Tenun border between CTA and main footer */}
-        <div className="tenun-border-top bg-muted/50">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 relative z-10 bg-background/95 backdrop-blur-sm rounded-t-lg">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-              {/* Dinas Info */}
-              <div className="space-y-4 sm:col-span-2 lg:col-span-1">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                    <Shield className="h-6 w-6 text-primary" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-base font-bold text-primary leading-tight">
-                      Perindag
-                    </span>
-                    <span className="text-xs text-secondary leading-tight">
-                      Kabupaten Ngada
-                    </span>
-                  </div>
+      {/* Main Footer */}
+      <div className="bg-card">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+            {/* Dinas Info */}
+            <div className="space-y-4 sm:col-span-2 lg:col-span-1">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+                  <Shield className="h-4 w-4 text-primary-foreground" />
                 </div>
-                <p className="text-sm text-foreground leading-relaxed">
-                  Dinas Perdagangan dan Perindustrian Kabupaten Ngada
-                </p>
-                <div className="space-y-2.5">
-                  <div className="flex items-start gap-2 text-sm text-foreground/90">
-                    <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>
-                      Jl. Soekarno No. 1, Bajawa, Kabupaten Ngada, NTT
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-foreground/90">
-                    <Phone className="h-4 w-4 text-primary shrink-0" />
-                    <span>(0384) 21001</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-foreground/90">
-                    <Mail className="h-4 w-4 text-primary shrink-0" />
-                    <span>perindag@ngadakab.go.id</span>
-                  </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-bold text-foreground leading-tight">
+                    Perindag
+                  </span>
+                  <span className="text-[10px] text-muted-foreground leading-tight tracking-wide uppercase">
+                    Kab. Ngada
+                  </span>
                 </div>
               </div>
-
-              {/* Quick Links */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
-                  Tautan Cepat
-                </h3>
-                <nav className="flex flex-col gap-2.5">
-                  {quickLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className="text-sm text-foreground/90 hover:text-primary transition-colors w-fit group"
-                    >
-                      <span className="relative">
-                        {link.label}
-                        <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-primary transition-all duration-300 group-hover:w-full" />
-                      </span>
-                    </Link>
-                  ))}
-                </nav>
-              </div>
-
-              {/* About Section */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
-                  Tentang Katalog
-                </h3>
-                <p className="text-sm text-foreground/90 leading-relaxed">
-                  Katalog digital produk unggulan Kabupaten Ngada yang dikurasi oleh
-                  Dinas Perdagangan dan Perindustrian. Mendukung UMKM lokal dan
-                  melestarikan kearifan budaya NTT.
-                </p>
-              </div>
-
-              {/* Social Media */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
-                  Ikuti Kami
-                </h3>
-                <div className="flex gap-3">
-                  {socialLinks.map((social) => (
-                    <a
-                      key={social.label}
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-foreground/80 hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/25 transition-all duration-300"
-                      aria-label={social.label}
-                    >
-                      <social.icon className="h-4 w-4" />
-                    </a>
-                  ))}
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Dinas Perdagangan dan Perindustrian Kabupaten Ngada
+              </p>
+              <div className="space-y-2">
+                <div className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                  <MapPin className="h-4 w-4 text-primary/60 mt-0.5 shrink-0" />
+                  <span>Jl. Soekarno No. 1, Bajawa, Kabupaten Ngada, NTT</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                  <Phone className="h-4 w-4 text-primary/60 shrink-0" />
+                  <span>(0384) 21001</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                  <Mail className="h-4 w-4 text-primary/60 shrink-0" />
+                  <span>perindag@ngadakab.go.id</span>
                 </div>
               </div>
             </div>
 
-            {/* Quick Stats Mini Section */}
-            <div className="mt-8 pt-5 border-t border-border/40">
-              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-sm text-foreground">
-                <div className="flex items-center gap-1.5">
-                  <Package className="h-3.5 w-3.5" />
-                  <span>3 Kategori</span>
-                </div>
-                <span className="text-foreground/25">•</span>
-                <div className="flex items-center gap-1.5">
-                  <Users className="h-3.5 w-3.5" />
-                  <span>50+ Pengrajin</span>
-                </div>
-                <span className="text-foreground/25">•</span>
-                <div className="flex items-center gap-1.5">
-                  <MapPinIcon className="h-3.5 w-3.5" />
-                  <span>10+ Desa</span>
-                </div>
-              </div>
+            {/* Quick Links */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                Navigasi
+              </h3>
+              <nav className="flex flex-col gap-2">
+                {quickLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
             </div>
 
-            {/* Separator & Copyright */}
-            <div className="mt-5 pt-5 border-t border-border/40">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-primary/80" />
-                  <p className="text-xs text-foreground/80">
-                    © {new Date().getFullYear()} Dinas Perindag Kabupaten Ngada. Hak Cipta Dilindungi.
-                  </p>
-                </div>
-                <p className="text-xs text-foreground/80">
-                  Dibuat dengan ❤️ untuk UMKM Ngada
-                </p>
-              </div>
+            {/* Category Links */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                Kategori Produk
+              </h3>
+              <nav className="flex flex-col gap-2">
+                {categoryLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+
+            {/* About Section */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                Tentang Katalog
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Katalog digital produk unggulan Kabupaten Ngada yang dikurasi oleh
+                Dinas Perdagangan dan Perindustrian.
+              </p>
+            </div>
+          </div>
+
+          {/* Copyright */}
+          <div className="mt-10 pt-6 border-t border-border/40">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+              <p className="text-xs text-muted-foreground">
+                &copy; {new Date().getFullYear()} Dinas Perindag Kabupaten Ngada
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Dibuat dengan ❤️ untuk UMKM Ngada
+              </p>
             </div>
           </div>
         </div>

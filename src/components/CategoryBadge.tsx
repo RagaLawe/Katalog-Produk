@@ -13,17 +13,17 @@ const categoryConfig: Record<
 > = {
   tenun: {
     label: 'Tenun Ikat',
-    bgColor: 'bg-tenun-red/10',
+    bgColor: 'bg-tenun-red/5',
     textColor: 'text-tenun-red',
   },
   kopi: {
     label: 'Kopi Bajawa',
-    bgColor: 'bg-coffee-brown/10',
+    bgColor: 'bg-coffee-brown/5',
     textColor: 'text-coffee-brown',
   },
   bambu: {
     label: 'Kerajinan Bambu',
-    bgColor: 'bg-bamboo-green/10',
+    bgColor: 'bg-bamboo-green/5',
     textColor: 'text-bamboo-green',
   },
 };
@@ -37,7 +37,7 @@ export default function CategoryBadge({
   return (
     <Badge
       variant="outline"
-      className={`${config.bgColor} ${config.textColor} border-current/20 font-medium ${className || ''}`}
+      className={`${config.bgColor} ${config.textColor} border-current/10 font-medium text-[10px] sm:text-xs px-2 py-0.5 ${className || ''}`}
     >
       {config.label}
     </Badge>

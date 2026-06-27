@@ -7,7 +7,6 @@ import { motion } from 'framer-motion';
 import { MessageCircle, Heart } from 'lucide-react';
 import { toast } from 'sonner';
 import CategoryBadge from '@/components/CategoryBadge';
-import TrustBadge from '@/components/TrustBadge';
 import PriceDisplay from '@/components/PriceDisplay';
 import CompareButton from '@/components/CompareButton';
 import StarRating from '@/components/StarRating';
@@ -62,79 +61,76 @@ export default function ProductCard({ product, showTrustBadge = true, imageHeigh
 
   return (
     <div
-      className="product-card group bg-card rounded-xl overflow-hidden shadow-sm border border-border/50 h-full relative transition-all duration-300 hover:ring-1 hover:ring-primary/20 hover:shadow-lg hover:shadow-primary/5"
+      className="product-card group bg-card rounded-xl overflow-hidden border border-border/40 h-full relative"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Image Area */}
-      <div className={`relative ${imageHeight || 'h-52 sm:h-56'} overflow-hidden`}>
+      <div className={`relative ${imageHeight || 'h-48 sm:h-52'} overflow-hidden`}>
         <Link href={`/produk/${product.slug}`} className="relative block h-full">
           <Image
             src={product.imageUrl}
             alt={product.name}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-110 hover:scale-110"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
-          {/* Hover overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
         </Link>
         <div className="absolute top-3 left-3 flex gap-2 flex-wrap z-[2]">
           <CategoryBadge category={product.category} />
-          {showTrustBadge && <TrustBadge type="asli" />}
         </div>
 
-        {/* Compare Button - top right */}
+        {/* Compare Button */}
         <CompareButton product={product} />
 
-        {/* Favorite Button - top right, below Compare Button */}
+        {/* Favorite Button */}
         <motion.button
           type="button"
           onClick={handleFavoriteClick}
           title={favorited ? 'Hapus dari favorit' : 'Tambah ke favorit'}
           aria-label={favorited ? `Hapus ${product.name} dari favorit` : `Tambah ${product.name} ke favorit`}
-          whileTap={{ scale: 0.8 }}
+          whileTap={{ scale: 0.85 }}
           className={`absolute top-12 right-3 z-[4] flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 cursor-pointer ${
             favorited
-              ? 'bg-red-500/90 backdrop-blur-sm text-white shadow-md'
-              : 'bg-background/80 backdrop-blur-sm text-muted-foreground border border-border/50 hover:bg-background hover:text-red-500'
+              ? 'bg-red-500 text-white shadow-sm'
+              : 'bg-background/80 backdrop-blur-sm text-muted-foreground hover:text-red-500'
           }`}
         >
-          <Heart className={`h-4 w-4 ${favorited ? 'fill-current' : ''}`} />
+          <Heart className={`h-3.5 w-3.5 ${favorited ? 'fill-current' : ''}`} />
         </motion.button>
 
-        {/* Quick View Button - appears on hover */}
+        {/* Quick View Button */}
         {isHovered && (
           <QuickViewButton onClick={() => setQuickViewOpen(true)} />
         )}
 
-        {/* WhatsApp Quick-Action Button - appears on hover */}
+        {/* WhatsApp Quick-Action */}
         <motion.a
           href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
-          initial={{ opacity: 0, scale: 0.8 }}
+          initial={{ opacity: 0, scale: 0.9 }}
           animate={{
             opacity: isHovered ? 1 : 0,
-            scale: isHovered ? 1 : 0.8,
+            scale: isHovered ? 1 : 0.9,
           }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="absolute bottom-3 right-3 z-[3] flex items-center justify-center w-10 h-10 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white shadow-lg transition-colors"
+          transition={{ duration: 0.15, ease: 'easeOut' }}
+          className="absolute bottom-3 right-3 z-[3] flex items-center justify-center w-9 h-9 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white shadow-sm transition-colors"
           onClick={(e) => e.stopPropagation()}
           aria-label={`Tanya ${product.name} via WhatsApp`}
         >
-          <MessageCircle className="h-5 w-5" />
+          <MessageCircle className="h-4 w-4" />
         </motion.a>
       </div>
 
       {/* Content Area */}
       <Link href={`/produk/${product.slug}`}>
-        <div className="p-4 sm:p-5">
-          <h3 className="font-semibold text-foreground text-base sm:text-lg mb-1 line-clamp-1">
+        <div className="p-4">
+          <h3 className="font-semibold text-foreground text-sm sm:text-base mb-1 line-clamp-1">
             {product.name}
           </h3>
           <div className="mb-1.5">
-            <PriceDisplay price={product.price} className="text-lg" />
+            <PriceDisplay price={product.price} className="text-base" />
           </div>
           <div className="mb-2">
             <StarRating
@@ -144,7 +140,7 @@ export default function ProductCard({ product, showTrustBadge = true, imageHeigh
               showCount={true}
             />
           </div>
-          <p className="text-sm text-muted-foreground line-clamp-2">
+          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
             {product.description}
           </p>
         </div>

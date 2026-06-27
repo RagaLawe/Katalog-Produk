@@ -40,11 +40,11 @@ const categoryFilters = [
 ];
 
 const fadeInUp = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 16 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.05, duration: 0.4, ease: 'easeOut' as const },
+    transition: { delay: i * 0.04, duration: 0.3, ease: 'easeOut' as const },
   }),
 };
 
@@ -66,7 +66,6 @@ function CatalogContent() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const itemsPerPage = 6;
 
-  // Get favorites for the section
   const { favorites } = useFavoritesStore();
 
   const sortedProducts = useMemo(() => {
@@ -86,7 +85,6 @@ function CatalogContent() {
         break;
       case 'newest':
       default:
-        // Default order from API (newest first)
         break;
     }
     return sorted;
@@ -123,7 +121,6 @@ function CatalogContent() {
     fetchProducts(activeCategory, searchQuery);
   }, [activeCategory, searchQuery, fetchProducts]);
 
-  // Search suggestions with debounce
   const fetchSuggestions = useCallback(async (query: string) => {
     if (query.length < 2) {
       setSuggestions([]);
@@ -144,13 +141,11 @@ function CatalogContent() {
     setInputValue(value);
     setCurrentPage(1);
 
-    // Clear previous timeout
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
 
     if (value.length >= 2) {
-      // Debounce suggestions at 300ms
       debounceRef.current = setTimeout(() => {
         fetchSuggestions(value);
         setShowSuggestions(true);
@@ -160,7 +155,6 @@ function CatalogContent() {
       setShowSuggestions(false);
     }
 
-    // Update search query with 400ms debounce
     debounceRef.current = setTimeout(() => {
       setSearchQuery(value);
     }, 400);
@@ -179,7 +173,6 @@ function CatalogContent() {
     setSearchQuery(inputValue);
   };
 
-  // Close suggestions when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -208,59 +201,28 @@ function CatalogContent() {
       <Breadcrumb items={[{ label: 'Beranda', href: '/' }, { label: 'Katalog' }]} />
 
       {/* Page Header */}
-      <section className="bg-primary/5 tenun-pattern py-12 sm:py-16 relative overflow-hidden">
-        {/* Decorative SVG shapes */}
-        <div className="absolute inset-0 pointer-events-none">
-          {/* Large circle - top right */}
-          <svg className="absolute -top-20 -right-20 w-64 h-64 text-primary/[0.06]" viewBox="0 0 200 200" fill="currentColor">
-            <circle cx="100" cy="100" r="100" />
-          </svg>
-          {/* Medium circle - bottom left */}
-          <svg className="absolute -bottom-10 -left-16 w-48 h-48 text-gold-accent/[0.06]" viewBox="0 0 200 200" fill="currentColor">
-            <circle cx="100" cy="100" r="100" />
-          </svg>
-          {/* Ngada-inspired diamond pattern - center left */}
-          <svg className="absolute top-1/2 -translate-y-1/2 left-[10%] w-20 h-20 text-secondary/[0.08]" viewBox="0 0 80 80" fill="currentColor">
-            <path d="M40 0L80 40L40 80L0 40Z" />
-          </svg>
-          {/* Small dot cluster - right side */}
-          <svg className="absolute top-[30%] right-[15%] w-16 h-16 text-bamboo-green/[0.08]" viewBox="0 0 60 60" fill="currentColor">
-            <circle cx="10" cy="10" r="4" />
-            <circle cx="30" cy="10" r="4" />
-            <circle cx="50" cy="10" r="4" />
-            <circle cx="20" cy="30" r="4" />
-            <circle cx="40" cy="30" r="4" />
-            <circle cx="10" cy="50" r="4" />
-            <circle cx="30" cy="50" r="4" />
-            <circle cx="50" cy="50" r="4" />
-          </svg>
-        </div>
-
-        {/* Shimmer effect */}
-        <div className="absolute inset-0 shimmer pointer-events-none" />
-
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <section className="py-12 sm:py-16 bg-muted/30">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.4 }}
             className="text-center"
           >
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3 section-accent">
+            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2 tracking-tight">
               Katalog Produk
             </h1>
-            <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto">
+            <p className="text-muted-foreground text-base max-w-md mx-auto">
               Jelajahi seluruh koleksi produk unggulan Kabupaten Ngada
             </p>
-            {/* Product count indicator */}
             {!loading && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3, duration: 0.3 }}
-                className="mt-4 inline-flex items-center gap-2 bg-primary/10 text-primary text-sm font-medium px-4 py-1.5 rounded-full"
+                transition={{ delay: 0.2, duration: 0.3 }}
+                className="mt-4 inline-flex items-center gap-2 bg-primary/5 text-primary text-xs font-medium px-3 py-1.5 rounded-full"
               >
-                <PackageOpen className="h-4 w-4" />
+                <PackageOpen className="h-3.5 w-3.5" />
                 {sortedProducts.length} Produk Tersedia
               </motion.div>
             )}
@@ -269,11 +231,11 @@ function CatalogContent() {
       </section>
 
       {/* Filter Bar */}
-      <section className="sticky top-16 z-30 bg-background/95 backdrop-blur-sm border-b border-border/50 py-4">
+      <section className="sticky top-16 z-30 bg-background/90 backdrop-blur-xl border-b border-border/40 py-3">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            {/* Search with Suggestions */}
-            <div ref={searchRef} className="relative w-full sm:w-72">
+          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+            {/* Search */}
+            <div ref={searchRef} className="relative w-full sm:w-64">
               <form onSubmit={handleSearch}>
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
                 <Input
@@ -282,12 +244,11 @@ function CatalogContent() {
                   value={inputValue}
                   onChange={(e) => handleInputChange(e.target.value)}
                   onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
-                  className="pl-9 pr-4"
+                  className="pl-9 pr-4 h-9 bg-muted/50 border-border/40 rounded-lg text-sm"
                   autoComplete="off"
                 />
               </form>
 
-              {/* Search Suggestions Dropdown */}
               <AnimatePresence>
                 {showSuggestions && suggestions.length > 0 && (
                   <motion.div
@@ -302,7 +263,7 @@ function CatalogContent() {
                         key={suggestion.id}
                         type="button"
                         onClick={() => handleSuggestionClick(suggestion.slug)}
-                        className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-accent/50 transition-colors text-sm"
+                        className="flex items-center gap-3 w-full px-3 py-2 text-left hover:bg-muted/50 transition-colors text-sm"
                       >
                         <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                         <span className="text-foreground truncate">{suggestion.name}</span>
@@ -315,8 +276,8 @@ function CatalogContent() {
 
             {/* Sort */}
             <Select value={sortBy} onValueChange={(v) => { setSortBy(v); setCurrentPage(1); }}>
-              <SelectTrigger size="sm" className="w-full sm:w-[180px]">
-                <ArrowUpDown className="h-4 w-4" />
+              <SelectTrigger size="sm" className="w-full sm:w-[160px] h-9 rounded-lg">
+                <ArrowUpDown className="h-3.5 w-3.5" />
                 <SelectValue placeholder="Urutkan" />
               </SelectTrigger>
               <SelectContent>
@@ -329,17 +290,17 @@ function CatalogContent() {
             </Select>
 
             {/* Category Filters */}
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-1.5 flex-wrap">
               {categoryFilters.map((filter) => (
                 <Button
                   key={filter.value}
-                  variant={activeCategory === filter.value ? 'default' : 'outline'}
+                  variant={activeCategory === filter.value ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => handleCategoryChange(filter.value)}
                   className={
                     activeCategory === filter.value
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-foreground/70 hover:text-primary'
+                      ? 'bg-primary text-primary-foreground h-8 rounded-lg text-xs'
+                      : 'text-muted-foreground hover:text-foreground h-8 rounded-lg text-xs'
                   }
                 >
                   {filter.label}
@@ -349,9 +310,9 @@ function CatalogContent() {
           </div>
 
           {/* Product Count */}
-          <div className="mt-3">
+          <div className="mt-2">
             {!loading && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Menampilkan {startItem}-{endItem} dari {sortedProducts.length} produk
               </p>
             )}
@@ -362,7 +323,6 @@ function CatalogContent() {
       {/* Product Grid */}
       <section className="py-8 sm:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          {/* Favorites Section */}
           {favorites.length > 0 && (
             <FavoritesSection products={products} />
           )}
@@ -375,16 +335,17 @@ function CatalogContent() {
               animate={{ opacity: 1 }}
               className="flex flex-col items-center justify-center py-16 text-center"
             >
-              <PackageOpen className="h-16 w-16 text-muted-foreground/40 mb-4" />
+              <PackageOpen className="h-12 w-12 text-muted-foreground/30 mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">
                 Produk Tidak Ditemukan
               </h3>
-              <p className="text-muted-foreground max-w-md">
-                Maaf, tidak ada produk yang sesuai dengan pencarian Anda. Coba ubah filter atau kata kunci pencarian.
+              <p className="text-sm text-muted-foreground max-w-md mb-4">
+                Tidak ada produk yang sesuai dengan pencarian Anda. Coba ubah filter atau kata kunci.
               </p>
               <Button
                 variant="outline"
-                className="mt-4"
+                size="sm"
+                className="rounded-lg"
                 onClick={() => {
                   setActiveCategory('');
                   setInputValue('');
@@ -399,7 +360,7 @@ function CatalogContent() {
           ) : (
             <motion.div
               layout
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"
             >
               <AnimatePresence mode="popLayout">
                 {paginatedProducts.map((product, i) => (
@@ -427,9 +388,9 @@ function CatalogContent() {
                 size="sm"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="gap-1"
+                className="gap-1 rounded-lg h-8 text-xs"
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-3.5 w-3.5" />
                 Sebelumnya
               </Button>
               <div className="flex items-center gap-1">
@@ -439,7 +400,7 @@ function CatalogContent() {
                     variant={currentPage === page ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setCurrentPage(page)}
-                    className={currentPage === page ? 'bg-primary text-primary-foreground' : ''}
+                    className={`rounded-lg h-8 w-8 p-0 text-xs ${currentPage === page ? 'bg-primary text-primary-foreground' : ''}`}
                   >
                     {page}
                   </Button>
@@ -450,17 +411,16 @@ function CatalogContent() {
                 size="sm"
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
-                className="gap-1"
+                className="gap-1 rounded-lg h-8 text-xs"
               >
                 Selanjutnya
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3.5 w-3.5" />
               </Button>
             </div>
           )}
         </div>
       </section>
 
-      {/* Compare Drawer */}
       <CompareDrawer />
     </div>
   );

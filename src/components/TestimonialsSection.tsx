@@ -31,7 +31,7 @@ const testimonials = [
     name: 'Ibu Marta',
     role: 'Pengrajin Bambu',
     category: 'bambu' as const,
-    text: 'Teknik anyaman bambu kami sudah turun-temurun tujuh generasi. Dulu kami hanya menjual di pasar lokal, sekarang produk kami sudah sampai ke Jakarta dan bahkan luar negeri. Dinas Perindag membantu kami berkembang.',
+    text: 'Teknik anyaman bambu kami sudah turun-temurun tujuh generasi. Dulu kami hanya menjual di pasar lokal, sekarang produk kami sudah sampai ke Jakarta dan bahkan luar negeri.',
     rating: 5,
   },
   {
@@ -50,7 +50,7 @@ const testimonials = [
   },
 ];
 
-const categoryBorderColors: Record<string, string> = {
+const categoryColors: Record<string, string> = {
   tenun: 'border-l-primary',
   kopi: 'border-l-secondary',
   bambu: 'border-l-bamboo-green',
@@ -68,12 +68,10 @@ export default function TestimonialsSection() {
     setCount(api.scrollSnapList().length);
   }, [api]);
 
-  // Subscribe to carousel events (same pattern as ProductDetailContent)
   if (api) {
     api.on('select', onSelect);
   }
 
-  // Auto-scroll every 5 seconds
   useEffect(() => {
     if (!api) return;
     autoScrollRef.current = setInterval(() => {
@@ -88,30 +86,28 @@ export default function TestimonialsSection() {
   }, [api]);
 
   return (
-    <section className="py-16 sm:py-20 bg-warm-cream-dark/30 tenun-pattern">
+    <section className="py-16 sm:py-24 bg-muted/40">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.4 }}
           className="text-center mb-10 sm:mb-12"
         >
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
             Kata Pengrajin Kami
           </h2>
-          <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto">
+          <p className="text-muted-foreground text-base max-w-md mx-auto">
             Cerita langsung dari para pengrajin produk unggulan Ngada
           </p>
         </motion.div>
 
-        {/* Carousel */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
           className="relative"
         >
           <Carousel
@@ -129,33 +125,29 @@ export default function TestimonialsSection() {
                   className="pl-4 basis-full md:basis-1/2"
                 >
                   <div
-                    className={`bg-background rounded-xl shadow-sm border border-border/50 border-l-4 ${categoryBorderColors[testimonial.category]} p-6 relative h-full`}
+                    className={`bg-card rounded-xl border border-border/40 border-l-2 ${categoryColors[testimonial.category]} p-6 relative h-full`}
                   >
-                    {/* Quote icon */}
-                    <Quote className="absolute top-4 right-4 h-8 w-8 text-muted-foreground/15" />
+                    <Quote className="absolute top-4 right-4 h-6 w-6 text-muted-foreground/10" />
 
-                    {/* Stars */}
                     <div className="flex gap-0.5 mb-3">
                       {Array.from({ length: testimonial.rating }).map((_, i) => (
                         <Star
                           key={i}
-                          className="h-4 w-4 fill-gold-accent text-gold-accent"
+                          className="h-3.5 w-3.5 fill-gold-accent text-gold-accent"
                         />
                       ))}
                     </div>
 
-                    {/* Testimonial text */}
-                    <p className="text-muted-foreground italic leading-relaxed mb-4 text-sm sm:text-base">
+                    <p className="text-muted-foreground italic leading-relaxed mb-4 text-sm">
                       &ldquo;{testimonial.text}&rdquo;
                     </p>
 
-                    {/* Author info */}
                     <div className="flex items-center justify-between mt-auto">
                       <div>
-                        <p className="font-semibold text-foreground">
+                        <p className="font-semibold text-foreground text-sm">
                           {testimonial.name}
                         </p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                           {testimonial.role}
                         </p>
                       </div>
@@ -167,28 +159,26 @@ export default function TestimonialsSection() {
             </CarouselContent>
           </Carousel>
 
-          {/* Navigation Controls */}
           <div className="flex items-center justify-center gap-4 mt-8">
             <Button
               variant="outline"
               size="icon"
-              className="rounded-full size-10"
+              className="rounded-full size-9"
               onClick={() => api?.scrollPrev()}
               aria-label="Testimoni sebelumnya"
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-4 w-4" />
             </Button>
 
-            {/* Dots */}
             <div className="flex gap-2">
               {Array.from({ length: count }).map((_, index) => (
                 <button
                   key={index}
                   onClick={() => api?.scrollTo(index)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
                     index === current
-                      ? 'w-8 bg-primary'
-                      : 'w-2.5 bg-muted-foreground/30'
+                      ? 'w-6 bg-primary'
+                      : 'w-1.5 bg-muted-foreground/20'
                   }`}
                   aria-label={`Go to testimonial ${index + 1}`}
                 />
@@ -198,11 +188,11 @@ export default function TestimonialsSection() {
             <Button
               variant="outline"
               size="icon"
-              className="rounded-full size-10"
+              className="rounded-full size-9"
               onClick={() => api?.scrollNext()}
               aria-label="Testimoni berikutnya"
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </motion.div>

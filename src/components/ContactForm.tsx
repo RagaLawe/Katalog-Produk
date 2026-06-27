@@ -75,7 +75,6 @@ export default function ContactForm() {
 
     setIsSubmitting(true);
 
-    // Simulate a brief delay for UX
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     toast.success('Pesan Anda telah terkirim! Kami akan menghubungi Anda segera.');
@@ -92,7 +91,6 @@ export default function ContactForm() {
 
   const handleChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error for this field when user starts typing
     if (errors[field]) {
       setErrors((prev) => {
         const updated = { ...prev };
@@ -121,29 +119,28 @@ export default function ContactForm() {
   ];
 
   return (
-    <section className="py-14 sm:py-16 bg-background">
+    <section className="py-14 sm:py-20 bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
         <div className="text-center mb-10 sm:mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
             Hubungi Kami
           </h2>
-          <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto">
+          <p className="text-muted-foreground text-sm sm:text-base max-w-md mx-auto">
             Punya pertanyaan? Kami siap membantu Anda
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 max-w-5xl mx-auto">
-          {/* Contact Info - Left Side */}
+          {/* Contact Info */}
           <div className="flex flex-col justify-center">
-            <h3 className="text-lg font-semibold text-foreground mb-6">
+            <h3 className="text-base font-semibold text-foreground mb-6">
               Informasi Kontak
             </h3>
-            <div className="space-y-6">
+            <div className="space-y-5">
               {contactInfo.map((item) => (
-                <div key={item.title} className="flex items-start gap-4">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 shrink-0">
-                    <item.icon className="h-5 w-5 text-primary" />
+                <div key={item.title} className="flex items-start gap-3">
+                  <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-muted shrink-0">
+                    <item.icon className="h-4 w-4 text-primary" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-foreground mb-0.5">
@@ -156,98 +153,84 @@ export default function ContactForm() {
                 </div>
               ))}
             </div>
-
-            {/* Decorative divider for desktop */}
-            <div className="hidden lg:block mt-8">
-              <div className="tenun-border-top h-1" />
-            </div>
           </div>
 
-          {/* Contact Form - Right Side */}
-          <div className="bg-card rounded-xl shadow-sm border border-border/50 p-6 sm:p-8">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Nama Lengkap */}
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Nama Lengkap</Label>
+          {/* Form */}
+          <div className="bg-card rounded-xl border border-border/40 p-6 sm:p-8">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="fullName" className="text-sm">Nama Lengkap</Label>
                 <Input
                   id="fullName"
                   type="text"
                   placeholder="Masukkan nama lengkap Anda"
                   value={formData.fullName}
                   onChange={(e) => handleChange('fullName', e.target.value)}
-                  className={errors.fullName ? 'border-destructive' : ''}
+                  className={`h-9 rounded-lg text-sm ${errors.fullName ? 'border-destructive' : ''}`}
                 />
                 {errors.fullName && (
-                  <p className="text-sm text-destructive">{errors.fullName}</p>
+                  <p className="text-xs text-destructive">{errors.fullName}</p>
                 )}
               </div>
 
-              {/* Email */}
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="email" className="text-sm">Email</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="contoh@email.com"
                   value={formData.email}
                   onChange={(e) => handleChange('email', e.target.value)}
-                  className={errors.email ? 'border-destructive' : ''}
+                  className={`h-9 rounded-lg text-sm ${errors.email ? 'border-destructive' : ''}`}
                 />
                 {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email}</p>
+                  <p className="text-xs text-destructive">{errors.email}</p>
                 )}
               </div>
 
-              {/* Subjek */}
-              <div className="space-y-2">
-                <Label htmlFor="subject">Subjek</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="subject" className="text-sm">Subjek</Label>
                 <Select
                   value={formData.subject}
                   onValueChange={(value) => handleChange('subject', value)}
                 >
                   <SelectTrigger
                     id="subject"
-                    className={`w-full ${errors.subject ? 'border-destructive' : ''}`}
+                    className={`h-9 rounded-lg text-sm ${errors.subject ? 'border-destructive' : ''}`}
                   >
                     <SelectValue placeholder="Pilih subjek" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Pertanyaan Produk">
-                      Pertanyaan Produk
-                    </SelectItem>
+                    <SelectItem value="Pertanyaan Produk">Pertanyaan Produk</SelectItem>
                     <SelectItem value="Kerjasama">Kerjasama</SelectItem>
-                    <SelectItem value="Pemesanan Grosir">
-                      Pemesanan Grosir
-                    </SelectItem>
+                    <SelectItem value="Pemesanan Grosir">Pemesanan Grosir</SelectItem>
                     <SelectItem value="Lainnya">Lainnya</SelectItem>
                   </SelectContent>
                 </Select>
                 {errors.subject && (
-                  <p className="text-sm text-destructive">{errors.subject}</p>
+                  <p className="text-xs text-destructive">{errors.subject}</p>
                 )}
               </div>
 
-              {/* Pesan */}
-              <div className="space-y-2">
-                <Label htmlFor="message">Pesan</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="message" className="text-sm">Pesan</Label>
                 <Textarea
                   id="message"
                   placeholder="Tulis pesan Anda di sini..."
                   rows={4}
                   value={formData.message}
                   onChange={(e) => handleChange('message', e.target.value)}
-                  className={errors.message ? 'border-destructive' : ''}
+                  className={`rounded-lg text-sm ${errors.message ? 'border-destructive' : ''}`}
                 />
                 {errors.message && (
-                  <p className="text-sm text-destructive">{errors.message}</p>
+                  <p className="text-xs text-destructive">{errors.message}</p>
                 )}
               </div>
 
-              {/* Submit Button */}
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg h-10"
               >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">

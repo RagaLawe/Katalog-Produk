@@ -1770,3 +1770,40 @@ Added image upload functionality to the admin product form, enabling admins to e
 ### Admin Credentials
 - Email: `admin@perindag-ngada.go.id`
 - Password: `perindag2024`
+
+---
+Task ID: modern-redesign
+Agent: main
+Task: Modernize website style to be more modern and minimalist
+
+Work Log:
+- Read and analyzed all key component files to understand current design
+- Redesigned globals.css: removed tenun-pattern, tenun-border-top, shimmer, wave dividers, simplified hover effects, refined color palette for both light and dark modes
+- Redesigned Header.tsx: removed tenun-border-top decoration, clean logo with solid primary background, simplified nav with rounded-lg buttons, cleaner mobile menu
+- Redesigned Footer.tsx: removed wave dividers, decorative shapes, tenun patterns; clean border-t separator, streamlined 4-column grid with category links, simplified copyright
+- Redesigned homepage page.tsx: removed wave dividers between sections, simplified hero with cleaner typography, removed FloatingOrbs, cleaner category cards, added "Lihat Semua" button to products section, simplified scroll indicator
+- Redesigned ProductCard.tsx: cleaner border, smaller image area, simplified badges, subtler hover effects
+- Redesigned HomeStatsSection.tsx: removed decorative corner patterns, bottom accent bars, simplified to clean bordered cards
+- Redesigned TestimonialsSection.tsx: simplified card design, cleaner dots, smaller nav buttons
+- Redesigned NewsletterSection.tsx: removed decorative elements (circles, dots), cleaner compact layout
+- Redesigned katalog/page.tsx: removed decorative SVG shapes, shimmer effect, simplified header, cleaner filter bar with ghost variant buttons, smaller pagination
+- Redesign tentang/page.tsx: removed tenun patterns, decorative SVG shapes, wave dividers, simplified hero, alternating clean backgrounds
+- Updated CategoryBadge.tsx: smaller badge size (text-[10px]), lower opacity backgrounds
+- Updated TrustBadge.tsx: shorter labels ("Asli Ngada", "Dikurasi"), subtler colors
+- Updated WhatsAppButton.tsx: removed wa-pulse by default, added rounded-lg
+- Updated BackToTop.tsx: simpler animation, lighter shadow
+- Updated ContactForm.tsx: removed tenun-border-top decoration, cleaner form styling
+- Updated ScrollProgress.tsx: thinner bar (2px instead of 3px)
+- Updated AboutStats.tsx: removed tenun-pattern overlay, cleaner icon backgrounds
+- Fixed critical light mode issue: Footer CTA button white-on-white (changed from variant="outline" to custom bg-white/10)
+- Fixed hero "Tentang Kami" button same issue
+
+Stage Summary:
+- Complete modern minimalist redesign of entire website
+- All ornate decorative elements removed (tenun patterns, wave dividers, floating orbs, SVG shapes, shimmer effects)
+- Clean typography hierarchy with more whitespace
+- Subtler hover effects and transitions
+- Refined color palette with better light/dark mode contrast
+- Light mode text readability fixed (was the main pending issue from previous session)
+- ESLint passes clean
+- All pages rendering correctly (HTTP 200)

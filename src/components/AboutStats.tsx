@@ -12,27 +12,24 @@ const stats = [
 
 export default function AboutStats() {
   return (
-    <section className="py-14 sm:py-16 bg-primary relative overflow-hidden">
-      <div className="absolute inset-0 opacity-5">
-        <div className="tenun-pattern w-full h-full" />
-      </div>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section className="py-14 sm:py-20 bg-primary">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
               <div key={stat.label} className="text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary-foreground/10 mb-3">
-                  <Icon className="h-6 w-6 text-primary-foreground" />
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/10 mb-3">
+                  <Icon className="h-5 w-5 text-white" />
                 </div>
-                <div className="text-3xl sm:text-4xl font-bold text-primary-foreground mb-1">
+                <div className="text-2xl sm:text-3xl font-bold text-white mb-1">
                   <AnimatedCounter
                     value={stat.value}
                     suffix={stat.suffix}
                     duration={2000}
                   />
                 </div>
-                <div className="text-sm text-primary-foreground/90">
+                <div className="text-xs sm:text-sm text-white/70">
                   {stat.label}
                 </div>
               </div>
