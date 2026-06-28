@@ -1856,3 +1856,42 @@ Stage Summary:
 - All 4 environment variables configured on Vercel (3 encrypted, 1 public)
 - Deployment is fully functional and browser-verified
 - Known limitation: sandbox cannot reach Supabase DB ports, so local dev server cannot query the production DB (static pages render, API calls fail locally); full functionality is verified on the Vercel deployment
+
+---
+Task ID: feature-1
+Agent: main
+Task: Add per-product WhatsApp number, marketplace URL, and IKM info fields to products. Pre-fill 9 existing products with IKM data. Password stays as perindag2024.
+
+Work Log:
+- Updated prisma/schema.prisma: added 3 nullable fields to Product model (whatsappNumber, marketplaceUrl, ikmName)
+- Updated src/app/api/products/route.ts POST: accept new fields in destructuring + create, added URL validation for marketplaceUrl
+- Updated src/app/api/products/[slug]/route.ts PUT: accept new fields, added URL validation, build updateData with new fields (null-safe)
+- Updated src/app/admin/(dashboard)/dashboard/produk/page.tsx:
+  - Added ikmName, whatsappNumber, marketplaceUrl to zod schema (all optional, marketplaceUrl with .url() validation)
+  - Added fields to Product interface, defaultValues, and form.reset()
+  - Added "Informasi IKM & Kontak Pembelian" section with Building2 icon header
+  - ikmName: Input text, whatsappNumber: Input tel, marketplaceUrl: Input url
+  - Enhanced artisanInfo textarea to min-h-[120px] with richer placeholder
+  - Added Building2, Phone, ShoppingBag icons from lucide-react
+- Updated src/components/WhatsAppButton.tsx: added optional whatsappNumber prop, uses product-specific number with fallback to admin global
+- Updated src/components/ProductCard.tsx: added fields to interface, WA per-product, marketplace quick-action button (ExternalLink icon)
+- Updated src/components/QuickViewModal.tsx: added fields to interface, WA per-product, IKM section with ikmName title + Building2 icon, marketplace button
+- Updated src/components/ProductDetailContent.tsx: added fields to Product + RelatedProduct interfaces, WA per-product via WhatsAppButton prop, enhanced IKM section (ikmName as title, full artisanInfo with whitespace-pre-line, IKM Lokal Ngada badge), marketplace button in desktop + mobile sticky action bars
+- Updated src/app/(public)/produk/[slug]/page.tsx: pass new fields (ikmName, whatsappNumber, marketplaceUrl, artisanInfo) to related/cross products mapping
+- Updated prisma/seed.ts: rich multi-paragraph IKM descriptions for all 9 products, changed from create-only to upsert (so existing products get updated), all products have ikmName + enhanced artisanInfo + default WA number
+- Generated migration SQL: ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "ikmName"/"whatsappNumber"/"marketplaceUrl" TEXT (saved to .deploy-sql/migration-add-fields.sql)
+- Generated pre-fill SQL: 9 UPDATE statements setting ikmName, artisanInfo, whatsappNumber for each product (saved to .deploy-sql/prefill-ikm.sql)
+- Lint passes cleanly, Prisma client regenerated successfully
+- Committed 11 files (93dfd93) - NOT yet pushed to GitHub (credentials were deleted for security in previous session)
+- Dev server running locally but cannot test DB-dependent features (sandbox blocks Supabase ports)
+
+Stage Summary:
+- All code changes complete and lint-clean
+- Migration SQL + pre-fill SQL prepared and ready to execute via Supabase Management API
+- 2 local commits ready to push: d7d5d23 (instrumentation.ts) + 93dfd93 (new product fields)
+- BLOCKED: Need user to re-share GitHub + Supabase credentials to:
+  1. Execute migration SQL (add 3 columns to Supabase Product table)
+  2. Execute pre-fill SQL (update 9 products with IKM data)
+  3. Push 2 commits to GitHub (triggers Vercel auto-deploy)
+  4. Verify on production (https://perindag-ngada.vercel.app)
+- Deployment order matters: migration FIRST, then push (Vercel build expects new columns)
