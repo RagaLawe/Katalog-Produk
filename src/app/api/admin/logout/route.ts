@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sessions } from '@/lib/auth';
 
 /**
  * POST /api/admin/logout
- * Logout admin by invalidating the token
+ *
+ * Stateless logout: the JWT is not stored server-side, so "logout" simply
+ * instructs the client to discard its token. We return success as long as a
+ * Bearer token was provided (the client is responsible for removing it).
  */
 export async function POST(request: NextRequest) {
   try {
@@ -16,18 +18,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const token = authHeader.substring(7);
-
-    // Remove the session
-    const deleted = sessions.delete(token);
-
-    if (!deleted) {
-      return NextResponse.json(
-        { error: 'Invalid or expired token' },
-        { status: 401 }
-      );
-    }
-
+    // No server-side session to invalidate (JWT is stateless).
+    // The client must delete the token from localStorage.
     return NextResponse.json({ message: 'Logged out successfully' });
   } catch (error) {
     console.error('Error during logout:', error);

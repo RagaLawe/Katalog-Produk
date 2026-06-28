@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { v4 as uuidv4 } from 'uuid';
 import { db } from '@/lib/db';
-import { sessions } from '@/lib/auth';
+import { createAdminToken } from '@/lib/auth';
 
 /**
  * POST /api/admin/login
@@ -42,10 +41,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate token and store session
-    const token = uuidv4();
-    sessions.set(token, {
-      adminId: admin.id,
+    // Generate a stateless JWT (works on serverless platforms like Vercel)
+    const token = createAdminToken({
+      id: admin.id,
       email: admin.email,
       name: admin.name,
     });
