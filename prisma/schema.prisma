@@ -18,7 +18,10 @@ model Product {
   category    String        // 'tenun', 'kopi', or 'bambu'
   price       Int           // Price in IDR
   description String
-  artisanInfo String?       // "Dibuat oleh Ibu Maria dari Desa X"
+  artisanInfo String?       // Deskripsi lengkap IKM / pengrajin (multi-baris)
+  ikmName     String?       // Nama IKM / kelompok pengrajin
+  whatsappNumber String?    // Nomor WA khusus produk ini (fallback ke admin global)
+  marketplaceUrl String?    // Link marketplace (FB Marketplace, Tokopedia, Shopee, dll)
   imageUrl    String
   isFeatured  Boolean       @default(false)
   createdAt   DateTime      @default(now())

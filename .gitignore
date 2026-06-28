@@ -60,3 +60,9 @@ prompt
 server.log
 # Skills directory
 /skills/
+
+# deploy SQL scripts (local only)
+.deploy-sql/
+
+# tool results (local only)
+tool-results/

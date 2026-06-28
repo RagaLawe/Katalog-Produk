@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Eye, MessageCircle, Heart, User, ExternalLink } from 'lucide-react';
+import { Eye, MessageCircle, Heart, User, ExternalLink, Building2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Dialog,
@@ -27,6 +27,9 @@ interface Product {
   price: number;
   description: string;
   artisanInfo: string | null;
+  ikmName: string | null;
+  whatsappNumber: string | null;
+  marketplaceUrl: string | null;
   imageUrl: string;
   isFeatured: boolean;
 }
@@ -48,6 +51,7 @@ export default function QuickViewModal({
 
   const favorited = isFavorite(product.id);
   const adminWa = process.env.NEXT_PUBLIC_ADMIN_WA || '6281313620658';
+  const waNumber = product.whatsappNumber || adminWa;
 
   const formattedPrice = new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -56,8 +60,8 @@ export default function QuickViewModal({
     maximumFractionDigits: 0,
   }).format(product.price);
 
-  const waMessage = `Halo Admin Perindag Ngada, saya tertarik dengan produk *${product.name}* seharga Rp *${formattedPrice}*. Apakah stok masih tersedia? Mohon informasinya. Terima kasih.`;
-  const waUrl = `https://wa.me/${adminWa}?text=${encodeURIComponent(waMessage)}`;
+  const waMessage = `Halo, saya tertarik dengan produk *${product.name}* seharga Rp *${formattedPrice}*. Apakah stok masih tersedia? Mohon informasinya. Terima kasih.`;
+  const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`;
 
   const handleFavoriteClick = () => {
     toggleFavorite(product.id);
@@ -138,18 +142,24 @@ export default function QuickViewModal({
                   </p>
                 </div>
 
-                {/* Artisan Info */}
-                {product.artisanInfo && (
+                {/* IKM / Artisan Info */}
+                {(product.ikmName || product.artisanInfo) && (
                   <div className="mb-4 p-3 bg-primary/5 rounded-lg border-l-3 border-l-primary">
                     <div className="flex items-center gap-1.5 mb-1.5">
-                      <User className="h-3.5 w-3.5 text-primary" />
+                      {product.ikmName ? (
+                        <Building2 className="h-3.5 w-3.5 text-primary" />
+                      ) : (
+                        <User className="h-3.5 w-3.5 text-primary" />
+                      )}
                       <span className="text-xs font-semibold text-foreground">
-                        Cerita Pengrajin
+                        {product.ikmName || 'Cerita Pengrajin'}
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground italic line-clamp-2">
-                      {product.artisanInfo}
-                    </p>
+                    {product.artisanInfo && (
+                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                        {product.artisanInfo}
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -174,6 +184,20 @@ export default function QuickViewModal({
                         WhatsApp
                       </a>
                     </Button>
+
+                    {/* Marketplace Button (only if URL exists) */}
+                    {product.marketplaceUrl && (
+                      <Button
+                        asChild
+                        variant="outline"
+                        className="gap-2"
+                      >
+                        <a href={product.marketplaceUrl} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="h-4 w-4" />
+                          <span className="hidden sm:inline">Marketplace</span>
+                        </a>
+                      </Button>
+                    )}
 
                     {/* Favorite Button */}
                     <Button

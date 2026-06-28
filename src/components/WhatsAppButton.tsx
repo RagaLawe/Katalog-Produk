@@ -8,6 +8,7 @@ interface WhatsAppButtonProps {
   price: string;
   className?: string;
   size?: 'default' | 'sm' | 'lg';
+  whatsappNumber?: string | null;
 }
 
 export default function WhatsAppButton({
@@ -15,12 +16,15 @@ export default function WhatsAppButton({
   price,
   className,
   size = 'default',
+  whatsappNumber,
 }: WhatsAppButtonProps) {
   const adminWa = process.env.NEXT_PUBLIC_ADMIN_WA || '6281313620658';
+  // Use product-specific WA number if provided, otherwise fall back to global admin number
+  const waNumber = whatsappNumber || adminWa;
 
   const message = `Halo Admin Perindag Ngada, saya tertarik dengan produk *${productName}* seharga Rp *${price}*. Apakah stok masih tersedia? Mohon informasinya. Terima kasih.`;
 
-  const waUrl = `https://wa.me/${adminWa}?text=${encodeURIComponent(message)}`;
+  const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
 
   return (
     <Button

@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ChevronRight, User, Quote, CheckCircle, Star, Heart, Eye, Printer, Package } from 'lucide-react';
+import { ChevronRight, User, Quote, CheckCircle, Star, Heart, Eye, Printer, Package, Building2, ExternalLink } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
 import type { CarouselApi } from '@/components/ui/carousel';
@@ -29,6 +29,9 @@ interface Product {
   price: number;
   description: string;
   artisanInfo: string | null;
+  ikmName: string | null;
+  whatsappNumber: string | null;
+  marketplaceUrl: string | null;
   imageUrl: string;
   isFeatured: boolean;
 }
@@ -40,6 +43,10 @@ interface RelatedProduct {
   category: string;
   price: number;
   description: string;
+  artisanInfo: string | null;
+  ikmName: string | null;
+  whatsappNumber: string | null;
+  marketplaceUrl: string | null;
   imageUrl: string;
   isFeatured: boolean;
 }
@@ -384,8 +391,8 @@ export default function ProductDetailContent({
                 />
               </div>
 
-              {/* Artisan Info - Enhanced with decorative elements */}
-              {product.artisanInfo && (
+              {/* IKM / Artisan Info - Enhanced with decorative elements */}
+              {(product.ikmName || product.artisanInfo) && (
                 <motion.div
                   initial={{ opacity: 0, y: 15 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -406,31 +413,33 @@ export default function ProductDetailContent({
 
                   {/* Section header with decorative line */}
                   <div className="flex items-center gap-2 mb-4">
-                    <User className="h-4 w-4 text-primary" />
+                    {product.ikmName ? (
+                      <Building2 className="h-4 w-4 text-primary" />
+                    ) : (
+                      <User className="h-4 w-4 text-primary" />
+                    )}
                     <h3 className="text-sm font-semibold text-foreground">
-                      Cerita Pengrajin
+                      {product.ikmName || 'Cerita Pengrajin'}
                     </h3>
                   </div>
 
-                  {/* Decorative line above artisan name */}
+                  {/* Decorative line above IKM name */}
                   <div className="w-10 h-0.5 bg-primary/30 rounded-full mb-3" />
 
-                  {/* Artisan name with Pengrajin Lokal badge */}
+                  {/* IKM badge */}
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-sm font-semibold text-foreground">{product.artisanInfo.split('.')[0]}</span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gold-accent/10 text-gold-accent border border-gold-accent/20">
                       <Package className="h-2.5 w-2.5" />
-                      Pengrajin Lokal
+                      IKM Lokal Ngada
                     </span>
                   </div>
 
-                  {/* Artisan story text */}
-                  <p className="text-sm text-muted-foreground leading-relaxed relative z-10 italic">
-                    {product.artisanInfo.includes('.') 
-                      ? product.artisanInfo.split('.').slice(1).join('.').trim() || product.artisanInfo
-                      : product.artisanInfo
-                    }
-                  </p>
+                  {/* IKM story text */}
+                  {product.artisanInfo && (
+                    <p className="text-sm text-muted-foreground leading-relaxed relative z-10 whitespace-pre-line">
+                      {product.artisanInfo}
+                    </p>
+                  )}
                 </motion.div>
               )}
 
@@ -448,8 +457,22 @@ export default function ProductDetailContent({
                   productName={product.name}
                   price={formattedPrice}
                   size="lg"
+                  whatsappNumber={product.whatsappNumber}
                   className="flex-1 bg-[#25D366] hover:bg-[#20BD5A] text-white wa-pulse"
                 />
+                {product.marketplaceUrl && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="lg"
+                    className="gap-2"
+                  >
+                    <a href={product.marketplaceUrl} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="h-4 w-4" />
+                      <span>Marketplace</span>
+                    </a>
+                  </Button>
+                )}
                 <ShareButton size="lg" />
                 <Button
                   variant="outline"
@@ -567,8 +590,21 @@ export default function ProductDetailContent({
             productName={product.name}
             price={formattedPrice}
             size="lg"
+            whatsappNumber={product.whatsappNumber}
             className="flex-1 bg-[#25D366] hover:bg-[#20BD5A] text-white wa-pulse"
           />
+          {product.marketplaceUrl && (
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="shrink-0 gap-2"
+            >
+              <a href={product.marketplaceUrl} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </Button>
+          )}
           <ShareButton size="lg" />
           <motion.button
             type="button"

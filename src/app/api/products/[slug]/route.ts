@@ -62,7 +62,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     const body = await request.json();
-    const { name, category, price, description, artisanInfo, imageUrl, isFeatured } = body;
+    const { name, category, price, description, artisanInfo, ikmName, whatsappNumber, marketplaceUrl, imageUrl, isFeatured } = body;
 
     // Validate category if provided
     if (category && !['tenun', 'kopi', 'bambu'].includes(category)) {
@@ -72,13 +72,28 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // Validate marketplace URL format if provided
+    if (marketplaceUrl !== undefined && marketplaceUrl && typeof marketplaceUrl === 'string' && marketplaceUrl.trim()) {
+      try {
+        new URL(marketplaceUrl.trim());
+      } catch {
+        return NextResponse.json(
+          { error: 'Format URL marketplace tidak valid' },
+          { status: 400 }
+        );
+      }
+    }
+
     // Build update data with only provided fields
     const updateData: Record<string, unknown> = {};
     if (name !== undefined) updateData.name = name;
     if (category !== undefined) updateData.category = category;
     if (price !== undefined) updateData.price = Number(price);
     if (description !== undefined) updateData.description = description;
-    if (artisanInfo !== undefined) updateData.artisanInfo = artisanInfo;
+    if (artisanInfo !== undefined) updateData.artisanInfo = artisanInfo || null;
+    if (ikmName !== undefined) updateData.ikmName = ikmName || null;
+    if (whatsappNumber !== undefined) updateData.whatsappNumber = whatsappNumber || null;
+    if (marketplaceUrl !== undefined) updateData.marketplaceUrl = marketplaceUrl || null;
     if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
     if (isFeatured !== undefined) updateData.isFeatured = isFeatured;
 

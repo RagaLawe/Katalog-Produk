@@ -13,6 +13,9 @@ import {
   Upload,
   Link2,
   X,
+  Building2,
+  Phone,
+  ShoppingBag,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,7 +47,10 @@ const productSchema = z.object({
   category: z.string().min(1, 'Kategori wajib dipilih'),
   price: z.coerce.number().min(1, 'Harga wajib diisi'),
   description: z.string().min(10, 'Deskripsi minimal 10 karakter'),
+  ikmName: z.string().optional(),
   artisanInfo: z.string().optional(),
+  whatsappNumber: z.string().optional(),
+  marketplaceUrl: z.string().url('Format URL tidak valid').optional().or(z.literal('')),
   imageUrl: z.string().min(1, 'Gambar wajib disediakan'),
   isFeatured: z.boolean().default(false),
 });
@@ -69,6 +75,9 @@ interface Product {
   price: number;
   description: string;
   artisanInfo: string | null;
+  ikmName: string | null;
+  whatsappNumber: string | null;
+  marketplaceUrl: string | null;
   imageUrl: string;
   isFeatured: boolean;
   createdAt: string;
@@ -99,7 +108,10 @@ function ProductFormContent() {
       category: '',
       price: 0,
       description: '',
+      ikmName: '',
       artisanInfo: '',
+      whatsappNumber: '',
+      marketplaceUrl: '',
       imageUrl: '',
       isFeatured: false,
     },
@@ -145,7 +157,10 @@ function ProductFormContent() {
         category: product.category,
         price: product.price,
         description: product.description,
+        ikmName: product.ikmName || '',
         artisanInfo: product.artisanInfo || '',
+        whatsappNumber: product.whatsappNumber || '',
+        marketplaceUrl: product.marketplaceUrl || '',
         imageUrl: product.imageUrl,
         isFeatured: product.isFeatured,
       });
@@ -418,21 +433,102 @@ function ProductFormContent() {
                     name="artisanInfo"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Informasi Pengrajin</FormLabel>
+                        <FormLabel>Deskripsi IKM / Pengrajin</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Contoh: Dibuat oleh Ibu Maria dari Desa Soa"
-                            className="min-h-[80px]"
+                            placeholder="Ceritakan tentang IKM pembuat produk: nama, lokasi, jumlah anggota, sejarah singkat, teknik pembuatan, dll. Bisa multi-baris."
+                            className="min-h-[120px]"
                             {...field}
                           />
                         </FormControl>
                         <FormDescription>
-                          Informasi tentang pengrajin atau pembuat produk (opsional)
+                          Deskripsi lengkap tentang IKM (Industri Kecil Menengah) atau pengrajin pembuat produk. Akan ditampilkan di halaman detail produk.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
+                  {/* IKM & Contact Section */}
+                  <div className="rounded-lg border border-border/60 p-4 sm:p-5 bg-muted/30 space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-border/40">
+                      <Building2 className="h-4 w-4 text-primary" />
+                      <h3 className="text-sm font-semibold text-foreground">
+                        Informasi IKM & Kontak Pembelian
+                      </h3>
+                    </div>
+
+                    {/* IKM Name */}
+                    <FormField
+                      control={form.control}
+                      name="ikmName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nama IKM / Kelompok Pengrajin</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Contoh: IKM Sari Tenun Wolojita"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Nama resmi IKM atau kelompok pengrajin pembuat produk (opsional)
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* WhatsApp Number */}
+                    <FormField
+                      control={form.control}
+                      name="whatsappNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-1.5">
+                            <Phone className="h-3.5 w-3.5" />
+                            Nomor WhatsApp Produk
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="tel"
+                              placeholder="6281234567890 (kosongkan untuk pakai nomor admin)"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Nomor WA khusus untuk produk ini. Jika dikosongkan, tombol "Pesan via WA" akan otomatis menggunakan nomor admin pusat.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Marketplace URL */}
+                    <FormField
+                      control={form.control}
+                      name="marketplaceUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-1.5">
+                            <ShoppingBag className="h-3.5 w-3.5" />
+                            Link Marketplace
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="url"
+                              placeholder="https://www.facebook.com/marketplace/... atau https://www.tokopedia.com/..."
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Tautan ke marketplace (Facebook Marketplace, Tokopedia, Shopee, dll). Jika diisi, tombol "Beli di Marketplace" akan muncul di produk.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   {/* Image Upload / URL */}
                   <FormField

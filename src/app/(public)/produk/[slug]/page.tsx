@@ -49,6 +49,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         category: p.category,
         price: p.price,
         description: p.description,
+        artisanInfo: p.artisanInfo,
+        ikmName: p.ikmName,
+        whatsappNumber: p.whatsappNumber,
+        marketplaceUrl: p.marketplaceUrl,
         imageUrl: p.imageUrl,
         isFeatured: p.isFeatured,
       }))}
@@ -59,6 +63,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         category: p.category,
         price: p.price,
         description: p.description,
+        artisanInfo: p.artisanInfo,
+        ikmName: p.ikmName,
+        whatsappNumber: p.whatsappNumber,
+        marketplaceUrl: p.marketplaceUrl,
         imageUrl: p.imageUrl,
         isFeatured: p.isFeatured,
       }))}

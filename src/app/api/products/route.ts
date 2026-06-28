@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, slug, category, price, description, artisanInfo, imageUrl, isFeatured } = body;
+    const { name, slug, category, price, description, artisanInfo, ikmName, whatsappNumber, marketplaceUrl, imageUrl, isFeatured } = body;
 
     // Validate required fields
     if (!name || !slug || !category || !price || !description || !imageUrl) {
@@ -74,6 +74,18 @@ export async function POST(request: NextRequest) {
         { error: 'Invalid category. Must be one of: tenun, kopi, bambu' },
         { status: 400 }
       );
+    }
+
+    // Validate marketplace URL format if provided
+    if (marketplaceUrl && typeof marketplaceUrl === 'string' && marketplaceUrl.trim()) {
+      try {
+        new URL(marketplaceUrl.trim());
+      } catch {
+        return NextResponse.json(
+          { error: 'Format URL marketplace tidak valid' },
+          { status: 400 }
+        );
+      }
     }
 
     // Check if slug already exists
@@ -96,6 +108,9 @@ export async function POST(request: NextRequest) {
         price: Number(price),
         description,
         artisanInfo: artisanInfo || null,
+        ikmName: ikmName || null,
+        whatsappNumber: whatsappNumber || null,
+        marketplaceUrl: marketplaceUrl || null,
         imageUrl,
         isFeatured: isFeatured ?? false,
       },

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { MessageCircle, Heart } from 'lucide-react';
+import { MessageCircle, Heart, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import CategoryBadge from '@/components/CategoryBadge';
 import PriceDisplay from '@/components/PriceDisplay';
@@ -21,6 +21,9 @@ interface Product {
   price: number;
   description: string;
   artisanInfo: string | null;
+  ikmName: string | null;
+  whatsappNumber: string | null;
+  marketplaceUrl: string | null;
   imageUrl: string;
   isFeatured: boolean;
 }
@@ -45,8 +48,9 @@ export default function ProductCard({ product, showTrustBadge = true, imageHeigh
   }).format(product.price);
 
   const adminWa = process.env.NEXT_PUBLIC_ADMIN_WA || '6281313620658';
-  const waMessage = `Halo Admin Perindag Ngada, saya tertarik dengan produk *${product.name}* seharga Rp *${formattedPrice}*. Apakah stok masih tersedia? Mohon informasinya. Terima kasih.`;
-  const waUrl = `https://wa.me/${adminWa}?text=${encodeURIComponent(waMessage)}`;
+  const waNumber = product.whatsappNumber || adminWa;
+  const waMessage = `Halo, saya tertarik dengan produk *${product.name}* seharga Rp *${formattedPrice}*. Apakah stok masih tersedia? Mohon informasinya. Terima kasih.`;
+  const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`;
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -121,6 +125,27 @@ export default function ProductCard({ product, showTrustBadge = true, imageHeigh
         >
           <MessageCircle className="h-4 w-4" />
         </motion.a>
+
+        {/* Marketplace Quick-Action (only if URL exists) */}
+        {product.marketplaceUrl && (
+          <motion.a
+            href={product.marketplaceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{
+              opacity: isHovered ? 1 : 0,
+              scale: isHovered ? 1 : 0.9,
+            }}
+            transition={{ duration: 0.15, ease: 'easeOut', delay: 0.05 }}
+            className="absolute bottom-3 right-14 z-[3] flex items-center justify-center w-9 h-9 rounded-full bg-foreground/90 hover:bg-foreground text-background shadow-sm transition-colors"
+            onClick={(e) => e.stopPropagation()}
+            aria-label={`Beli ${product.name} di Marketplace`}
+            title="Beli di Marketplace"
+          >
+            <ExternalLink className="h-4 w-4" />
+          </motion.a>
+        )}
       </div>
 
       {/* Content Area */}
