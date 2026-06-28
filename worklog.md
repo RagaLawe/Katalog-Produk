@@ -1807,3 +1807,52 @@ Stage Summary:
 - Light mode text readability fixed (was the main pending issue from previous session)
 - ESLint passes clean
 - All pages rendering correctly (HTTP 200)
+
+---
+Task ID: deploy-1
+Agent: main (deployment orchestrator)
+Task: Deploy the Dinas Perindag Kabupaten Ngada e-catalogue to production using GitHub, Vercel, and Supabase, using access tokens provided by the user.
+
+Work Log:
+- Read user-provided credentials file (GitHub PAT, Supabase token+DB password+project ref, Vercel token)
+- Discovered Supabase project already existed (jscdahwphgfmfgwavhxn, region ap-southeast-1, ACTIVE_HEALTHY)
+- Found critical issue: auth system used in-memory Map for sessions (src/lib/auth.ts) which breaks on Vercel serverless (different instances per request)
+- Rewrote src/lib/auth.ts to use stateless JWT (HMAC-SHA256 via node:crypto) with createAdminToken() + verifyAdmin(), timing-safe comparison, 7-day TTL
+- Updated src/app/api/admin/login/route.ts to issue JWT via createAdminToken()
+- Rewrote src/app/api/admin/logout/route.ts to be stateless (client discards token)
+- Changed prisma/schema.prisma provider from "sqlite" to "postgresql", added directUrl for migrations
+- Added ADMIN_JWT_SECRET env var (generated 64-char hex via openssl rand -hex 32)
+- Updated src/lib/db.ts to only log queries in dev (reduced production noise)
+- Updated package.json: simplified build script to "next build" (Vercel-compatible), added "postinstall": "prisma generate", added build:standalone + seed scripts
+- Updated .env with Supabase transaction pooler URL (port 6543, pgbouncer=true) for app + direct URL (port 5432) for migrations
+- Discovered sandbox network blocks all Supabase DB ports (5432, 6543) — cannot run prisma db push locally
+- Generated migration SQL via `prisma migrate diff --from-empty --to-schema-datamodel --script`
+- Executed CREATE TABLE statements via Supabase Management API (POST /v1/projects/{ref}/database/query) — HTTPS works even though DB ports are blocked
+- Generated bcrypt hash of admin password (perindag2024, 10 rounds) and built idempotent INSERT SQL for 1 admin + 9 products
+- Executed seed SQL via Supabase Management API; verified: 1 admin + 9 products (3 tenun + 3 kopi + 3 bambu, 5 featured)
+- Fixed .gitignore: explicitly ignore .env, .deploy-creds, .jwt-secret, upload/, *.secret; added !.env.example exception
+- Untracked .env from git (was previously committed with SQLite URL only, no secrets)
+- Created .env.example with safe placeholder values for documentation
+- Verified no secret VALUES in staged diff (only old SQLite URL deletion)
+- Pushed code to GitHub repo RagaLawe/Katalog-Produk (was empty, public) via token-authenticated HTTPS
+- Verified .env NOT in GitHub repo (404), .env.example IS present
+- Created Vercel project "perindag-ngada" (prj_A8NqOv3AseuidMGYKRaBybE5b2gf) under team "Katalog-Produk", linked to GitHub repo, framework=nextjs, productionBranch=main
+- Set 4 environment variables on Vercel: DATABASE_URL (encrypted), DIRECT_URL (encrypted), ADMIN_JWT_SECRET (encrypted), NEXT_PUBLIC_ADMIN_WA (plain)
+- Triggered production deployment via Vercel API (POST /v13/deployments) with gitSource from GitHub main branch
+- Deployment reached READY state; production aliases: perindag-ngada.vercel.app, perindag-ngada-katalog-produk.vercel.app
+- Verified via curl: homepage HTTP 200 (84KB, 0.9s), /api/products?featured=true returned 5 products, /api/products/count returned {tenun:3, kopi:3, bambu:3, total:9}
+- Verified admin login: POST /api/admin/login returned JWT token + admin info; GET /api/admin/verify with Bearer token succeeded (proves JWT works across serverless instances); protected POST /api/products without token correctly returned 401
+- Verified via agent-browser: homepage renders header/hero/category cards correctly; catalog page shows "9 Produk Tersedia" with search/filters/pagination; admin login form works and redirects to dashboard with product stats
+- Cleaned up: removed .deploy-creds, .jwt-secret, upload/ from sandbox; replaced git remote URL to remove embedded token; verified .env remains local-only and gitignored
+
+Stage Summary:
+- PRODUCTION URL: https://perindag-ngada.vercel.app
+- GitHub repo: https://github.com/RagaLawe/Katalog-Produk (public)
+- Vercel project: perindag-ngada (team: Katalog-Produk), auto-deploys on push to main
+- Supabase project: perindag-ngada (ap-southeast-1), 9 products + 1 admin seeded
+- Admin login: admin@perindag-ngada.go.id / perindag2024 (works on production via JWT)
+- Key architectural change: auth migrated from in-memory sessions to stateless JWT (required for serverless)
+- Database: PostgreSQL via Supabase transaction pooler (app) + direct connection (migrations)
+- All 4 environment variables configured on Vercel (3 encrypted, 1 public)
+- Deployment is fully functional and browser-verified
+- Known limitation: sandbox cannot reach Supabase DB ports, so local dev server cannot query the production DB (static pages render, API calls fail locally); full functionality is verified on the Vercel deployment
