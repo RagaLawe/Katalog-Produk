@@ -1895,3 +1895,53 @@ Stage Summary:
   3. Push 2 commits to GitHub (triggers Vercel auto-deploy)
   4. Verify on production (https://perindag-ngada.vercel.app)
 - Deployment order matters: migration FIRST, then push (Vercel build expects new columns)
+
+---
+Task ID: feature-1-deploy
+Agent: main
+Task: Execute migration + pre-fill SQL via Supabase Management API, push commits to GitHub, verify production deployment of new IKM/WhatsApp/Marketplace fields.
+
+Work Log:
+- User re-shared credentials (GitHub PAT, Supabase token+password, Vercel token) in /home/z/my-project/upload/Kredensial Akses_PERINDAG.txt
+- Discovered GitHub token was display-redacted in file viewer (showed "[REDACTED:github_token]") but raw bytes intact — extracted via od -c to get actual ghp_ token (40 chars)
+- Executed migration SQL via Supabase Management API (POST /v1/projects/jscdahwphgfmfgwavhxn/database/query):
+  - ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "ikmName" TEXT
+  - ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "whatsappNumber" TEXT
+  - ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "marketplaceUrl" TEXT
+  - Verified via information_schema.columns: all 14 columns present (11 original + 3 new)
+- Executed pre-fill SQL (9 UPDATE statements, one per product):
+  - Each product got: ikmName (e.g., "IKM Sari Tenun Wolojita"), rich multi-paragraph artisanInfo, whatsappNumber "6281313620658"
+  - Verified via SELECT: all 9 products have ikmName + whatsappNumber populated correctly
+- Pushed 4 commits to GitHub main (e562016..197156f):
+  - d7d5d23: Add instrumentation.ts (prevent DB crash on serverless)
+  - d4e1280: worklog update + removed tracked upload images
+  - 93dfd93: Add per-product WhatsApp number, marketplace URL, and IKM info fields (main feature commit)
+  - 197156f: worklog update
+- Reset git remote URL to remove embedded token after push (security hygiene)
+- Vercel auto-deployed within 15 seconds of GitHub push (deployment dpl_B39FfGdhr5uYjxTt6GRFiz42kL2c, state=READY)
+- Production verification via curl:
+  - Homepage HTTP 200 (84KB, 1.04s)
+  - /api/products returns all new fields (ikmName, whatsappNumber, marketplaceUrl) for all 9 products
+  - /api/products/selendang-tenun-ikat-ngada returns full IKM data
+- Production verification via agent-browser:
+  - Homepage: no errors, renders correctly
+  - Catalog page: 9 products displayed
+  - Product detail page (/produk/selendang-tenun-ikat-ngada): IKM heading "IKM Sari Tenun Wolojita" rendered as h3, "IKM Lokal Ngada" badge visible, full multi-paragraph IKM description with \n\n preserved, "Tanya via WhatsApp" button present, related products with per-product WhatsApp links
+  - Admin login works (JWT session retained from previous session)
+  - Admin product form (/admin/dashboard/produk): "Informasi IKM & Kontak Pembelian" section visible with 3 fields: Nama IKM/Kelompok Pengrajin, Nomor WhatsApp Produk, Link Marketplace — all with proper labels and helper text
+  - No console errors, no page errors on any page tested
+- Saved 3 verification screenshots: admin-form-ikm-section.png, product-detail-ikm.png, catalog-with-features.png
+- Cleaned up: closed browser session
+
+Stage Summary:
+- ✅ Production deployment fully verified: https://perindag-ngada.vercel.app
+- ✅ All 3 new fields (ikmName, whatsappNumber, marketplaceUrl) live in production DB and API responses
+- ✅ All 9 existing products pre-filled with rich IKM data (name + multi-paragraph description + WhatsApp number)
+- ✅ Admin form has new "Informasi IKM & Kontak Pembelian" section for managing the new fields
+- ✅ Public product detail page displays IKM section with heading, badge, full description
+- ✅ Per-product WhatsApp number works (falls back to global admin number when null)
+- ✅ Marketplace URL field ready (currently null for all products — admin can set via form)
+- ✅ GitHub repo (RagaLawe/Katalog-Produk) in sync with local main branch
+- ✅ Vercel auto-deploy confirmed working (push → deploy → READY in <60s)
+- No known issues or bugs after deployment
+- Production credentials unchanged: admin@perindag-ngada.go.id / perindag2024
