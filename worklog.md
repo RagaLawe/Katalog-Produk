@@ -1945,3 +1945,114 @@ Stage Summary:
 - ✅ Vercel auto-deploy confirmed working (push → deploy → READY in <60s)
 - No known issues or bugs after deployment
 - Production credentials unchanged: admin@perindag-ngada.go.id / perindag2024
+
+---
+Task ID: 2+4
+Agent: songket-specs-agent
+Task: Add 'Tenun Songket' as 4th product category + add product specifications field to admin form and detail display.
+
+Work Log:
+- Read worklog.md tail and verified project state (12 products seeded: 3 tenun + 3 songket + 3 kopi + 3 bambu, songket color tokens already in globals.css: --color-songket-gold #B8860B, songket product images and tenun-songket.png category image already present)
+- CategoryBadge.tsx: added 'songket' to CategoryType union + songket config { label: 'Tenun Songket', bgColor: 'bg-songket-gold/5', textColor: 'text-songket-gold' }
+- ProductDetailContent.tsx: imported Ruler from lucide-react; added `specifications: string | null` to Product and RelatedProduct interfaces; added 'songket' to all 5 category maps (iconMap 🪡, labelMap 'Tenun Songket', slugMap 'songket', imageMap '/images/categories/tenun-songket.png', slideLabelMap 'Koleksi Tenun Songket Ngada'); updated CategoryBadge cast to include 'songket'; added new "Spesifikasi Produk" section (bordered card with Ruler icon + songket-gold accent line) displayed between Description and Star Rating using whitespace-pre-line for line breaks
+- ProductCard.tsx: updated Product interface (added 'songket' to category union + added `specifications: string | null` field) — no on-card display (kept minimal)
+- QuickViewModal.tsx: imported Ruler from lucide-react; updated Product interface (added 'songket' to union + specifications field); added compact 2-line Specifications preview section (border-l-3 songket-gold accent) shown between Description and IKM section, only when specifications exist
+- Footer.tsx: added songket link { href: '/katalog?category=songket', label: 'Tenun Songket' } to categoryLinks array (placed between Tenun Ikat and Kopi Bajawa)
+- katalog/page.tsx: added 'songket' to Product.category union; added 'Tenun Songket' filter button to categoryFilters array (positioned after 'Tenun Ikat')
+- (public)/page.tsx (homepage): added 'songket' to Product.category union and CategoryCounts interface; added `songket: 3` to default categoryCounts state; added 4th category card for Tenun Songket (image '/images/categories/tenun-songket.png', accent 'bg-songket-gold', textAccent 'text-songket-gold', subtitle 'Keindahan Sungkit Emas', description about benang emas + teknik sungkit); changed grid from md:grid-cols-3 to lg:grid-cols-4 with md:grid-cols-2 fallback for 4-card layout; updated image sizes prop for 4-col grid
+- admin/dashboard/page.tsx: added Sparkles import from lucide-react; added 'songket' to Product.category union; added songket to categoryLabels map for search filter; added songketCount stat; added 5th stats card 'Produk Songket' (Sparkles icon, songket-gold color, bg-songket-gold/10, +3 trend); changed stats grid from lg:grid-cols-4 to lg:grid-cols-5; updated product distribution chart to include 4th bar for songket (bg-songket-gold), adjusted gap spacing and bar widths; added `<SelectItem value="songket">Tenun Songket</SelectItem>` to category filter dropdown
+- admin/dashboard/produk/page.tsx: imported Ruler from lucide-react; added `specifications: z.string().optional()` to productSchema; added 'songket' to Product.category union + added `specifications: string | null` field; added `specifications: ''` to form defaultValues; added `specifications: product.specifications || ''` to form.reset() in fetchProduct; added `<SelectItem value="songket">Tenun Songket</SelectItem>` to category Select dropdown; added new FormField for specifications (Textarea, min-h-[120px], label "Spesifikasi Produk" with Ruler icon, placeholder with sample dimensions/bahan/berat/teknik/perawatan, FormDescription explaining it will be shown on detail page) positioned AFTER Description and BEFORE Artisan Info as specified; updated category label summary in sidebar preview to handle 'songket' case
+- ratings-store.ts: added new `songket` array with 4 sample reviews praising benang emas / teknik sungkit / mahkota kain Ngada / ketelitian pengrajin (4-5 star ratings, varied dates in 2026)
+- CompareModal.tsx: updated CategoryBadge cast to include 'songket' in type union
+- FavoritesSection.tsx: added 'songket' to Product.category union
+- TestimonialsSection.tsx: added new songket testimonial (Mama Theresia, Penenun Songket) describing the sungkit process and gold thread; added 'songket: border-l-songket-gold' to categoryColors map
+- HomeStatsSection.tsx: added `songket: number` to CategoryCounts interface
+- (public)/produk/[slug]/page.tsx: added `specifications: p.specifications` to both relatedProducts and crossCategoryProducts mapping (so the ProductDetailContent receives specifications for all product types)
+- layout.tsx: updated metadata description and openGraph.description to mention "Tenun Songket" alongside Tenun Ikat; added keywords 'tenun songket' and 'songket benang emas'
+- not-found.tsx: no category references found, no changes needed
+- Ran `bun run lint` after all edits — exit code 0, 0 errors, 0 warnings
+
+Stage Summary:
+- 'Tenun Songket' (songket) is now a fully integrated 4th product category across all components: badges, cards, filters, footer links, homepage category grid, admin dashboard stats/chart, admin product form Select dropdown, ratings seed data, testimonials, and SEO metadata
+- New 'songket-gold' color (#B8860B) used consistently for all songket-themed UI accents (badges, borders, bars, icons, decorative lines)
+- Homepage now displays 4 category cards in a responsive 4-column grid (mobile: 1 col, tablet: 2 cols, desktop: 4 cols)
+- Admin dashboard now shows 5 stats cards and a 4-bar distribution chart including songket
+- Product specifications field fully wired through the stack: DB column (already migrated) → Prisma schema (already done) → API routes (already done) → admin form (Textarea with Ruler icon, placeholder, FormDescription) → zod schema → form.reset() → public detail display (bordered card with Ruler icon, songket-gold accent, whitespace-pre-line for line breaks) → QuickViewModal compact preview (2-line line-clamp) → RelatedProduct/cross-category mapping passes specifications through
+- Files modified: src/components/CategoryBadge.tsx, src/components/ProductDetailContent.tsx, src/components/ProductCard.tsx, src/components/QuickViewModal.tsx, src/components/Footer.tsx, src/components/CompareModal.tsx, src/components/FavoritesSection.tsx, src/components/TestimonialsSection.tsx, src/components/HomeStatsSection.tsx, src/app/(public)/page.tsx, src/app/(public)/katalog/page.tsx, src/app/(public)/produk/[slug]/page.tsx, src/app/admin/(dashboard)/dashboard/page.tsx, src/app/admin/(dashboard)/dashboard/produk/page.tsx, src/lib/ratings-store.ts, src/app/layout.tsx
+- Lint status: ✅ `bun run lint` passes with 0 errors, 0 warnings (exit code 0)
+- Dev server not running in this sandbox session (no dev.log present), but lint clean and no TypeScript type errors detected by ESLint
+- Did NOT touch forbidden files: tentang/page.tsx, admin/profil/page.tsx (doesn't exist yet), SiteProfileSection.tsx, IKMListSection.tsx, prisma/schema.prisma, src/app/api/**
+
+---
+Task ID: 1+3
+Agent: ikm-profil-agent
+Task: Add IKM list section to Tentang page + create admin-editable Dinas Perindag profile (modeled after NTT disperindag profile structure).
+
+Work Log:
+- Read worklog.md tail (last 284 lines) — confirmed previous agents' work: project has 12 products (3 tenun + 3 songket + 3 kopi + 3 bambu), SiteProfile table pre-filled with default data, /api/profil GET+PUT exists. Did NOT touch any files owned by songket-specs-agent (product components, katalog, homepage, prisma schema, API routes).
+- Inspected existing patterns: package.json (react-hook-form, zod, @hookform/resolvers, sonner, framer-motion, @tanstack/react-query all available), CategoryBadge.tsx (CategoryType union includes songket), ScrollReveal.tsx (exists, framer-motion based), admin-auth.ts (useAdminAuth zustand hook with token field), admin produk page.tsx (form pattern reference), api/profil/route.ts (returns profile or default placeholder), tentang/page.tsx (existing sections + structure).
+- Created /home/z/my-project/src/components/IKMListSection.tsx:
+  - 'use client' component, fetches /api/products on mount via useEffect+fetch
+  - Dedupes by ikmName (trims, filters null/empty); for each unique IKM collects productCount + categories[] (unique) + longest artisanInfo (richest description)
+  - Section header "Industri Kecil Menengah (IKM) Ngada" + subtitle "Mengenal lebih dekat kelompok pengrajin di balik produk unggulan Ngada" (centered, with Building2 icon badge)
+  - Cards in responsive grid (1 col mobile, 2 cols md+), each card: Building2 icon + ikmName h3, CategoryBadge for each category + "X Produk" badge with Users icon, full artisanInfo with whitespace-pre-line
+  - Uses ScrollReveal with staggered delay (idx * 60ms, max 360ms)
+  - Loading state: 4 Skeleton cards (h-48); error state: friendly message; empty state: muted Building2 icon + "Belum ada data IKM"
+  - Cards: bg-card border border-border/50 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow
+- Created /home/z/my-project/src/components/SiteProfileSection.tsx:
+  - 'use client' component, fetches /api/profil on mount
+  - 5 sub-sections matching NTT disperindag structure: A. Nama dan Alamat Kantor, B. Sejarah Singkat, C. Profil Pimpinan, D. Visi & Misi, E. Tugas & Fungsi
+  - Section A: card with officeName h3 + icon list (MapPin/address, Mail/email link, Phone/phone link, Clock/workingHours); renders iframe if mapEmbed exists (extracts src from <iframe src="..."> snippet OR uses raw URL if starts with http)
+  - Section B: history text in bg-muted/30 card, split on \n\n into paragraphs, each rendered with whitespace-pre-line
+  - Section C: card with optional circular avatar (w-24 h-24 rounded-full) + leaderName h3 + leaderPosition muted; placeholder "Profil pimpinan akan diperbarui segera." when no leaderName
+  - Section D: Visi card (bg-muted/30, italic with Quote icon decoration) + Misi card with ordered list (numbered badges) from mission split by \n
+  - Section E: 2-col grid (md+) with Tugas card + Fungsi card, both as bulleted lists (split by \n, bullet dot)
+  - Icons: Building2, MapPin, Mail, Phone, Clock, History, User, Eye, Target, Briefcase, Quote from lucide-react
+  - SectionTitle helper renders "A. Nama dan Alamat Kantor" etc with primary-tinted icon badge
+  - ScrollReveal wraps each sub-section for staggered reveal
+  - Loading: skeleton placeholders; error: friendly fallback message; both return bg-background section
+  - extractMapSrc helper handles 3 input formats: full iframe HTML snippet, raw URL, or empty
+- Created /home/z/my-project/src/app/admin/(dashboard)/dashboard/profil/page.tsx:
+  - 'use client' admin page using react-hook-form + zod (zodResolver), useAdminAuth hook for token
+  - Fetches /api/profil GET on mount, form.reset() with all 14 fields (null-safe ?? '' coercion)
+  - Zod schema: officeName/address/history/vision/mission required with min-length; all other fields optional
+  - Form inside Card with CardHeader "Edit Profil Dinas Perindag" + CardContent
+  - 4 logical sub-sections with FieldGroupHeader (icon + title + description):
+    * "Informasi Kantor" (Building2) — officeName, address (Textarea), email + phone (2-col grid), workingHours, mapEmbed (Textarea)
+    * "Sejarah & Pimpinan" (History) — history (Textarea min-h-[200px]), leaderName + leaderPosition (2-col grid), leaderPhoto (Input type=url)
+    * "Visi & Misi" (Eye) — vision (Textarea), mission (Textarea min-h-[150px])
+    * "Tugas & Fungsi" (Briefcase) — duties (Textarea), functions (Textarea)
+  - Each field uses FormField/FormItem/FormLabel/FormControl/FormDescription/FormMessage shadcn pattern matching produk page
+  - FormLabels include relevant lucide icons; FormDescription helper text matches task spec (e.g. "Pisahkan paragraf dengan baris kosong", "Satu misi per baris", "Contoh: Senin-Kamis 08.00-16.00 WITA")
+  - Submit button "Simpan Profil" with Save icon; loading state shows Loader2 spinner + "Menyimpan..."
+  - Cancel button (variant=outline) navigates back to /admin/dashboard
+  - onSubmit: PUT /api/profil with Authorization Bearer token, JSON body; toast.success on 200, toast.error on failure
+  - Auth check: if no token, toast.error "Sesi telah berakhir" + redirect to /admin
+  - Page header: back button + h1 "Profil Dinas" + subtitle
+  - Loading state: centered Loader2 + "Memuat data profil..."
+- Modified /home/z/my-project/src/app/admin/(dashboard)/layout.tsx:
+  - Added Building2 to lucide-react imports
+  - Added 3rd entry to sidebarLinks array: { href: '/admin/dashboard/profil', label: 'Profil Dinas', icon: Building2 } placed AFTER Kelola Produk, BEFORE the back-to-website separator
+- Modified /home/z/my-project/src/app/(public)/tentang/page.tsx:
+  - Added imports for SiteProfileSection + IKMListSection
+  - Inserted <SiteProfileSection /> right after hero banner section, BEFORE "Bumi Todo Ngada" (makes Dinas profile the first content users see, matching NTT disperindag structure)
+  - Inserted <IKMListSection /> AFTER "Kekayaan Produk Lokal" section, BEFORE "Peran Dinas Perindag" section (logical flow: abstract product richness → concrete IKM list → Dinas role)
+- Verification:
+  - Ran `cd /home/z/my-project && bun run lint` → exit code 0, 0 errors, 0 warnings (1 warning initially about unused eslint-disable directive on img tag in SiteProfileSection was fixed by removing the directive — Next.js eslint config doesn't enforce @next/next/no-img-element in this project)
+  - Started dev server, verified HTTP 200 responses:
+    * GET /tentang → 200 (111KB payload, contains "Industri Kecil Menengah" header from IKMListSection + skeleton placeholders from SiteProfileSection loading state)
+    * GET /admin/dashboard/profil → 200 (auth-gated, compiles cleanly — renders loading state then form for authenticated admins)
+  - No compile errors in dev.log; both new client components hydrate correctly with useEffect-based fetch
+  - Did NOT run `bun run build` per task rules
+
+Stage Summary:
+- Two new features delivered: (1) IKM list section on Tentang page showing all unique IKMs with descriptions, (2) admin-editable Dinas Perindag profile with 5-section NTT-style structure
+- IKMListSection dynamically fetches products, dedupes by ikmName, shows category badge(s) + product count + full artisanInfo per IKM card — automatically picks up future IKMs as products are added
+- SiteProfileSection displays Dinas profile in 5 structured sub-sections (A. Kantor, B. Sejarah, C. Pimpinan, D. Visi&Misi, E. Tugas&Fungsi) with rich icon usage, alternating card backgrounds, ScrollReveal animation, optional Google Maps iframe embed
+- Admin profil page (/admin/dashboard/profil) provides full CRUD form with all 14 SiteProfile fields, react-hook-form + zod validation, grouped into 4 logical sections (Informasi Kantor / Sejarah & Pimpinan / Visi & Misi / Tugas & Fungsi), PUTs to existing /api/profil endpoint with JWT auth
+- Sidebar updated: "Profil Dinas" link with Building2 icon now appears between "Kelola Produk" and the back-to-website separator in admin sidebar (both desktop + mobile Sheet)
+- Files created: src/components/IKMListSection.tsx, src/components/SiteProfileSection.tsx, src/app/admin/(dashboard)/dashboard/profil/page.tsx
+- Files modified: src/app/(public)/tentang/page.tsx (2 imports + 2 component insertions), src/app/admin/(dashboard)/layout.tsx (1 import + 1 sidebar link)
+- Lint status: ✅ `bun run lint` passes with 0 errors, 0 warnings (exit code 0)
+- Dev server: ✅ both /tentang and /admin/dashboard/profil return HTTP 200 with no compile errors
+- All files respected the "do not touch" rules — only modified allowed files (tentang/page.tsx + admin layout.tsx) and created the 3 specified new files

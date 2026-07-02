@@ -20,6 +20,7 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
+  Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,7 +60,7 @@ interface Product {
   id: string;
   name: string;
   slug: string;
-  category: 'tenun' | 'kopi' | 'bambu';
+  category: 'tenun' | 'kopi' | 'bambu' | 'songket';
   price: number;
   description: string;
   artisanInfo: string | null;
@@ -190,6 +191,7 @@ export default function AdminDashboardPage() {
         tenun: 'tenun ikat',
         kopi: 'kopi bajawa',
         bambu: 'kerajinan bambu',
+        songket: 'tenun songket',
       };
       result = result.filter(
         (p) =>
@@ -207,6 +209,7 @@ export default function AdminDashboardPage() {
   const tenunCount = products.filter((p) => p.category === 'tenun').length;
   const kopiCount = products.filter((p) => p.category === 'kopi').length;
   const bambuCount = products.filter((p) => p.category === 'bambu').length;
+  const songketCount = products.filter((p) => p.category === 'songket').length;
 
   const stats = [
     {
@@ -228,6 +231,16 @@ export default function AdminDashboardPage() {
       trend: '+1',
       trendUp: true,
       patternColor: '#8B0000',
+    },
+    {
+      title: 'Produk Songket',
+      value: songketCount,
+      icon: Sparkles,
+      color: 'text-songket-gold',
+      bgColor: 'bg-songket-gold/10',
+      trend: '+3',
+      trendUp: true,
+      patternColor: '#B8860B',
     },
     {
       title: 'Produk Kopi',
@@ -271,7 +284,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Stats Cards - Enhanced */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
@@ -321,18 +334,19 @@ export default function AdminDashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-end justify-center gap-8 sm:gap-16">
+            <div className="flex items-end justify-center gap-4 sm:gap-8">
               {[
-                { name: 'Tenun Ikat', count: tenunCount, color: 'bg-primary' },
+                { name: 'Tenun Ikat', count: tenunCount, color: 'bg-tenun-red' },
+                { name: 'Tenun Songket', count: songketCount, color: 'bg-songket-gold' },
                 { name: 'Kopi Bajawa', count: kopiCount, color: 'bg-coffee-brown' },
                 { name: 'Kerajinan Bambu', count: bambuCount, color: 'bg-bamboo-green' },
               ].map((cat) => {
-                const maxCount = Math.max(tenunCount, kopiCount, bambuCount, 1);
+                const maxCount = Math.max(tenunCount, kopiCount, bambuCount, songketCount, 1);
                 const barHeight = Math.max((cat.count / maxCount) * 120, 4);
                 return (
                   <div key={cat.name} className="flex flex-col items-center gap-2">
                     <div
-                      className={`${cat.color} rounded-t-md w-12 sm:w-16 transition-all duration-500`}
+                      className={`${cat.color} rounded-t-md w-10 sm:w-14 transition-all duration-500`}
                       style={{ height: `${barHeight}px` }}
                     />
                     <div className="text-center">
@@ -441,6 +455,7 @@ export default function AdminDashboardPage() {
                 <SelectContent>
                   <SelectItem value="all">Semua Kategori</SelectItem>
                   <SelectItem value="tenun">Tenun Ikat</SelectItem>
+                  <SelectItem value="songket">Tenun Songket</SelectItem>
                   <SelectItem value="kopi">Kopi Bajawa</SelectItem>
                   <SelectItem value="bambu">Kerajinan Bambu</SelectItem>
                 </SelectContent>

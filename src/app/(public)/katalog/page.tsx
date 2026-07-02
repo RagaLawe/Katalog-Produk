@@ -18,7 +18,7 @@ interface Product {
   id: string;
   name: string;
   slug: string;
-  category: 'tenun' | 'kopi' | 'bambu';
+  category: 'tenun' | 'kopi' | 'bambu' | 'songket';
   price: number;
   description: string;
   artisanInfo: string | null;
@@ -35,6 +35,7 @@ interface SearchSuggestion {
 const categoryFilters = [
   { value: '', label: 'Semua' },
   { value: 'tenun', label: 'Tenun Ikat' },
+  { value: 'songket', label: 'Tenun Songket' },
   { value: 'kopi', label: 'Kopi Bajawa' },
   { value: 'bambu', label: 'Kerajinan Bambu' },
 ];

@@ -7,15 +7,16 @@ import { db } from '@/lib/db';
  */
 export async function GET() {
   try {
-    const [tenun, kopi, bambu] = await Promise.all([
+    const [tenun, songket, kopi, bambu] = await Promise.all([
       db.product.count({ where: { category: 'tenun' } }),
+      db.product.count({ where: { category: 'songket' } }),
       db.product.count({ where: { category: 'kopi' } }),
       db.product.count({ where: { category: 'bambu' } }),
     ]);
 
-    const total = tenun + kopi + bambu;
+    const total = tenun + songket + kopi + bambu;
 
-    return NextResponse.json({ tenun, kopi, bambu, total });
+    return NextResponse.json({ tenun, songket, kopi, bambu, total });
   } catch (error) {
     console.error('Error fetching product counts:', error);
     return NextResponse.json(

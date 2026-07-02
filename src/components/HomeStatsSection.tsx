@@ -9,6 +9,7 @@ interface CategoryCounts {
   tenun: number;
   kopi: number;
   bambu: number;
+  songket: number;
   total: number;
 }
 

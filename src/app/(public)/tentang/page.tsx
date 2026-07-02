@@ -3,6 +3,8 @@ import WhatsAppButton from '@/components/WhatsAppButton';
 import AboutStats from '@/components/AboutStats';
 import ContactForm from '@/components/ContactForm';
 import NewsletterSection from '@/components/NewsletterSection';
+import SiteProfileSection from '@/components/SiteProfileSection';
+import IKMListSection from '@/components/IKMListSection';
 
 export default function TentangPage() {
   return (
@@ -21,6 +23,9 @@ export default function TentangPage() {
           </p>
         </div>
       </section>
+
+      {/* Profil Dinas Perindag (NTT-style structured profile) */}
+      <SiteProfileSection />
 
       {/* Bumi Todo Ngada */}
       <section className="py-14 sm:py-20 bg-background">
@@ -72,6 +77,9 @@ export default function TentangPage() {
           </div>
         </div>
       </section>
+
+      {/* Daftar IKM Mitra Kami */}
+      <IKMListSection />
 
       {/* Peran Dinas Perindag */}
       <section className="py-14 sm:py-20 bg-background">

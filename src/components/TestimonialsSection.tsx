@@ -42,6 +42,13 @@ const testimonials = [
     rating: 5,
   },
   {
+    name: 'Mama Theresia',
+    role: 'Penenun Songket',
+    category: 'songket' as const,
+    text: 'Songket adalah mahkota kain Ngada. Benang emas yang kita sungkit satu per satu butuh kesabaran luar biasa, sampai berminggu-minggu untuk selembar kain. Dinas Perindag membantu kami memasarkan karya mewah ini ke luar daerah.',
+    rating: 5,
+  },
+  {
     name: 'Pak Yohanes',
     role: 'Petani Kopi Bajawa',
     category: 'kopi' as const,
@@ -54,6 +61,7 @@ const categoryColors: Record<string, string> = {
   tenun: 'border-l-primary',
   kopi: 'border-l-secondary',
   bambu: 'border-l-bamboo-green',
+  songket: 'border-l-songket-gold',
 };
 
 export default function TestimonialsSection() {

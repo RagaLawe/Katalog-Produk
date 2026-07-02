@@ -12,6 +12,7 @@ const quickLinks = [
 
 const categoryLinks = [
   { href: '/katalog?category=tenun', label: 'Tenun Ikat' },
+  { href: '/katalog?category=songket', label: 'Tenun Songket' },
   { href: '/katalog?category=kopi', label: 'Kopi Bajawa' },
   { href: '/katalog?category=bambu', label: 'Kerajinan Bambu' },
 ];

@@ -15,18 +15,38 @@ model Product {
   id          String        @id @default(cuid())
   name        String
   slug        String        @unique
-  category    String        // 'tenun', 'kopi', or 'bambu'
+  category    String        // 'tenun', 'songket', 'kopi', or 'bambu'
   price       Int           // Price in IDR
   description String
   artisanInfo String?       // Deskripsi lengkap IKM / pengrajin (multi-baris)
   ikmName     String?       // Nama IKM / kelompok pengrajin
   whatsappNumber String?    // Nomor WA khusus produk ini (fallback ke admin global)
   marketplaceUrl String?    // Link marketplace (FB Marketplace, Tokopedia, Shopee, dll)
+  specifications String?   // Spesifikasi barang (ukuran, berat, bahan, dll) - multi-baris
   imageUrl    String
   isFeatured  Boolean       @default(false)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   views       ProductView[]
+}
+
+model SiteProfile {
+  id          String        @id @default("singleton")
+  officeName      String    // Nama kantor resmi
+  address         String    // Alamat lengkap kantor
+  history         String    // Sejarah singkat (multi-paragraf)
+  leaderName      String?   // Nama pimpinan/kadis
+  leaderPosition  String?   // Jabatan pimpinan
+  leaderPhoto     String?   // URL foto pimpinan
+  vision          String    // Visi
+  mission         String    // Misi (multi-baris, tiap baris satu misi)
+  duties          String?   // Tugas pokok (multi-baris)
+  functions       String?   // Fungsi (multi-baris)
+  email           String?   // Email resmi
+  phone           String?   // Telepon resmi
+  workingHours    String?   // Jam kerja
+  mapEmbed        String?   // URL embed google maps
+  updatedAt   DateTime      @updatedAt
 }
 
 model ProductView {

@@ -58,7 +58,7 @@ export default function CompareModal({ open, onOpenChange }: CompareModalProps) 
     {
       label: 'Kategori',
       render: (item: typeof compareItems[number]) => (
-        <CategoryBadge category={item.category as 'tenun' | 'kopi' | 'bambu'} />
+        <CategoryBadge category={item.category as 'tenun' | 'kopi' | 'bambu' | 'songket'} />
       ),
     },
     {

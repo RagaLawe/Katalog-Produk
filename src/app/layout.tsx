@@ -20,11 +20,13 @@ export const metadata: Metadata = {
     template: "%s | Katalog Perindag Ngada",
   },
   description:
-    "Katalog digital produk unggulan Kabupaten Ngada - Tenun Ikat, Kopi Bajawa, dan Kerajinan Bambu. Dikurasi oleh Dinas Perdagangan dan Perindustrian Kabupaten Ngada, NTT.",
+    "Katalog digital produk unggulan Kabupaten Ngada - Tenun Ikat, Tenun Songket, Kopi Bajawa, dan Kerajinan Bambu. Dikurasi oleh Dinas Perdagangan dan Perindustrian Kabupaten Ngada, NTT.",
   keywords: [
     "katalog produk",
     "Ngada",
     "tenun ikat",
+    "tenun songket",
+    "songket benang emas",
     "kopi bajawa",
     "kerajinan bambu",
     "UMKM NTT",
@@ -36,7 +38,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Katalog Produk Unggulan - Dinas Perindag Kabupaten Ngada",
     description:
-      "Katalog digital produk unggulan Kabupaten Ngada - Tenun Ikat, Kopi Bajawa, dan Kerajinan Bambu. Dikurasi oleh Dinas Perdagangan dan Perindustrian Kabupaten Ngada, NTT.",
+      "Katalog digital produk unggulan Kabupaten Ngada - Tenun Ikat, Tenun Songket, Kopi Bajawa, dan Kerajinan Bambu. Dikurasi oleh Dinas Perdagangan dan Perindustrian Kabupaten Ngada, NTT.",
     type: "website",
     locale: "id_ID",
     siteName: "Katalog Perindag Ngada",

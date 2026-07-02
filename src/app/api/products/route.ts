@@ -5,7 +5,7 @@ import { verifyAdmin } from '@/lib/auth';
 /**
  * GET /api/products
  * List all products with optional filtering
- * Query params: category (tenun/kopi/bambu), search (by name), featured (boolean)
+ * Query params: category (tenun/songket/kopi/bambu), search (by name), featured (boolean)
  */
 export async function GET(request: NextRequest) {
   try {
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
     const where: Record<string, unknown> = {};
 
-    if (category && ['tenun', 'kopi', 'bambu'].includes(category)) {
+    if (category && ['tenun', 'songket', 'kopi', 'bambu'].includes(category)) {
       where.category = category;
     }
 
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, slug, category, price, description, artisanInfo, ikmName, whatsappNumber, marketplaceUrl, imageUrl, isFeatured } = body;
+    const { name, slug, category, price, description, artisanInfo, ikmName, whatsappNumber, marketplaceUrl, specifications, imageUrl, isFeatured } = body;
 
     // Validate required fields
     if (!name || !slug || !category || !price || !description || !imageUrl) {
@@ -69,9 +69,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate category
-    if (!['tenun', 'kopi', 'bambu'].includes(category)) {
+    if (!['tenun', 'songket', 'kopi', 'bambu'].includes(category)) {
       return NextResponse.json(
-        { error: 'Invalid category. Must be one of: tenun, kopi, bambu' },
+        { error: 'Invalid category. Must be one of: tenun, songket, kopi, bambu' },
         { status: 400 }
       );
     }
@@ -111,6 +111,7 @@ export async function POST(request: NextRequest) {
         ikmName: ikmName || null,
         whatsappNumber: whatsappNumber || null,
         marketplaceUrl: marketplaceUrl || null,
+        specifications: specifications || null,
         imageUrl,
         isFeatured: isFeatured ?? false,
       },

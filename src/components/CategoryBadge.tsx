@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 
-type CategoryType = 'tenun' | 'kopi' | 'bambu';
+type CategoryType = 'tenun' | 'kopi' | 'bambu' | 'songket';
 
 interface CategoryBadgeProps {
   category: CategoryType;
@@ -25,6 +25,11 @@ const categoryConfig: Record<
     label: 'Kerajinan Bambu',
     bgColor: 'bg-bamboo-green/5',
     textColor: 'text-bamboo-green',
+  },
+  songket: {
+    label: 'Tenun Songket',
+    bgColor: 'bg-songket-gold/5',
+    textColor: 'text-songket-gold',
   },
 };
 

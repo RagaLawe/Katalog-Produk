@@ -100,6 +100,32 @@ const defaultRatings: Record<string, ProductReview[]> = {
       date: '2026-04-12',
     },
   ],
+  songket: [
+    {
+      rating: 5,
+      review: 'Songketnya sungguh memukau! Benang emasnya berkilau indah dan motifnya sangat halus. Layak disebut mahkota kain Ngada. Worth every rupiah!',
+      author: 'Citra Kirana',
+      date: '2026-05-25',
+    },
+    {
+      rating: 5,
+      review: 'Teknik sungkitnya benar-benar detail, terlihat sekali ketelitian pengrajinnya. Kain songket mewah yang cocok untuk acara adat maupun koleksi pribadi.',
+      author: 'Bagus Santoso',
+      date: '2026-05-12',
+    },
+    {
+      rating: 4,
+      review: 'Kualitas benang emasnya bagus, warnanya tetap cerah setelah beberapa kali dipakai. Sedikit mahal tapi sebanding dengan keindahan dan keunikan motifnya.',
+      author: 'Maria Goretti',
+      date: '2026-04-22',
+    },
+    {
+      rating: 5,
+      review: 'Bangga dengan songket Ngada! Setiap helai benang emas ditenun dengan penuh ketelitian, menghasilkan kain mewah yang tidak bisa ditemukan di tempat lain.',
+      author: 'Anton Wibowo',
+      date: '2026-04-08',
+    },
+  ],
 };
 
 export const useRatingsStore = create<RatingsState>()(

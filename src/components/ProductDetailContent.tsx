@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ChevronRight, User, Quote, CheckCircle, Star, Heart, Eye, Printer, Package, Building2, ExternalLink } from 'lucide-react';
+import { ChevronRight, User, Quote, CheckCircle, Star, Heart, Eye, Printer, Package, Building2, ExternalLink, Ruler } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
 import type { CarouselApi } from '@/components/ui/carousel';
@@ -28,6 +28,7 @@ interface Product {
   category: string;
   price: number;
   description: string;
+  specifications: string | null;
   artisanInfo: string | null;
   ikmName: string | null;
   whatsappNumber: string | null;
@@ -43,6 +44,7 @@ interface RelatedProduct {
   category: string;
   price: number;
   description: string;
+  specifications: string | null;
   artisanInfo: string | null;
   ikmName: string | null;
   whatsappNumber: string | null;
@@ -61,30 +63,35 @@ const categoryIconMap: Record<string, string> = {
   tenun: '🧶',
   kopi: '☕',
   bambu: '🎋',
+  songket: '🪡',
 };
 
 const categoryLabelMap: Record<string, string> = {
   tenun: 'Tenun Ikat',
   kopi: 'Kopi Bajawa',
   bambu: 'Kerajinan Bambu',
+  songket: 'Tenun Songket',
 };
 
 const categorySlugMap: Record<string, string> = {
   tenun: 'tenun',
   kopi: 'kopi',
   bambu: 'bambu',
+  songket: 'songket',
 };
 
 const categoryImageMap: Record<string, string> = {
   tenun: '/images/categories/tenun-ikat.png',
   kopi: '/images/categories/kopi-bajawa.png',
   bambu: '/images/categories/kerajinan-bambu.png',
+  songket: '/images/categories/tenun-songket.png',
 };
 
 const categorySlideLabelMap: Record<string, string> = {
   tenun: 'Koleksi Tenun Ikat Ngada',
   kopi: 'Koleksi Kopi Bajawa',
   bambu: 'Koleksi Kerajinan Bambu',
+  songket: 'Koleksi Tenun Songket Ngada',
 };
 
 const fadeInUp = {
@@ -297,7 +304,7 @@ export default function ProductDetailContent({
             <div className="flex flex-col">
               {/* Badges */}
               <div className="flex gap-2 flex-wrap mb-4">
-                <CategoryBadge category={product.category as 'tenun' | 'kopi' | 'bambu'} />
+                <CategoryBadge category={product.category as 'tenun' | 'kopi' | 'bambu' | 'songket'} />
                 <TrustBadge type="asli" />
                 <TrustBadge type="dikurasi" />
               </div>
@@ -380,6 +387,28 @@ export default function ProductDetailContent({
                   {product.description}
                 </p>
               </div>
+
+              {/* Product Specifications */}
+              {product.specifications && (
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-50px' }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  className="mb-6 rounded-xl border border-border/60 bg-muted/30 p-5"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <Ruler className="h-4 w-4 text-songket-gold" />
+                    <h3 className="text-sm font-semibold text-foreground">
+                      Spesifikasi Produk
+                    </h3>
+                  </div>
+                  <div className="w-10 h-0.5 bg-songket-gold/30 rounded-full mb-3" />
+                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                    {product.specifications}
+                  </p>
+                </motion.div>
+              )}
 
               {/* Star Rating */}
               <div className="mb-6">

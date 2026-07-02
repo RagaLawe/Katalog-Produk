@@ -15,7 +15,7 @@ interface Product {
   id: string;
   name: string;
   slug: string;
-  category: 'tenun' | 'kopi' | 'bambu';
+  category: 'tenun' | 'kopi' | 'bambu' | 'songket';
   price: number;
   description: string;
   artisanInfo: string | null;

@@ -17,7 +17,7 @@ interface Product {
   id: string;
   name: string;
   slug: string;
-  category: 'tenun' | 'kopi' | 'bambu';
+  category: 'tenun' | 'kopi' | 'bambu' | 'songket';
   price: number;
   description: string;
   artisanInfo: string | null;
@@ -29,6 +29,7 @@ interface CategoryCounts {
   tenun: number;
   kopi: number;
   bambu: number;
+  songket: number;
   total: number;
 }
 
@@ -42,6 +43,16 @@ const categories = [
     href: '/katalog?category=tenun',
     accent: 'bg-tenun-red',
     textAccent: 'text-tenun-red',
+  },
+  {
+    key: 'songket' as const,
+    title: 'Tenun Songket',
+    subtitle: 'Keindahan Sungkit Emas',
+    description: 'Kain songket mewah dengan benang emas yang ditenun dengan teknik sungkit khas Ngada',
+    image: '/images/categories/tenun-songket.png',
+    href: '/katalog?category=songket',
+    accent: 'bg-songket-gold',
+    textAccent: 'text-songket-gold',
   },
   {
     key: 'kopi' as const,
@@ -84,7 +95,7 @@ const staggerContainer = {
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [categoryCounts, setCategoryCounts] = useState<CategoryCounts>({ tenun: 3, kopi: 3, bambu: 3, total: 9 });
+  const [categoryCounts, setCategoryCounts] = useState<CategoryCounts>({ tenun: 3, kopi: 3, bambu: 3, songket: 3, total: 12 });
 
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 500], [0, 120]);
@@ -223,7 +234,7 @@ export default function Home() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6"
           >
             {categories.map((cat, i) => (
               <motion.div key={cat.title} variants={fadeInUp} custom={i}>
@@ -234,7 +245,7 @@ export default function Home() {
                       alt={cat.title}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      sizes="(max-width: 768px) 100vw, 33vw"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                     {/* Count badge */}

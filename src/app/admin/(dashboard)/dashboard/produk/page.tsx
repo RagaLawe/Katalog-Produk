@@ -16,6 +16,7 @@ import {
   Building2,
   Phone,
   ShoppingBag,
+  Ruler,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,6 +48,7 @@ const productSchema = z.object({
   category: z.string().min(1, 'Kategori wajib dipilih'),
   price: z.coerce.number().min(1, 'Harga wajib diisi'),
   description: z.string().min(10, 'Deskripsi minimal 10 karakter'),
+  specifications: z.string().optional(),
   ikmName: z.string().optional(),
   artisanInfo: z.string().optional(),
   whatsappNumber: z.string().optional(),
@@ -71,9 +73,10 @@ interface Product {
   id: string;
   name: string;
   slug: string;
-  category: 'tenun' | 'kopi' | 'bambu';
+  category: 'tenun' | 'kopi' | 'bambu' | 'songket';
   price: number;
   description: string;
+  specifications: string | null;
   artisanInfo: string | null;
   ikmName: string | null;
   whatsappNumber: string | null;
@@ -108,6 +111,7 @@ function ProductFormContent() {
       category: '',
       price: 0,
       description: '',
+      specifications: '',
       ikmName: '',
       artisanInfo: '',
       whatsappNumber: '',
@@ -157,6 +161,7 @@ function ProductFormContent() {
         category: product.category,
         price: product.price,
         description: product.description,
+        specifications: product.specifications || '',
         ikmName: product.ikmName || '',
         artisanInfo: product.artisanInfo || '',
         whatsappNumber: product.whatsappNumber || '',
@@ -379,6 +384,7 @@ function ProductFormContent() {
                             </FormControl>
                             <SelectContent>
                               <SelectItem value="tenun">Tenun Ikat</SelectItem>
+                              <SelectItem value="songket">Tenun Songket</SelectItem>
                               <SelectItem value="kopi">Kopi Bajawa</SelectItem>
                               <SelectItem value="bambu">Kerajinan Bambu</SelectItem>
                             </SelectContent>
@@ -422,6 +428,31 @@ function ProductFormContent() {
                             {...field}
                           />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Specifications */}
+                  <FormField
+                    control={form.control}
+                    name="specifications"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-1.5">
+                          <Ruler className="h-3.5 w-3.5" />
+                          Spesifikasi Produk
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Ukuran: 200cm x 80cm\nBahan: Katun + Benang Emas\nBerat: 350 gram\nTeknik: Tenun sungkit manual\nPerawatan: Cuci tangan"
+                            className="min-h-[120px]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Spesifikasi barang seperti ukuran, bahan, berat, dan perawatan. Pisahkan tiap spesifikasi dengan baris baru. Akan ditampilkan di halaman detail produk.
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -786,11 +817,13 @@ function ProductFormContent() {
                   <p className="text-sm font-medium">
                     {form.watch('category') === 'tenun'
                       ? 'Tenun Ikat'
-                      : form.watch('category') === 'kopi'
-                        ? 'Kopi Bajawa'
-                        : form.watch('category') === 'bambu'
-                          ? 'Kerajinan Bambu'
-                          : '-'}
+                      : form.watch('category') === 'songket'
+                        ? 'Tenun Songket'
+                        : form.watch('category') === 'kopi'
+                          ? 'Kopi Bajawa'
+                          : form.watch('category') === 'bambu'
+                            ? 'Kerajinan Bambu'
+                            : '-'}
                   </p>
                 </div>
                 <div>

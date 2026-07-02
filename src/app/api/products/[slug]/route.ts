@@ -62,12 +62,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     const body = await request.json();
-    const { name, category, price, description, artisanInfo, ikmName, whatsappNumber, marketplaceUrl, imageUrl, isFeatured } = body;
+    const { name, category, price, description, artisanInfo, ikmName, whatsappNumber, marketplaceUrl, specifications, imageUrl, isFeatured } = body;
 
     // Validate category if provided
-    if (category && !['tenun', 'kopi', 'bambu'].includes(category)) {
+    if (category && !['tenun', 'songket', 'kopi', 'bambu'].includes(category)) {
       return NextResponse.json(
-        { error: 'Invalid category. Must be one of: tenun, kopi, bambu' },
+        { error: 'Invalid category. Must be one of: tenun, songket, kopi, bambu' },
         { status: 400 }
       );
     }
@@ -94,6 +94,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (ikmName !== undefined) updateData.ikmName = ikmName || null;
     if (whatsappNumber !== undefined) updateData.whatsappNumber = whatsappNumber || null;
     if (marketplaceUrl !== undefined) updateData.marketplaceUrl = marketplaceUrl || null;
+    if (specifications !== undefined) updateData.specifications = specifications || null;
     if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
     if (isFeatured !== undefined) updateData.isFeatured = isFeatured;
 

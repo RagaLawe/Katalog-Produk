@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Eye, MessageCircle, Heart, User, ExternalLink, Building2 } from 'lucide-react';
+import { Eye, MessageCircle, Heart, User, ExternalLink, Building2, Ruler } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Dialog,
@@ -23,9 +23,10 @@ interface Product {
   id: string;
   name: string;
   slug: string;
-  category: 'tenun' | 'kopi' | 'bambu';
+  category: 'tenun' | 'kopi' | 'bambu' | 'songket';
   price: number;
   description: string;
+  specifications: string | null;
   artisanInfo: string | null;
   ikmName: string | null;
   whatsappNumber: string | null;
@@ -141,6 +142,21 @@ export default function QuickViewModal({
                     {product.description}
                   </p>
                 </div>
+
+                {/* Specifications Preview */}
+                {product.specifications && (
+                  <div className="mb-4 p-3 bg-songket-gold/5 rounded-lg border-l-3 border-l-songket-gold">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <Ruler className="h-3.5 w-3.5 text-songket-gold" />
+                      <span className="text-xs font-semibold text-foreground">
+                        Spesifikasi
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 whitespace-pre-line">
+                      {product.specifications}
+                    </p>
+                  </div>
+                )}
 
                 {/* IKM / Artisan Info */}
                 {(product.ikmName || product.artisanInfo) && (
