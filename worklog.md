@@ -2056,3 +2056,61 @@ Stage Summary:
 - Lint status: ✅ `bun run lint` passes with 0 errors, 0 warnings (exit code 0)
 - Dev server: ✅ both /tentang and /admin/dashboard/profil return HTTP 200 with no compile errors
 - All files respected the "do not touch" rules — only modified allowed files (tentang/page.tsx + admin layout.tsx) and created the 3 specified new files
+
+---
+Task ID: phase-2-deploy
+Agent: main (deployment orchestrator)
+Task: Deploy Phase 2 features (Tenun Songket category, product specifications, IKM list section, admin-editable Dinas profile) to production.
+
+Work Log:
+- Updated prisma/schema.prisma: added `specifications String?` to Product model + new `SiteProfile` model (singleton with 14 fields: officeName, address, history, leaderName/Position/Photo, vision, mission, duties, functions, email, phone, workingHours, mapEmbed)
+- Regenerated Prisma client
+- Updated /api/products route (POST): accept specifications field + 'songket' category validation
+- Updated /api/products/[slug] route (PUT): accept specifications field + 'songket' category validation
+- Updated /api/products/count route: add songket count
+- Created /api/profil route: GET (public, returns profile or default placeholder) + PUT (admin auth, upserts profile with email/URL validation)
+- Generated migration SQL: ALTER TABLE Product ADD specifications; CREATE TABLE SiteProfile
+- Generated pre-fill SQL: default Dinas Perindag Ngada profile data (officeName, address, multi-paragraph history, visi, 5 misi, tugas, fungsi, email, phone, workingHours)
+- Generated seed SQL: 3 Tenun Songket products (Songket Bajawa Motif Zebra, Songket Ngada Motif Kuda, Songket Flores Motif Bunga) each with rich IKM data + full specifications (ukuran, bahan, berat, warna, teknik, perawatan)
+- Generated 4 images via z-ai image generation: songket-zebra.png, songket-kuda.png, songket-bunga.png, tenun-songket.png (category)
+- Executed all 3 SQL batches via Supabase Management API (migration + prefill profil + seed songket)
+- Updated songket product imageUrl paths from .jpg to .png in DB
+- Added songket-gold color (#B8860B) + light/dark variants to globals.css
+- Delegated frontend work to 2 parallel subagents:
+  - Task 2+4 agent: added 'songket' category to 16 files (CategoryBadge, ProductDetailContent, ProductCard, QuickViewModal, Footer, CompareModal, FavoritesSection, TestimonialsSection, HomeStatsSection, homepage, katalog, produk/[slug], admin dashboard, admin produk form, ratings-store, layout) + added specifications field to admin form + product detail display + QuickView preview
+  - Task 1+3 agent: created IKMListSection component (dedup by ikmName), SiteProfileSection component (NTT-style A-E sections), admin /profil page (react-hook-form + zod, 14 fields in 4 sections), added sidebar link "Profil Dinas"
+- Committed 32 files (827cd54) + pushed to GitHub main
+- Vercel auto-deployed in ~30s, deployment dpl_8oS6vf9NWVgJNYzfXGRTYDdvY2cE READY
+- Production verification via curl:
+  - Homepage HTTP 200, Tentang HTTP 200, Katalog HTTP 200
+  - /api/products/count returns {tenun:3, songket:3, kopi:3, bambu:3, total:12}
+  - /api/products?category=songket returns 3 songket products with hasSpec:true
+  - /api/products/songket-bajawa-motif-zebra returns full specifications (ukuran, bahan, berat, warna, teknik, perawatan)
+  - /api/profil returns complete Dinas Perindag profile (officeName, address, history, vision, mission, email, phone)
+  - /admin/dashboard/profil HTTP 200
+- Production verification via agent-browser:
+  - Homepage: Tenun Songket category card visible (4th card, songket-gold accent, "Keindahan Sungkit Emas")
+  - Catalog: "12 Produk Tersedia", "Menampilkan 1-6 dari 12 produk", Tenun Songket filter button present
+  - Tentang page TOP: SiteProfileSection renders all 5 NTT-style sections:
+    A. Nama dan Alamat Kantor (office name, full address, email, phone, working hours)
+    B. Sejarah Singkat (3-paragraph history with whitespace-pre-line)
+    C. Profil Pimpinan (placeholder "akan diperbarui segera" since leaderName is null)
+    D. Visi & Misi (italic visi quote + numbered 5-point misi list)
+    E. Tugas dan Fungsi (bulleted lists from \n-split duties/functions)
+  - Tentang page MIDDLE: IKMListSection renders all 9 unique IKMs as cards (IKM Sari Tenun Wolojita, IKM Tenun Langa Makmur, IKM Benteng Tengah Tenun, Kelompok Tani Kopi Mbero, Kelompok Tani Kopi Wologopa, IKM Kopi Manulalu, IKM Bambu Ratogesa, IKM Bambu Boba, IKM Bambu Wolojita + 3 songket IKMs) with full multi-paragraph descriptions, Building2 icon, category badges, product count
+  - Product detail (songket-bajawa-motif-zebra): "Spesifikasi Produk" section with Ruler icon, all 6 spec lines (ukuran/bahan/berat/warna/teknik/perawatan) preserved with whitespace-pre-line, IKM section with ikmName heading + full description, WhatsApp button, related songket products shown
+  - Admin /profil page: form loaded with all 14 fields pre-filled from DB, grouped into 4 sections (Informasi Kantor, Sejarah & Pimpinan, Visi & Misi, Tugas & Fungsi), "Profil Dinas" sidebar link active
+  - Admin produk form: "Spesifikasi Produk" textarea field present with Ruler icon + helper text, "Tenun Songket" option in category dropdown
+  - No console errors, no page errors on any tested page
+- Saved 5 verification screenshots: tentang-profil-top.png, tentang-ikm-profil.png, songket-detail-specs.png, admin-profil-form.png, admin-dashboard-songket.png
+
+Stage Summary:
+- ✅ Production fully verified: https://perindag-ngada.vercel.app
+- ✅ Task 1 (IKM list): 9 unique IKMs displayed on Tentang page with full descriptions, deduplicated by ikmName
+- ✅ Task 2 (Tenun Songket): 4th category live everywhere — 3 seed products, homepage card, catalog filter, admin form option, dashboard stats (12 total products), footer link, ratings
+- ✅ Task 3 (Profil Dinas): NTT-style A-E structure on Tentang page, fully admin-editable via /admin/dashboard/profil (14 fields, react-hook-form + zod, JWT-protected)
+- ✅ Task 4 (Specifications): field in admin product form (Textarea + Ruler icon), displayed on product detail page (6 spec lines preserved), compact preview in QuickView modal
+- ✅ Database: specifications column added, SiteProfile table created + pre-filled, 3 songket products seeded with rich data
+- ✅ GitHub pushed (827cd54), Vercel auto-deployed (READY in 30s)
+- ✅ All 4 user-requested improvements delivered and browser-verified
+- No known issues or bugs
