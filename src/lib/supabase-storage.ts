@@ -24,8 +24,12 @@ export function getStorageConfig(): StorageConfig {
     process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || null;
   const bucketName =
     process.env.SUPABASE_PRODUCT_BUCKET || DEFAULT_BUCKET;
+  // Configured = URL present AND a service key is present (under either name)
+  const hasServiceKey = Boolean(
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
+  );
   return {
-    configured: Boolean(supabaseUrl && process.env.SUPABASE_SERVICE_ROLE_KEY),
+    configured: Boolean(supabaseUrl && hasServiceKey),
     supabaseUrl,
     bucketName,
     isVercel: Boolean(process.env.VERCEL),
@@ -33,7 +37,14 @@ export function getStorageConfig(): StorageConfig {
 }
 
 function getServiceKey(): string | null {
-  return process.env.SUPABASE_SERVICE_ROLE_KEY || null;
+  // Support both common env var names:
+  //  - SUPABASE_SERVICE_ROLE_KEY (Supabase JS SDK convention, our .env.example default)
+  //  - SUPABASE_SERVICE_KEY       (older Vercel project setup)
+  return (
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_SERVICE_KEY ||
+    null
+  );
 }
 
 function authHeaders(): Record<string, string> {
@@ -87,7 +98,7 @@ export async function ensureBucket(): Promise<{
       ok: false,
       created: false,
       bucketName,
-      error: 'SUPABASE_SERVICE_ROLE_KEY not set',
+      error: 'SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SERVICE_KEY) not set',
     };
   }
 
@@ -214,7 +225,8 @@ export async function probeStorage(): Promise<{
       bucketExists: false,
       bucketName,
       buckets: [],
-      error: 'SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not configured',
+      error:
+        'SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SERVICE_KEY) not configured',
     };
   }
   const buckets = await listBuckets();
