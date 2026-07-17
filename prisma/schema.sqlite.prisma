@@ -1,19 +1,14 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-//
-// PRODUCTION SCHEMA (PostgreSQL / Supabase)
-// This file is used by Vercel during `next build` (via postinstall -> prisma generate).
-// For local development with SQLite, see prisma/schema.sqlite.prisma and
-// run `bun run dev` which automatically uses the SQLite schema.
+// Local development schema (SQLite)
+// Used by: bun run dev, bun run db:push, bun run seed
+// Production (Vercel) uses prisma/schema.prisma (PostgreSQL) instead.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 model Product {
