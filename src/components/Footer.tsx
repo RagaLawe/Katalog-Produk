@@ -58,10 +58,10 @@ export default function Footer() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-foreground leading-tight">
-                    Perindag
+                    Etalase IKM
                   </span>
                   <span className="text-[10px] text-muted-foreground leading-tight tracking-wide uppercase">
-                    Kab. Ngada
+                    Ngada
                   </span>
                 </div>
               </div>
@@ -123,7 +123,7 @@ export default function Footer() {
             {/* About Section */}
             <div className="space-y-3">
               <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">
-                Tentang Katalog
+                Tentang Etalase
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Katalog digital produk unggulan Kabupaten Ngada yang dikurasi oleh

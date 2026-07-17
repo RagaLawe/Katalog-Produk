@@ -22,7 +22,7 @@ export default function WhatsAppButton({
   // Use product-specific WA number if provided, otherwise fall back to global admin number
   const waNumber = whatsappNumber || adminWa;
 
-  const message = `Halo Admin Perindag Ngada, saya tertarik dengan produk *${productName}* seharga Rp *${price}*. Apakah stok masih tersedia? Mohon informasinya. Terima kasih.`;
+  const message = `Halo Admin Etalase IKM Ngada, saya tertarik dengan produk *${productName}* seharga Rp *${price}*. Apakah stok masih tersedia? Mohon informasinya. Terima kasih.`;
 
   const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
 

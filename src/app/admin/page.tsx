@@ -67,7 +67,7 @@ export default function AdminLoginPage() {
               <Shield className="h-7 w-7 text-primary" />
             </div>
             <CardTitle className="text-2xl font-bold text-foreground">
-              Admin Perindag Ngada
+              Admin Etalase IKM Ngada
             </CardTitle>
             <CardDescription className="text-muted-foreground">
               Masuk untuk mengelola produk

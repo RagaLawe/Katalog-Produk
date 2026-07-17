@@ -1,7 +1,7 @@
 {
-  "name": "Katalog Produk Unggulan Ngada",
-  "short_name": "Katalog Ngada",
-  "description": "Katalog Produk Unggulan Kabupaten Ngada",
+  "name": "Etalase IKM Ngada",
+  "short_name": "Etalase IKM",
+  "description": "Etalase IKM Ngada - Katalog Produk IKM Kabupaten Ngada",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FAF9F6",

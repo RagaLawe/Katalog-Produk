@@ -196,7 +196,7 @@ export default function SiteProfileSection() {
               <div className="mt-6 overflow-hidden rounded-lg border border-border/40">
                 <iframe
                   src={mapSrc}
-                  title="Lokasi Kantor Dinas Perindag Ngada"
+                  title="Lokasi Kantor Dinas Perindag Kabupaten Ngada"
                   width="100%"
                   height="280"
                   loading="lazy"

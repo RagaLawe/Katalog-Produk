@@ -16,11 +16,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Katalog Produk Unggulan - Dinas Perindag Kabupaten Ngada",
-    template: "%s | Katalog Perindag Ngada",
+    default: "Etalase IKM Ngada - Katalog Produk IKM Kabupaten Ngada",
+    template: "%s | Etalase IKM Ngada",
   },
   description:
-    "Katalog digital produk unggulan Kabupaten Ngada - Tenun Ikat, Tenun Songket, Kopi Bajawa, dan Kerajinan Bambu. Dikurasi oleh Dinas Perdagangan dan Perindustrian Kabupaten Ngada, NTT.",
+    "Etalase IKM Ngada - katalog digital produk IKM unggulan Kabupaten Ngada: Tenun Ikat, Tenun Songket, Kopi Bajawa, dan Kerajinan Bambu. Dikurasi oleh Dinas Perdagangan dan Perindustrian Kabupaten Ngada, NTT.",
   keywords: [
     "katalog produk",
     "Ngada",
@@ -36,12 +36,12 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Dinas Perindag Kabupaten Ngada" }],
   openGraph: {
-    title: "Katalog Produk Unggulan - Dinas Perindag Kabupaten Ngada",
+    title: "Etalase IKM Ngada - Katalog Produk IKM Kabupaten Ngada",
     description:
-      "Katalog digital produk unggulan Kabupaten Ngada - Tenun Ikat, Tenun Songket, Kopi Bajawa, dan Kerajinan Bambu. Dikurasi oleh Dinas Perdagangan dan Perindustrian Kabupaten Ngada, NTT.",
+      "Etalase IKM Ngada - katalog digital produk IKM unggulan Kabupaten Ngada: Tenun Ikat, Tenun Songket, Kopi Bajawa, dan Kerajinan Bambu. Dikurasi oleh Dinas Perdagangan dan Perindustrian Kabupaten Ngada, NTT.",
     type: "website",
     locale: "id_ID",
-    siteName: "Katalog Perindag Ngada",
+    siteName: "Etalase IKM Ngada",
   },
   robots: "index, follow",
   manifest: "/manifest.json",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Katalog Ngada",
+    title: "Etalase IKM",
   },
 };
 

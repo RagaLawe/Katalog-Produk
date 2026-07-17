@@ -158,10 +158,10 @@ export default function Home() {
             className="max-w-xl"
           >
             <p className="text-sm font-medium text-white/60 uppercase tracking-widest mb-3">
-              Dinas Perindag Kabupaten Ngada
+              Etalase IKM Ngada
             </p>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-[1.1] mb-4 tracking-tight">
-              Katalog Produk Unggulan
+              Katalog Produk IKM Unggulan
             </h1>
             <p className="text-base sm:text-lg text-white/70 leading-relaxed mb-8">
               Temukan kekayaan budaya dan produk lokal dari Bumi Todo Ngada.
@@ -352,7 +352,7 @@ export default function Home() {
               className="bg-[#25D366] hover:bg-[#20BD5A] text-white rounded-lg h-12 px-8 wa-pulse"
             >
               <a
-                href={`https://wa.me/6281313620658?text=${encodeURIComponent('Halo Admin Perindag Ngada, saya tertarik dengan produk unggulan Ngada. Mohon informasinya. Terima kasih.')}`}
+                href={`https://wa.me/6281313620658?text=${encodeURIComponent('Halo Admin Etalase IKM Ngada, saya tertarik dengan produk unggulan Ngada. Mohon informasinya. Terima kasih.')}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >

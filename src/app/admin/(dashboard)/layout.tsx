@@ -65,7 +65,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <Shield className="h-7 w-7 text-primary transition-transform group-hover:scale-110" />
           <div className="flex flex-col">
             <span className="text-lg font-bold text-primary leading-tight">
-              Perindag
+              Etalase IKM
             </span>
             <span className="text-xs text-secondary leading-tight -mt-0.5">
               Admin Panel
@@ -197,7 +197,7 @@ export default function AdminLayout({
           </Sheet>
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
-            <span className="font-bold text-primary">Perindag Admin</span>
+            <span className="font-bold text-primary">Etalase Admin</span>
           </div>
           <Link
             href="/"

@@ -3,7 +3,7 @@ export default function OrganizationJsonLd() {
     '@context': 'https://schema.org',
     '@type': 'GovernmentOrganization',
     name: 'Dinas Perdagangan dan Perindustrian Kabupaten Ngada',
-    alternateName: 'Dinas Perindag Ngada',
+    alternateName: 'Etalase IKM Ngada',
     url: 'https://perindag.ngadakab.go.id',
     address: {
       '@type': 'PostalAddress',

@@ -30,7 +30,7 @@ export default function CompareModal({ open, onOpenChange }: CompareModalProps) 
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(price);
-    const message = `Halo Admin Perindag Ngada, saya tertarik dengan produk *${productName}* seharga Rp *${formattedPrice}*. Apakah stok masih tersedia? Mohon informasinya. Terima kasih.`;
+    const message = `Halo Admin Etalase IKM Ngada, saya tertarik dengan produk *${productName}* seharga Rp *${formattedPrice}*. Apakah stok masih tersedia? Mohon informasinya. Terima kasih.`;
     return `https://wa.me/${adminWa}?text=${encodeURIComponent(message)}`;
   };
 

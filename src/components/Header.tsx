@@ -59,10 +59,10 @@ export default function Header() {
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-bold text-foreground leading-tight tracking-tight">
-                Perindag
+                Etalase IKM
               </span>
               <span className="text-[10px] text-muted-foreground leading-tight tracking-wide uppercase">
-                Kab. Ngada
+                Ngada
               </span>
             </div>
           </Link>
@@ -111,7 +111,7 @@ export default function Header() {
                   <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
                     <Shield className="h-3.5 w-3.5 text-primary-foreground" />
                   </div>
-                  <span className="font-bold text-foreground">Perindag Ngada</span>
+                  <span className="font-bold text-foreground">Etalase IKM Ngada</span>
                 </SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-1 px-4 mt-6">

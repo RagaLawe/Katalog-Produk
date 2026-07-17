@@ -194,7 +194,7 @@ export default function TentangPage() {
             Kami terbuka untuk kolaborasi dengan pihak mana pun yang ingin mendukung pengembangan produk unggulan Ngada.
           </p>
           <WhatsAppButton
-            productName="Kolaborasi Perindag Ngada"
+            productName="Kolaborasi Etalase IKM Ngada"
             price="—"
             size="lg"
             className="bg-[#25D366] hover:bg-[#20BD5A] text-white wa-pulse rounded-lg"
