@@ -2268,3 +2268,59 @@ Stage Summary:
   2. Tambah env vars di Vercel: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
   3. (Opsional) `SUPABASE_PRODUCT_BUCKET` jika nama bucket berbeda
   Jika tidak dikonfigurasi, upload di Vercel akan fallback ke base64 data URL (gambar tetap muncul tapi membebani DB & HTML payload)
+
+---
+Task ID: 6
+Agent: main (Z.ai Code)
+Task: Tindak lanjut setup Supabase Storage untuk production (Vercel) — eliminasi langkah manual di Supabase Dashboard
+
+Work Log:
+- Investigasi: tidak ada Vercel/Supabase CLI terinstall, tidak ada credentials tersimpan lokal.
+  Kesimpulan: tidak bisa langsung akses Vercel/Supabase Dashboard dari sini.
+- Solusi alternatif yang lebih elegant: **auto-bootstrap bucket dari dalam aplikasi**
+  → admin hanya set 2 env vars di Vercel, sisanya otomatis.
+- Buat `src/lib/supabase-storage.ts` dengan helper:
+  - `getStorageConfig()`: deteksi runtime config (URL, bucket name, isVercel)
+  - `listBuckets()`: enumerate via Supabase Storage REST API (no SDK dep)
+  - `ensureBucket()`: cek bucket exists, create PUBLIC bucket jika belum ada
+  - `uploadFile()`: upload dengan auto-retry saat 404 (bucket-not-found)
+  - `probeStorage()`: health check untuk admin UI
+- Refactor `src/app/api/upload/route.ts` pakai helper baru: jika upload
+  gagal dengan 404, auto-create bucket lalu retry upload (self-healing)
+- Buat `src/app/api/admin/storage/route.ts`:
+  - GET: return config + probe status untuk admin UI
+  - POST: bootstrap bucket on demand dari tombol UI
+- Buat halaman `src/app/admin/(dashboard)/dashboard/storage/page.tsx`:
+  - Banner status: healthy / local-only / needs-bootstrap / needs-config
+  - Card konfigurasi (URL, bucket name, environment)
+  - Card status koneksi (reachable, bucket exists, daftar bucket)
+  - Tombol "Buat Bucket Otomatis" (one-click bootstrap)
+  - Panduan setup 4 langkah dengan code block
+  - Visual "Cara Kerja Upload Gambar" 3-step flow
+- Update `src/app/admin/(dashboard)/layout.tsx`: tambah menu "Pengaturan
+  Storage" dengan ikon HardDrive di sidebar admin
+- Buat `.zscripts/setup-vercel-env.sh`: script interaktif yang pakai
+  Vercel CLI untuk set SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY ke
+  production/preview/development dalam satu command
+- Test end-to-end via browser (agent-browser):
+  - Login admin → redirect ke /admin/dashboard
+  - Buka /admin/dashboard/storage → halaman render dengan benar
+  - Status menunjukkan "Mode Lokal (Development)" karena sandbox tidak
+    punya Supabase credentials (sesuai ekspektasi)
+  - API GET /api/admin/storage return JSON valid
+- Lint pass (no errors)
+- Commit `de338c3` + push ke origin/main → Vercel auto-deploy triggered
+
+Stage Summary:
+- ✅ Admin UI baru: halaman "Pengaturan Storage" dengan health monitoring real-time
+- ✅ Auto-bootstrap: bucket Supabase dibuat otomatis saat pertama upload (tidak perlu buka Supabase Dashboard)
+- ✅ Self-healing: jika bucket terhapus, upload berikutnya akan re-create bucket
+- ✅ Script helper `.zscripts/setup-vercel-env.sh` untuk admin set env vars via Vercel CLI sekali jalan
+- ✅ Pushed ke GitHub (commit de338c3)
+- 📋 Yang masih perlu admin lakukan (sekarang jauh lebih simple):
+  1. Set 2 env vars di Vercel: `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`
+     (bisa via Vercel Dashboard atau jalankan `.zscripts/setup-vercel-env.sh`)
+  2. Redeploy
+  3. Buka /admin/dashboard/storage → klik "Buat Bucket Otomatis" (atau
+     biarkan auto-create saat upload pertama)
+  Tidak perlu lagi buka Supabase Dashboard untuk buat bucket manual!
