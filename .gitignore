@@ -39,7 +39,10 @@ yarn-error.log*
 .deploy-creds
 .jwt-secret
 *.secret
-upload/
+# Local-only upload scratch dir (root-level only; do NOT ignore src/app/api/upload/)
+/upload/
+# Locally uploaded runtime images (dev only — production uses Supabase Storage)
+/public/uploads/
 
 # vercel
 .vercel
