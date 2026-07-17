@@ -13,6 +13,7 @@ import {
   X,
   Loader2,
   ArrowLeft,
+  HardDrive,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -35,6 +36,11 @@ const sidebarLinks = [
     href: '/admin/dashboard/profil',
     label: 'Profil Dinas',
     icon: Building2,
+  },
+  {
+    href: '/admin/dashboard/storage',
+    label: 'Pengaturan Storage',
+    icon: HardDrive,
   },
 ];
 

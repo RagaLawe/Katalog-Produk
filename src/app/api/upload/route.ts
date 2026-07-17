@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdmin } from '@/lib/auth';
+import { getStorageConfig, uploadFile, ensureBucket } from '@/lib/supabase-storage';
 import crypto from 'crypto';
 
 /**
@@ -8,8 +9,9 @@ import crypto from 'crypto';
  * Strategy (auto-detected at runtime):
  *  1. Supabase Storage (production-preferred):
  *     If SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY are set, upload to the
- *     `product-images` bucket and return its public URL. This works on
- *     Vercel/serverless where the local filesystem is read-only.
+ *     `product-images` bucket and return its public URL. The bucket is
+ *     auto-created if it doesn't exist (no manual Supabase Dashboard setup).
+ *     This works on Vercel/serverless where the local filesystem is read-only.
  *
  *  2. Local filesystem (development):
  *     Saves to `public/uploads/` and returns `/uploads/<filename>`.
@@ -22,7 +24,6 @@ import crypto from 'crypto';
  */
 
 export const runtime = 'nodejs';
-// Allow large image payloads (up to ~10MB form data).
 export const maxDuration = 30;
 
 const ALLOWED_MIME = new Set([
@@ -48,43 +49,6 @@ function sanitizeExt(mime: string): string {
 }
 
 /**
- * Upload a file to Supabase Storage using the REST API.
- * No SDK dependency — uses native fetch.
- */
-async function uploadToSupabase(
-  fileBytes: Uint8Array,
-  mime: string,
-  objectName: string
-): Promise<string | null> {
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !serviceKey) return null;
-
-  const bucket = process.env.SUPABASE_PRODUCT_BUCKET || 'product-images';
-  const uploadUrl = `${supabaseUrl}/storage/v1/object/${bucket}/${objectName}`;
-
-  const res = await fetch(uploadUrl, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${serviceKey}`,
-      'Content-Type': mime,
-      'x-upsert': 'false',
-    },
-    body: fileBytes as Buffer,
-  });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    console.error('[upload] Supabase storage failed:', res.status, text);
-    return null;
-  }
-
-  // Public URL format: https://<project>.supabase.co/storage/v1/object/public/<bucket>/<path>
-  return `${supabaseUrl}/storage/v1/object/public/${bucket}/${objectName}`;
-}
-
-/**
  * Save file to local public/uploads/ directory (dev only).
  */
 async function saveToLocal(
@@ -93,13 +57,10 @@ async function saveToLocal(
 ): Promise<string> {
   const fs = await import('fs/promises');
   const path = await import('path');
-
   const uploadDir = path.join(process.cwd(), 'public', 'uploads');
   await fs.mkdir(uploadDir, { recursive: true });
-
   const filePath = path.join(uploadDir, filename);
   await fs.writeFile(filePath, fileBytes as Buffer);
-
   return `/uploads/${filename}`;
 }
 
@@ -164,23 +125,24 @@ export async function POST(request: NextRequest) {
   const objectName = `${yyyy}/${mm}/${cuid}.${ext}`;
   const localFilename = `${cuid}.${ext}`;
 
-  // 7. Try Supabase Storage first (production)
-  const isVercel = Boolean(process.env.VERCEL);
-  const hasSupabaseConfig = Boolean(
-    (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL) &&
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-  );
+  // 7. Strategy: Supabase Storage first, then local, then base64 fallback
+  const config = getStorageConfig();
 
-  if (hasSupabaseConfig) {
-    const publicUrl = await uploadToSupabase(fileBytes, file.type, objectName);
-    if (publicUrl) {
-      return NextResponse.json({ url: publicUrl });
+  if (config.configured) {
+    const result = await uploadFile(fileBytes, file.type, objectName);
+    if (result.url) {
+      const response: { url: string; bucketCreated?: boolean } = { url: result.url };
+      if (result.bucketCreated) {
+        response.bucketCreated = true;
+      }
+      return NextResponse.json(response);
     }
-    // fall through to local / fallback if Supabase errored
+    // If Supabase upload failed, fall through to local/fallback
+    console.error('[upload] Supabase upload failed, falling back:', result.error);
   }
 
   // 8. Local filesystem (dev / sandbox)
-  if (!isVercel) {
+  if (!config.isVercel) {
     try {
       const localUrl = await saveToLocal(fileBytes, localFilename);
       return NextResponse.json({ url: localUrl });
