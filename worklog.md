@@ -2220,3 +2220,51 @@ Stage Summary:
 - Dual-schema setup ensures local dev (SQLite) and production (PostgreSQL/Supabase) both work without manual schema swapping.
 - Vercel build pipeline: `postinstall` runs `prisma generate` (postgresql) → `build` runs `prisma generate && next build` → runtime connects to Supabase via DATABASE_URL env var.
 - No build errors, no runtime errors, no missing env vars, no DB migration needed.
+
+---
+Task ID: 5
+Agent: main (Z.ai Code)
+Task: Perbaiki bug upload gambar pada admin dashboard produk (lanjutan dari task sebelumnya yang terputus konteks)
+
+Work Log:
+- Membaca ulang worklog.md untuk konteks tugas sebelumnya
+- Membaca `src/app/admin/(dashboard)/dashboard/produk/page.tsx` untuk kontrak FormData:
+  field name = `file`, header `Authorization: Bearer ${token}`, expected response `{ url, error }`
+- Membaca `src/lib/auth.ts` untuk helper `verifyAdmin(request)` (stateless JWT HS256)
+- Membuat `src/app/api/upload/route.ts` baru (sebelumnya tidak ada = root cause bug upload gagal)
+  dengan strategi 3-tier:
+  1. Supabase Storage (jika `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` tersedia) — untuk Vercel
+  2. Local filesystem `public/uploads/` (jika `!process.env.VERCEL`) — untuk dev/sandbox
+  3. Base64 data URL fallback (Vercel tanpa Supabase config) — agar upload tidak hard-fail
+- Validasi: MIME type (jpeg/png/webp/gif/avif), max 8 MB, multipart/form-data, JWT auth
+- Restart dev server dengan `setsid -f` agar bertahan antar command bash (dev.log di-recreate)
+- Test curl end-to-end:
+  - Login → dapat JWT token (HTTP 200)
+  - Upload PNG 64x64 → `{"url":"/uploads/<uuid>.png"}` (HTTP 200, 112ms)
+  - No-auth → 401, wrong-type → 415, no-file → 400
+  - File tersimpan di `public/uploads/` dan dapat di-serve via HTTP
+- Test browser end-to-end via agent-browser:
+  - Login admin → redirect ke `/admin/dashboard`
+  - Buka `/admin/dashboard/produk` → form muncul dengan tab "Unggah File"
+  - Set file via DataTransfer API (input hidden) → POST `/api/upload` 200, GET image 200
+  - Preview "Gambar terunggah" muncul di DOM
+  - Lengkapi form (nama, slug, kategori Tenun Ikat, harga 150000, deskripsi, IKM)
+  - Submit → POST `/api/products` 201, redirect ke dashboard
+  - Verify DB: `imageUrl: /uploads/<uuid>.png` tersimpan benar di produk
+- Cleanup: hapus produk test + file upload test
+- Update `.env.example`: dokumentasi variabel Supabase Storage + langkah setup bucket
+- Fix `.gitignore`: rule `upload/` terlalu luas, mengabaikan `src/app/api/upload/`.
+  Diubah jadi `/upload/` (root-only) + tambah `/public/uploads/` untuk runtime images
+- Commit `87ea780` dan push ke `origin/main` → Vercel auto-deploy triggered
+
+Stage Summary:
+- ✅ Root cause fixed: route `POST /api/upload` sekarang ada dan berfungsi
+- ✅ Local dev (sandbox): upload ke `public/uploads/`, gambar langsung di-serve
+- ✅ Browser-verified: login → form → upload → preview → save product → DB verify
+- ✅ Production-ready: strategi Supabase Storage dengan fallback base64 data URL
+- ✅ Pushed ke GitHub `RagaLawe/Katalog-Produk` main branch (commit 87ea780)
+- ⚠️ Tindakan yang MASIH perlu dilakukan admin di Vercel:
+  1. Buat bucket publik `product-images` di Supabase Storage (Dashboard → Storage → New bucket → Public ON)
+  2. Tambah env vars di Vercel: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+  3. (Opsional) `SUPABASE_PRODUCT_BUCKET` jika nama bucket berbeda
+  Jika tidak dikonfigurasi, upload di Vercel akan fallback ke base64 data URL (gambar tetap muncul tapi membebani DB & HTML payload)
