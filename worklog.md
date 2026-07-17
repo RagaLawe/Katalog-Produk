@@ -2324,3 +2324,82 @@ Stage Summary:
   3. Buka /admin/dashboard/storage → klik "Buat Bucket Otomatis" (atau
      biarkan auto-create saat upload pertama)
   Tidak perlu lagi buka Supabase Dashboard untuk buat bucket manual!
+
+---
+Task ID: 7
+Agent: main (Z.ai Code)
+Task: Setup Supabase Storage di production Vercel end-to-end menggunakan kredensial yang diberikan user + final QA
+
+Work Log:
+- User memberikan file kredensial berisi:
+  - GitHub token
+  - Supabase access token (`sbp_...`) + DB password
+  - Vercel token (`vcp_...`)
+- Investigasi via Vercel API: project `perindag-ngada` (id=prj_A8NqOv3AseuidMGYKRaBybE5b2gf) ditemukan
+- Investigasi via Supabase Management API: project `perindag-ngada` (ref=jscdahwphgfmfgwavhxn, ap-southeast-1, ACTIVE_HEALTHY)
+- Dapatkan service_role key via `GET /v1/projects/{ref}/api-keys` (219 chars)
+- **Discovery penting**: Vercel project sudah punya env vars yang diperlukan:
+  - `SUPABASE_URL` = https://jscdahwphgfmfgwavhxn.supabase.co ✅
+  - `SUPABASE_SERVICE_KEY` = (service_role JWT, 219 chars) ✅ — sama persis dengan key dari Supabase API
+  - `SUPABASE_ANON_KEY` juga ada
+  - Tapi nama env var `SUPABASE_SERVICE_KEY`, bukan `SUPABASE_SERVICE_ROLE_KEY` seperti yang di-expect kode
+- **Fix**: Update `src/lib/supabase-storage.ts` agar membaca kedua nama env var:
+  - `SUPABASE_SERVICE_ROLE_KEY` (konvensi Supabase JS SDK)
+  - `SUPABASE_SERVICE_KEY` (nama yang sudah ada di Vercel)
+  - Update semua error message dan `getStorageConfig()` untuk konsistensi
+- Commit `1c52c9e` + push ke GitHub → trigger Vercel auto-deploy
+- Poll deployment status via Vercel API: BUILDING → READY dalam ~60 detik (no errors)
+- **Test production end-to-end**:
+  1. Login admin via curl → dapat JWT token (276 chars) ✅
+  2. `GET /api/admin/storage` → return JSON:
+     ```json
+     {
+       "config": {"configured": true, "supabaseUrl": "...", "bucketName": "product-images", "isVercel": true},
+       "probe": {"reachable": true, "bucketExists": true, "buckets": ["product-images"]}
+     }
+     ```
+     Bucket `product-images` sudah ada di Supabase (auto-created saat test sebelumnya)
+  3. Upload PNG test via `POST /api/upload` → response:
+     ```json
+     {"url": "https://jscdahwphgfmfgwavhxn.supabase.co/storage/v1/object/public/product-images/2026/07/<uuid>.png"}
+     ```
+  4. Verify image accessible: HTTP 200, 132 bytes, content-type image/png ✅
+- **Browser E2E test di production** (agent-browser):
+  - Login admin → redirect `/admin/dashboard` ✅
+  - Buka `/admin/dashboard/storage` → status "Storage Siap Digunakan" (HEALTHY) ✅
+  - Buka form produk → upload PNG via DataTransfer API → preview "Gambar terunggah" muncul ✅
+  - Image URL di DOM: `https://...supabase.co/storage/v1/object/public/product-images/...` ✅
+  - Lengkapi form (nama, slug, kategori Tenun Ikat, harga 250000, deskripsi, IKM)
+  - Submit → redirect ke dashboard ✅
+  - Verify DB: `GET /api/products/produk-test-production` → imageUrl dari Supabase Storage ✅
+- **Cleanup**:
+  - Hapus produk test dari production DB (DELETE `/api/products/produk-test-production` → 200)
+  - Hapus 2 file test dari Supabase Storage (DELETE object API → 200 each)
+  - Hapus file kredensial dari `upload/` folder (security)
+  - Hapus semua /tmp/*.txt dan /tmp/*.png yang berisi token/keys
+- **Final QA via agent-browser**:
+  - Homepage production: render sempurna, 4 kategori, 12 produk ✅
+  - Katalog page: 12 produk tampil dengan gambar ✅
+  - Admin dashboard: tabel produk dengan semua data ✅
+  - Storage page: HEALTHY state ✅
+  - Mobile responsive (iPhone 14): layout adaptive, hamburger menu ✅
+  - Footer: present di semua page ✅
+  - Dark mode toggle: berfungsi ✅
+  - No runtime errors di console ✅
+- **Local dev server check**: no errors di dev.log, semua API 200
+
+Stage Summary:
+- ✅ **PRODUCTION FULLY WORKING**: Upload gambar di https://perindag-ngada.vercel.app sekarang persisten ke Supabase Storage
+- ✅ Bucket `product-images` aktif & publik di Supabase project `jscdahwphgfmfgwavhxn`
+- ✅ Admin UI "Pengaturan Storage" menampilkan status HEALTHY real-time
+- ✅ Auto-bootstrap mechanism berfungsi (bucket akan auto-create jika terhapus)
+- ✅ Semua test data & file kredensial sudah dibersihkan
+- ✅ Mobile responsive + dark mode + footer verified
+- 🎯 **Tugas upload gambar: SELESAI 100%** — tidak ada lagi langkah manual yang perlu dilakukan admin
+
+Status Project Keseluruhan:
+- Login admin: ✅ Working (JWT stateless)
+- Brand rename "Etalase IKM Ngada": ✅ Applied
+- Vercel deploy: ✅ Auto-deploy from GitHub main, zero errors
+- Upload gambar: ✅ Production-ready dengan Supabase Storage
+- Cron webDevReview: ✅ Active (job_id 277018, every 15 min)
