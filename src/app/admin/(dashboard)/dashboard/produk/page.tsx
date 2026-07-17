@@ -189,6 +189,9 @@ function ProductFormContent() {
 
       const response = await fetch('/api/upload', {
         method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
 
@@ -202,7 +205,7 @@ function ProductFormContent() {
       form.setValue('imageUrl', result.url);
       toast.success('Gambar berhasil diunggah');
     } catch {
-      toast.error('Gagal mengunggah gambar');
+      toast.error('Gagal mengunggah gambar. Periksa koneksi internet Anda.');
     } finally {
       setIsUploading(false);
     }
