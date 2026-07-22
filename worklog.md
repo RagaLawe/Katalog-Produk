@@ -2666,3 +2666,45 @@ Stage Summary:
 - ✅ Lint pass, no console errors, dev.log bersih
 - Next steps (manual by user via admin UI): tambah 15 IKM lagi untuk mencapai total 20 IKM, assign produk-produk unassigned ke IKM yang sesuai.
 
+
+---
+Task ID: 10
+Agent: main (Z.ai Code)
+Task: Fix bug — hanya 1 IKM yang muncul di web (padahal ada 5 IKM terdaftar)
+
+Work Log:
+- User melaporkan dengan screenshot: "yang muncul hanya 1 IKM saja di webnya"
+- Analisa 2 screenshot via VLM (z-ai vision):
+  - Screenshot 1 (halaman /ikm): header "5 IKM Terdaftar" + "Menampilkan 5 IKM", tapi hanya 1 kartu (Kopi Arabika Flores Bajawa) yang terlihat di viewport
+  - Screenshot 2 (katalog Per IKM mode): header "2 IKM • 12 produk", hanya 1 section IKM + section "Produk tanpa IKM"
+- Investigasi via agent-browser di production:
+  - Halaman /ikm: setelah scroll down, SEMUA 5 kartu muncul → artinya kartu 2-5 memang di-render TAPI tidak terlihat karena animasi ScrollReveal (whileInView dengan initial opacity:0) belum trigger
+  - Katalog Per IKM: hanya IKM yang punya produk yang di-render (productsByIkm di-build dari sortedProducts, bukan dari ikmOptions)
+- Root cause #1 — Halaman /ikm: ScrollReveal component pakai `whileInView` dengan `initial={{ opacity: 0, y: 30 }}`. Kartu di luar viewport awal tetap opacity:0 sampai user scroll. User melihat counter "5 IKM" tapi hanya 1 kartu → bingung.
+- Root cause #2 — Katalog Per IKM: `productsByIkm` useMemo hanya iterate `sortedProducts` dan group by ikm.id. IKM dengan 0 produk tidak masuk group sama sekali. Counter pakai `productsByIkm.length` (2 = 1 IKM dengan produk + 1 group "no IKM") bukan total IKM (5).
+- Fix #1 — Halaman /ikm (`src/app/(public)/ikm/page.tsx`):
+  - Hapus import ScrollReveal
+  - Ganti wrapper `<ScrollReveal delay={...}>` dengan `<motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{duration:0.4, delay:idx*0.06, ease:'easeOut'}}>` — pakai `animate` (bukan `whileInView`) sehingga semua kartu langsung muncul saat mount dengan staggered delay
+- Fix #2 — Katalog Per IKM (`src/app/(public)/katalog/page.tsx`):
+  - Update `productsByIkm` useMemo: setelah group produk by IKM, iterate `ikmOptions` dan tambahkan IKM yang belum ada di map sebagai group dengan `products: []`. Ini memastikan SEMUA IKM terdaftar muncul sebagai section, meskipun 0 produk.
+  - Tambah `totalIkmCount` useMemo = `productsByIkm.filter(g => g.ikm).length` (hitung hanya group yang punya IKM, exclude group "no IKM")
+  - Update counter header: `${totalIkmCount} IKM • ${sortedProducts.length} produk` (sebelumnya `${productsByIkm.length} IKM`)
+  - Update render section: jika `group.products.length > 0` → tampilkan product grid; jika `group.ikm` ada tapi 0 produk → tampilkan empty state "Belum ada produk dari IKM ini di katalog." dengan link "Lihat profil IKM"; jika group "no IKM" → null (skip empty state untuk group synthetic)
+- Lint: pass (0 errors)
+- Verifikasi lokal via agent-browser:
+  - /ikm: SEMUA 5 kartu langsung muncul tanpa scroll (Kopi Arabika Flores Bajawa, Kopi Ata Gae, Kopi Wolowio, Kopi Papa Taki, Kopi Wawo Mudha) ✅
+  - /katalog Per IKM: counter "5 IKM • 12 produk", 5 section IKM (1 dengan produk + 4 dengan empty state) + section "Produk tanpa IKM" dengan 11 produk ✅
+- Commit + push ke GitHub (3096dd0) → Vercel auto-deploy
+- Verifikasi production via agent-browser:
+  - /ikm: 5 IKM cards langsung muncul tanpa scroll ✅
+  - /katalog Per IKM: counter "5 IKM • 13 produk" (user sudah tambah 1 produk baru "KOPI"), 5 section IKM dengan empty state untuk yang 0 produk ✅
+
+Stage Summary:
+- ✅ Bug "hanya 1 IKM muncul" fixed di kedua halaman (/ikm dan /katalog Per IKM)
+- ✅ Halaman /ikm: semua 5 kartu langsung terlihat tanpa perlu scroll (ganti ScrollReveal whileInView → motion.div animate)
+- ✅ Katalog Per IKM: semua 5 IKM ditampilkan sebagai section, dengan empty state informatif untuk IKM yang belum punya produk
+- ✅ Counter akurat: "5 IKM • 13 produk" (bukan "2 IKM")
+- ✅ Production live: https://perindag-ngada.vercel.app/ikm dan /katalog (mode Per IKM)
+- ✅ Lint pass, no console errors
+- Files modified: src/app/(public)/ikm/page.tsx, src/app/(public)/katalog/page.tsx
+
