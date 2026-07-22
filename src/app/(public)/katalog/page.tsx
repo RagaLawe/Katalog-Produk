@@ -119,8 +119,11 @@ function CatalogContent() {
   const endItem = Math.min(currentPage * itemsPerPage, sortedProducts.length);
 
   // Group products by IKM for "Per IKM" view mode
+  // Includes ALL IKMs (even those with 0 products) so the catalog shows every registered IKM.
   const productsByIkm = useMemo(() => {
     const groups = new Map<string, { ikm: IkmOption | null; products: Product[] }>();
+
+    // First, group products by their IKM
     for (const p of sortedProducts) {
       const key = p.ikm?.id || '__no_ikm__';
       if (!groups.has(key)) {
@@ -136,13 +139,30 @@ function CatalogContent() {
       }
       groups.get(key)!.products.push(p);
     }
-    // Sort groups: IKMs with name first, then "no IKM" at the end
+
+    // Then, ensure every IKM in ikmOptions appears as a group (even with 0 products).
+    // This makes the catalog a complete directory of all registered IKMs.
+    for (const ikm of ikmOptions) {
+      if (!groups.has(ikm.id)) {
+        groups.set(ikm.id, { ikm, products: [] });
+      }
+    }
+
+    // Sort: IKMs with products first (by name), then IKMs with 0 products, then "no IKM" at the end
     return Array.from(groups.values()).sort((a, b) => {
       if (!a.ikm && b.ikm) return 1;
       if (a.ikm && !b.ikm) return -1;
+      // Both have IKM — sort by name (ikmOptions is already sorted by isFeatured desc, name asc,
+      // but we re-sort here for stable display regardless of insertion order)
       return (a.ikm?.name || '').localeCompare(b.ikm?.name || '', 'id');
     });
   }, [sortedProducts, ikmOptions]);
+
+  // Total IKM count for the counter (all IKMs except the synthetic "no IKM" group)
+  const totalIkmCount = useMemo(
+    () => productsByIkm.filter((g) => g.ikm).length,
+    [productsByIkm]
+  );
 
   const fetchProducts = useCallback(async (category: string, search: string, ikmId: string) => {
     setLoading(true);
@@ -430,7 +450,7 @@ function CatalogContent() {
             {!loading && (
               <p className="text-xs text-muted-foreground">
                 {viewMode === 'ikm' && productsByIkm.length > 0
-                  ? `${productsByIkm.length} IKM • ${sortedProducts.length} produk`
+                  ? `${totalIkmCount} IKM • ${sortedProducts.length} produk`
                   : `Menampilkan ${startItem}-${endItem} dari ${sortedProducts.length} produk`}
               </p>
             )}
@@ -530,20 +550,36 @@ function CatalogContent() {
                     )}
                   </div>
 
-                  {/* Product grid for this IKM */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-                    {group.products.map((product, i) => (
-                      <motion.div
-                        key={product.id}
-                        variants={fadeInUp}
-                        initial="hidden"
-                        animate="visible"
-                        custom={i}
+                  {/* Product grid for this IKM (or empty state) */}
+                  {group.products.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                      {group.products.map((product, i) => (
+                        <motion.div
+                          key={product.id}
+                          variants={fadeInUp}
+                          initial="hidden"
+                          animate="visible"
+                          custom={i}
+                        >
+                          <ProductCard product={product} />
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : group.ikm ? (
+                    /* Empty state for IKM with 0 products */
+                    <div className="rounded-lg border border-dashed border-border/60 bg-muted/20 p-6 text-center">
+                      <p className="text-sm text-muted-foreground">
+                        Belum ada produk dari IKM ini di katalog.
+                      </p>
+                      <Link
+                        href={`/ikm/${group.ikm.slug}`}
+                        className="inline-flex items-center gap-1 mt-2 text-xs text-primary hover:text-primary/80 font-medium transition-colors"
                       >
-                        <ProductCard product={product} />
-                      </motion.div>
-                    ))}
-                  </div>
+                        Lihat profil IKM
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </Link>
+                    </div>
+                  ) : null}
                 </motion.div>
               ))}
             </div>

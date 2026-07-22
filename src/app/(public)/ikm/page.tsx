@@ -18,7 +18,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import Breadcrumb from '@/components/Breadcrumb';
-import ScrollReveal from '@/components/ScrollReveal';
 import {
   CATEGORY_META,
   getIkmInitials,
@@ -246,9 +245,19 @@ export default function IkmListPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
               {visibleIkms.map((ikm, idx) => (
-                <ScrollReveal key={ikm.id} delay={Math.min(idx * 60, 360)} className="h-full">
+                <motion.div
+                  key={ikm.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.4,
+                    delay: Math.min(idx * 0.06, 0.36),
+                    ease: 'easeOut',
+                  }}
+                  className="h-full"
+                >
                   <IkmCard ikm={ikm} />
-                </ScrollReveal>
+                </motion.div>
               ))}
             </div>
           )}
