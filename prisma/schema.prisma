@@ -24,7 +24,8 @@ model Product {
   price       Int           // Price in IDR
   description String
   artisanInfo String?       // Deskripsi lengkap IKM / pengrajin (multi-baris)
-  ikmName     String?       // Nama IKM / kelompok pengrajin
+  ikmId       String?       // FK ke Ikm (1 IKM bisa banyak produk)
+  ikm         Ikm?          @relation(fields: [ikmId], references: [id], onDelete: SetNull)
   whatsappNumber String?    // Nomor WA khusus produk ini (fallback ke admin global)
   marketplaceUrl String?    // Link marketplace (FB Marketplace, Tokopedia, Shopee, dll)
   specifications String?   // Spesifikasi barang (ukuran, berat, bahan, dll) - multi-baris
@@ -33,6 +34,29 @@ model Product {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   views       ProductView[]
+
+  @@index([ikmId])
+}
+
+model Ikm {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  slug            String    @unique
+  description     String?   // Deskripsi / sejarah IKM (multi-baris)
+  category        String    // Kategori utama untuk badge/icon: 'tenun', 'songket', 'kopi', 'bambu'
+  address         String?   // Alamat lengkap
+  phone           String?   // Nomor telepon
+  whatsappNumber  String?   // Nomor WhatsApp untuk pemesanan
+  marketplaceUrl  String?   // Link marketplace utama
+  establishedYear Int?      // Tahun berdiri
+  leaderName      String?   // Nama ketua/pimpinan IKM
+  memberCount     Int?      // Jumlah anggota pengrajin
+  isFeatured      Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  products        Product[]
+
+  @@index([category])
 }
 
 model SiteProfile {

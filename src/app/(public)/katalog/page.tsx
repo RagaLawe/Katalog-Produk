@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, PackageOpen, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, PackageOpen, ArrowUpDown, ChevronLeft, ChevronRight, LayoutGrid, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -13,6 +14,7 @@ import Breadcrumb from '@/components/Breadcrumb';
 import CompareDrawer from '@/components/CompareDrawer';
 import FavoritesSection from '@/components/FavoritesSection';
 import { useFavoritesStore } from '@/lib/favorites-store';
+import { getIkmInitials, getIkmAvatarColor, formatIkmAddress } from '@/lib/ikm-utils';
 
 interface Product {
   id: string;
@@ -24,12 +26,26 @@ interface Product {
   artisanInfo: string | null;
   imageUrl: string;
   isFeatured: boolean;
+  ikm?: {
+    id: string;
+    name: string;
+    slug: string;
+    category: string;
+  } | null;
 }
 
 interface SearchSuggestion {
   id: string;
   name: string;
   slug: string;
+}
+
+interface IkmOption {
+  id: string;
+  name: string;
+  slug: string;
+  category: string;
+  _count?: { products: number };
 }
 
 const categoryFilters = [
@@ -63,6 +79,9 @@ function CatalogContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [viewMode, setViewMode] = useState<'category' | 'ikm'>('category');
+  const [ikmOptions, setIkmOptions] = useState<IkmOption[]>([]);
+  const [selectedIkmId, setSelectedIkmId] = useState<string>('');
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const itemsPerPage = 6;
@@ -99,12 +118,39 @@ function CatalogContent() {
   const startItem = sortedProducts.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, sortedProducts.length);
 
-  const fetchProducts = useCallback(async (category: string, search: string) => {
+  // Group products by IKM for "Per IKM" view mode
+  const productsByIkm = useMemo(() => {
+    const groups = new Map<string, { ikm: IkmOption | null; products: Product[] }>();
+    for (const p of sortedProducts) {
+      const key = p.ikm?.id || '__no_ikm__';
+      if (!groups.has(key)) {
+        const ikm = p.ikm
+          ? ikmOptions.find((i) => i.id === p.ikm!.id) || {
+              id: p.ikm.id,
+              name: p.ikm.name,
+              slug: p.ikm.slug,
+              category: p.ikm.category,
+            }
+          : null;
+        groups.set(key, { ikm, products: [] });
+      }
+      groups.get(key)!.products.push(p);
+    }
+    // Sort groups: IKMs with name first, then "no IKM" at the end
+    return Array.from(groups.values()).sort((a, b) => {
+      if (!a.ikm && b.ikm) return 1;
+      if (a.ikm && !b.ikm) return -1;
+      return (a.ikm?.name || '').localeCompare(b.ikm?.name || '', 'id');
+    });
+  }, [sortedProducts, ikmOptions]);
+
+  const fetchProducts = useCallback(async (category: string, search: string, ikmId: string) => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
       if (category) params.set('category', category);
       if (search) params.set('search', search);
+      if (ikmId) params.set('ikmId', ikmId);
 
       const res = await fetch(`/api/products?${params.toString()}`);
       if (res.ok) {
@@ -118,9 +164,26 @@ function CatalogContent() {
     }
   }, []);
 
+  // Fetch IKM list once for the IKM-mode filter
   useEffect(() => {
-    fetchProducts(activeCategory, searchQuery);
-  }, [activeCategory, searchQuery, fetchProducts]);
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/ikm');
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          setIkmOptions(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch IKM list:', err);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    fetchProducts(activeCategory, searchQuery, selectedIkmId);
+  }, [activeCategory, searchQuery, selectedIkmId, fetchProducts]);
 
   const fetchSuggestions = useCallback(async (query: string) => {
     if (query.length < 2) {
@@ -275,6 +338,36 @@ function CatalogContent() {
               </AnimatePresence>
             </div>
 
+            {/* View Mode Toggle: Per Kategori ↔ Per IKM */}
+            <div className="flex gap-1 p-1 bg-muted/60 rounded-lg">
+              <button
+                type="button"
+                onClick={() => { setViewMode('category'); setSelectedIkmId(''); setCurrentPage(1); }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                  viewMode === 'category'
+                    ? 'bg-background shadow-sm text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+                aria-pressed={viewMode === 'category'}
+              >
+                <LayoutGrid className="h-3.5 w-3.5" />
+                Per Kategori
+              </button>
+              <button
+                type="button"
+                onClick={() => { setViewMode('ikm'); setCurrentPage(1); }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                  viewMode === 'ikm'
+                    ? 'bg-background shadow-sm text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+                aria-pressed={viewMode === 'ikm'}
+              >
+                <Users className="h-3.5 w-3.5" />
+                Per IKM
+              </button>
+            </div>
+
             {/* Sort */}
             <Select value={sortBy} onValueChange={(v) => { setSortBy(v); setCurrentPage(1); }}>
               <SelectTrigger size="sm" className="w-full sm:w-[160px] h-9 rounded-lg">
@@ -290,31 +383,55 @@ function CatalogContent() {
               </SelectContent>
             </Select>
 
-            {/* Category Filters */}
-            <div className="flex gap-1.5 flex-wrap">
-              {categoryFilters.map((filter) => (
-                <Button
-                  key={filter.value}
-                  variant={activeCategory === filter.value ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => handleCategoryChange(filter.value)}
-                  className={
-                    activeCategory === filter.value
-                      ? 'bg-primary text-primary-foreground h-8 rounded-lg text-xs'
-                      : 'text-muted-foreground hover:text-foreground h-8 rounded-lg text-xs'
-                  }
-                >
-                  {filter.label}
-                </Button>
-              ))}
-            </div>
+            {/* Category Filters (only in category mode) */}
+            {viewMode === 'category' && (
+              <div className="flex gap-1.5 flex-wrap">
+                {categoryFilters.map((filter) => (
+                  <Button
+                    key={filter.value}
+                    variant={activeCategory === filter.value ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => handleCategoryChange(filter.value)}
+                    className={
+                      activeCategory === filter.value
+                        ? 'bg-primary text-primary-foreground h-8 rounded-lg text-xs'
+                        : 'text-muted-foreground hover:text-foreground h-8 rounded-lg text-xs'
+                    }
+                  >
+                    {filter.label}
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            {/* IKM Filter (only in IKM mode) */}
+            {viewMode === 'ikm' && (
+              <Select value={selectedIkmId} onValueChange={(v) => { setSelectedIkmId(v === '__all__' ? '' : v); setCurrentPage(1); }}>
+                <SelectTrigger size="sm" className="w-full sm:w-[220px] h-9 rounded-lg">
+                  <Users className="h-3.5 w-3.5" />
+                  <SelectValue placeholder="Semua IKM" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__all__">Semua IKM</SelectItem>
+                  {ikmOptions
+                    .filter((ikm) => !activeCategory || ikm.category === activeCategory)
+                    .map((ikm) => (
+                      <SelectItem key={ikm.id} value={ikm.id}>
+                        {ikm.name} ({ikm._count?.products || 0})
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           {/* Product Count */}
           <div className="mt-2">
             {!loading && (
               <p className="text-xs text-muted-foreground">
-                Menampilkan {startItem}-{endItem} dari {sortedProducts.length} produk
+                {viewMode === 'ikm' && productsByIkm.length > 0
+                  ? `${productsByIkm.length} IKM • ${sortedProducts.length} produk`
+                  : `Menampilkan ${startItem}-${endItem} dari ${sortedProducts.length} produk`}
               </p>
             )}
           </div>
@@ -324,7 +441,7 @@ function CatalogContent() {
       {/* Product Grid */}
       <section className="py-8 sm:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          {favorites.length > 0 && (
+          {favorites.length > 0 && viewMode === 'category' && (
             <FavoritesSection products={products} />
           )}
 
@@ -351,6 +468,7 @@ function CatalogContent() {
                   setActiveCategory('');
                   setInputValue('');
                   setSearchQuery('');
+                  setSelectedIkmId('');
                   setCurrentPage(1);
                   router.push('/katalog');
                 }}
@@ -358,7 +476,79 @@ function CatalogContent() {
                 Reset Filter
               </Button>
             </motion.div>
+          ) : viewMode === 'ikm' ? (
+            /* === Per IKM View: products grouped by IKM with section headers === */
+            <div className="space-y-10">
+              {productsByIkm.map((group, gi) => (
+                <motion.div
+                  key={group.ikm?.id || '__no_ikm__'}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: gi * 0.06, duration: 0.35 }}
+                  className="space-y-4"
+                >
+                  {/* IKM Section Header */}
+                  <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/40 border border-border/40">
+                    {group.ikm ? (
+                      <div className={`flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full font-bold text-white ${getIkmAvatarColor(group.ikm.category)}`}>
+                        {getIkmInitials(group.ikm.name)}
+                      </div>
+                    ) : (
+                      <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-muted-foreground/20 text-muted-foreground">
+                        <Users className="h-5 w-5" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      {group.ikm ? (
+                        <>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="text-lg font-semibold text-foreground truncate">
+                              {group.ikm.name}
+                            </h3>
+                            <span className="text-xs text-muted-foreground bg-background/80 px-2 py-0.5 rounded-full border border-border/40">
+                              {group.products.length} produk
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Kategori utama: {group.ikm.category}
+                          </p>
+                        </>
+                      ) : (
+                        <h3 className="text-lg font-semibold text-foreground">
+                          Produk tanpa IKM
+                        </h3>
+                      )}
+                    </div>
+                    {group.ikm && (
+                      <Link
+                        href={`/ikm/${group.ikm.slug}`}
+                        className="flex-shrink-0 text-xs text-primary hover:text-primary/80 font-medium transition-colors flex items-center gap-1"
+                      >
+                        Lihat Profil
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </Link>
+                    )}
+                  </div>
+
+                  {/* Product grid for this IKM */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                    {group.products.map((product, i) => (
+                      <motion.div
+                        key={product.id}
+                        variants={fadeInUp}
+                        initial="hidden"
+                        animate="visible"
+                        custom={i}
+                      >
+                        <ProductCard product={product} />
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           ) : (
+            /* === Per Category View (default): paginated flat grid === */
             <motion.div
               layout
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"
@@ -381,8 +571,8 @@ function CatalogContent() {
             </motion.div>
           )}
 
-          {/* Pagination */}
-          {totalPages > 1 && !loading && (
+          {/* Pagination (only in category mode) */}
+          {viewMode === 'category' && totalPages > 1 && !loading && (
             <div className="flex items-center justify-center gap-2 mt-8">
               <Button
                 variant="outline"

@@ -16,6 +16,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const product = await db.product.findUnique({
       where: { slug },
+      include: { ikm: { select: { id: true, name: true, slug: true, category: true, whatsappNumber: true, address: true } } },
     });
 
     if (!product) {
@@ -62,7 +63,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     const body = await request.json();
-    const { name, category, price, description, artisanInfo, ikmName, whatsappNumber, marketplaceUrl, specifications, imageUrl, isFeatured } = body;
+    const { name, category, price, description, artisanInfo, ikmId, whatsappNumber, marketplaceUrl, specifications, imageUrl, isFeatured } = body;
 
     // Validate category if provided
     if (category && !['tenun', 'songket', 'kopi', 'bambu'].includes(category)) {
@@ -91,7 +92,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (price !== undefined) updateData.price = Number(price);
     if (description !== undefined) updateData.description = description;
     if (artisanInfo !== undefined) updateData.artisanInfo = artisanInfo || null;
-    if (ikmName !== undefined) updateData.ikmName = ikmName || null;
+    if (ikmId !== undefined) updateData.ikmId = ikmId || null;
     if (whatsappNumber !== undefined) updateData.whatsappNumber = whatsappNumber || null;
     if (marketplaceUrl !== undefined) updateData.marketplaceUrl = marketplaceUrl || null;
     if (specifications !== undefined) updateData.specifications = specifications || null;
@@ -101,6 +102,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const product = await db.product.update({
       where: { slug },
       data: updateData,
+      include: { ikm: { select: { id: true, name: true, slug: true, category: true } } },
     });
 
     return NextResponse.json(product);

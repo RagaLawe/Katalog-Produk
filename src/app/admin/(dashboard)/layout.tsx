@@ -7,6 +7,7 @@ import {
   Shield,
   LayoutDashboard,
   Package,
+  Users,
   Building2,
   LogOut,
   Menu,
@@ -31,6 +32,11 @@ const sidebarLinks = [
     href: '/admin/dashboard/produk',
     label: 'Kelola Produk',
     icon: Package,
+  },
+  {
+    href: '/admin/dashboard/ikm',
+    label: 'Kelola IKM',
+    icon: Users,
   },
   {
     href: '/admin/dashboard/profil',

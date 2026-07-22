@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState, useCallback, useRef } from 'react';
+import { Suspense, useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -17,6 +17,8 @@ import {
   Phone,
   ShoppingBag,
   Ruler,
+  Plus,
+  RotateCw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,10 +28,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -42,6 +55,16 @@ import {
 import { useAdminAuth } from '@/lib/admin-auth';
 import { toast } from 'sonner';
 
+const IKM_NONE_SENTINEL = '__none__';
+
+const CATEGORY_ORDER = ['tenun', 'songket', 'kopi', 'bambu'] as const;
+const CATEGORY_LABELS: Record<string, string> = {
+  tenun: 'Tenun Ikat',
+  songket: 'Tenun Songket',
+  kopi: 'Kopi Bajawa',
+  bambu: 'Kerajinan Bambu',
+};
+
 const productSchema = z.object({
   name: z.string().min(1, 'Nama produk wajib diisi'),
   slug: z.string().min(1, 'Slug wajib diisi'),
@@ -49,7 +72,7 @@ const productSchema = z.object({
   price: z.coerce.number().min(1, 'Harga wajib diisi'),
   description: z.string().min(10, 'Deskripsi minimal 10 karakter'),
   specifications: z.string().optional(),
-  ikmName: z.string().optional(),
+  ikmId: z.string().optional(),
   artisanInfo: z.string().optional(),
   whatsappNumber: z.string().optional(),
   marketplaceUrl: z.string().url('Format URL tidak valid').optional().or(z.literal('')),
@@ -69,6 +92,13 @@ function generateSlug(name: string): string {
     .replace(/^-|-$/g, '');
 }
 
+interface IkmOption {
+  id: string;
+  name: string;
+  slug: string;
+  category: string;
+}
+
 interface Product {
   id: string;
   name: string;
@@ -78,7 +108,7 @@ interface Product {
   description: string;
   specifications: string | null;
   artisanInfo: string | null;
-  ikmName: string | null;
+  ikm: { id: string; name: string; slug: string; category: string } | null;
   whatsappNumber: string | null;
   marketplaceUrl: string | null;
   imageUrl: string;
@@ -101,6 +131,18 @@ function ProductFormContent() {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // IKM list state
+  const [ikmOptions, setIkmOptions] = useState<IkmOption[]>([]);
+  const [isLoadingIkm, setIsLoadingIkm] = useState(true);
+  const [ikmError, setIkmError] = useState(false);
+
+  // Inline add IKM dialog state
+  const [isIkmDialogOpen, setIsIkmDialogOpen] = useState(false);
+  const [isSubmittingIkm, setIsSubmittingIkm] = useState(false);
+  const [newIkmName, setNewIkmName] = useState('');
+  const [newIkmCategory, setNewIkmCategory] = useState('');
+  const [newIkmDescription, setNewIkmDescription] = useState('');
+
   const isEditMode = !!editSlug;
 
   const form = useForm<ProductFormValues>({
@@ -112,7 +154,7 @@ function ProductFormContent() {
       price: 0,
       description: '',
       specifications: '',
-      ikmName: '',
+      ikmId: '',
       artisanInfo: '',
       whatsappNumber: '',
       marketplaceUrl: '',
@@ -123,6 +165,52 @@ function ProductFormContent() {
 
   const watchedName = form.watch('name');
   const watchedImageUrl = form.watch('imageUrl');
+  const watchedCategory = form.watch('category');
+
+  // Fetch IKM list (public endpoint)
+  const fetchIkmOptions = useCallback(async () => {
+    setIsLoadingIkm(true);
+    setIkmError(false);
+    try {
+      const response = await fetch('/api/ikm');
+      if (!response.ok) throw new Error('Failed to fetch IKM list');
+      const data: IkmOption[] = await response.json();
+      setIkmOptions(
+        data.map((i) => ({
+          id: i.id,
+          name: i.name,
+          slug: i.slug,
+          category: i.category,
+        }))
+      );
+    } catch {
+      setIkmError(true);
+    } finally {
+      setIsLoadingIkm(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchIkmOptions();
+  }, [fetchIkmOptions]);
+
+  // Group IKMs by category for the select dropdown
+  const groupedIkms = useMemo(() => {
+    const groups: Array<{ key: string; label: string; items: IkmOption[] }> = [];
+    for (const cat of CATEGORY_ORDER) {
+      const items = ikmOptions.filter((i) => i.category === cat);
+      if (items.length > 0) {
+        groups.push({ key: cat, label: CATEGORY_LABELS[cat], items });
+      }
+    }
+    const others = ikmOptions.filter(
+      (i) => !CATEGORY_ORDER.includes(i.category as (typeof CATEGORY_ORDER)[number])
+    );
+    if (others.length > 0) {
+      groups.push({ key: 'lainnya', label: 'Lainnya', items: others });
+    }
+    return groups;
+  }, [ikmOptions]);
 
   // Auto-generate slug from name
   useEffect(() => {
@@ -162,7 +250,7 @@ function ProductFormContent() {
         price: product.price,
         description: product.description,
         specifications: product.specifications || '',
-        ikmName: product.ikmName || '',
+        ikmId: product.ikm?.id || '',
         artisanInfo: product.artisanInfo || '',
         whatsappNumber: product.whatsappNumber || '',
         marketplaceUrl: product.marketplaceUrl || '',
@@ -248,6 +336,68 @@ function ProductFormContent() {
     e.target.value = '';
   };
 
+  // Open the inline add-IKM dialog. Defaults category to currently selected
+  // product category (best-effort). IKM category & product category can differ.
+  const openIkmDialog = () => {
+    setNewIkmName('');
+    setNewIkmDescription('');
+    const currentCat = form.getValues('category');
+    setNewIkmCategory(
+      CATEGORY_ORDER.includes(currentCat as (typeof CATEGORY_ORDER)[number])
+        ? currentCat
+        : ''
+    );
+    setIsIkmDialogOpen(true);
+  };
+
+  // Create a new IKM via POST /api/ikm. On success: refresh IKM list,
+  // auto-select the newly created IKM in the dropdown, close the dialog.
+  const handleCreateIkm = async () => {
+    const trimmedName = newIkmName.trim();
+    if (!trimmedName) {
+      toast.error('Nama IKM wajib diisi');
+      return;
+    }
+    if (!newIkmCategory) {
+      toast.error('Kategori IKM wajib dipilih');
+      return;
+    }
+    setIsSubmittingIkm(true);
+    try {
+      const response = await fetch('/api/ikm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: trimmedName,
+          category: newIkmCategory,
+          description: newIkmDescription.trim() || undefined,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        toast.error(result.error || 'Gagal membuat IKM');
+        return;
+      }
+      toast.success('IKM baru berhasil ditambahkan');
+      // Refresh IKM list so the new IKM appears in the dropdown
+      await fetchIkmOptions();
+      // Auto-select the newly created IKM
+      form.setValue('ikmId', result.id);
+      // Close dialog & reset fields
+      setIsIkmDialogOpen(false);
+      setNewIkmName('');
+      setNewIkmCategory('');
+      setNewIkmDescription('');
+    } catch {
+      toast.error('Terjadi kesalahan. Silakan coba lagi.');
+    } finally {
+      setIsSubmittingIkm(false);
+    }
+  };
+
   const onSubmit = async (data: ProductFormValues) => {
     setIsSubmitting(true);
     try {
@@ -256,13 +406,19 @@ function ProductFormContent() {
         : '/api/products';
       const method = isEditMode ? 'PUT' : 'POST';
 
+      // Convert sentinel "no IKM" value to empty string so the API stores null
+      const payload: ProductFormValues = {
+        ...data,
+        ikmId: data.ikmId === IKM_NONE_SENTINEL ? '' : data.ikmId || '',
+      };
+
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
@@ -492,21 +648,89 @@ function ProductFormContent() {
                       </h3>
                     </div>
 
-                    {/* IKM Name */}
+                    {/* IKM Select + Add New IKM Button */}
                     <FormField
                       control={form.control}
-                      name="ikmName"
+                      name="ikmId"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nama IKM / Kelompok Pengrajin</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Contoh: IKM Sari Tenun Wolojita"
-                              {...field}
-                            />
-                          </FormControl>
+                          <FormLabel>IKM / Kelompok Pengrajin</FormLabel>
+                          <div className="flex flex-col sm:flex-row gap-2">
+                            <FormControl>
+                              <Select
+                                value={field.value || IKM_NONE_SENTINEL}
+                                onValueChange={field.onChange}
+                                disabled={isLoadingIkm}
+                              >
+                                <SelectTrigger className="w-full">
+                                  <SelectValue
+                                    placeholder={
+                                      isLoadingIkm
+                                        ? 'Memuat daftar IKM...'
+                                        : ikmError
+                                          ? 'Gagal memuat daftar IKM'
+                                          : 'Pilih IKM'
+                                    }
+                                  />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value={IKM_NONE_SENTINEL}>
+                                    Tanpa IKM
+                                  </SelectItem>
+                                  {groupedIkms.length > 0 && (
+                                    <SelectSeparator />
+                                  )}
+                                  {groupedIkms.map((group) => (
+                                    <SelectGroup key={group.key}>
+                                      <SelectLabel>{group.label}</SelectLabel>
+                                      {group.items.map((ikm) => (
+                                        <SelectItem key={ikm.id} value={ikm.id}>
+                                          {ikm.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectGroup>
+                                  ))}
+                                  {!isLoadingIkm &&
+                                    !ikmError &&
+                                    ikmOptions.length === 0 && (
+                                      <>
+                                        <SelectSeparator />
+                                        <SelectItem
+                                          value={IKM_NONE_SENTINEL}
+                                          disabled
+                                        >
+                                          Belum ada IKM terdaftar
+                                        </SelectItem>
+                                      </>
+                                    )}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={openIkmDialog}
+                              className="sm:w-auto w-full shrink-0"
+                              title="Tambah IKM baru ke daftar"
+                            >
+                              <Plus className="h-4 w-4 mr-1.5" />
+                              Tambah IKM Baru
+                            </Button>
+                          </div>
+                          {ikmError && (
+                            <Button
+                              type="button"
+                              variant="link"
+                              size="sm"
+                              className="h-auto p-0 text-destructive justify-start"
+                              onClick={fetchIkmOptions}
+                            >
+                              <RotateCw className="h-3 w-3 mr-1" />
+                              Gagal memuat daftar IKM. Klik untuk coba lagi.
+                            </Button>
+                          )}
                           <FormDescription>
-                            Nama resmi IKM atau kelompok pengrajin pembuat produk (opsional)
+                            Pilih IKM yang memproduksi produk ini. Klik &lsquo;Tambah IKM Baru&rsquo; jika IKM belum terdaftar.
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -531,7 +755,7 @@ function ProductFormContent() {
                             />
                           </FormControl>
                           <FormDescription>
-                            Nomor WA khusus untuk produk ini. Jika dikosongkan, tombol "Pesan via WA" akan otomatis menggunakan nomor admin pusat.
+                            Nomor WA khusus untuk produk ini. Jika dikosongkan, tombol &quot;Pesan via WA&quot; akan otomatis menggunakan nomor admin pusat.
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -556,7 +780,7 @@ function ProductFormContent() {
                             />
                           </FormControl>
                           <FormDescription>
-                            Tautan ke marketplace (Facebook Marketplace, Tokopedia, Shopee, dll). Jika diisi, tombol "Beli di Marketplace" akan muncul di produk.
+                            Tautan ke marketplace (Facebook Marketplace, Tokopedia, Shopee, dll). Jika diisi, tombol &quot;Beli di Marketplace&quot; akan muncul di produk.
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -818,15 +1042,18 @@ function ProductFormContent() {
                 <div>
                   <p className="text-xs text-muted-foreground">Kategori</p>
                   <p className="text-sm font-medium">
-                    {form.watch('category') === 'tenun'
-                      ? 'Tenun Ikat'
-                      : form.watch('category') === 'songket'
-                        ? 'Tenun Songket'
-                        : form.watch('category') === 'kopi'
-                          ? 'Kopi Bajawa'
-                          : form.watch('category') === 'bambu'
-                            ? 'Kerajinan Bambu'
-                            : '-'}
+                    {CATEGORY_LABELS[watchedCategory] || '-'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">IKM</p>
+                  <p className="text-sm font-medium truncate">
+                    {(() => {
+                      const id = form.watch('ikmId');
+                      if (!id || id === IKM_NONE_SENTINEL) return '-';
+                      const found = ikmOptions.find((i) => i.id === id);
+                      return found ? found.name : '-';
+                    })()}
                   </p>
                 </div>
                 <div>
@@ -852,6 +1079,100 @@ function ProductFormContent() {
           </div>
         </div>
       </div>
+
+      {/* Inline Add IKM Dialog — placed here (portaled to body by Radix) */}
+      <Dialog open={isIkmDialogOpen} onOpenChange={setIsIkmDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Tambah IKM Baru</DialogTitle>
+            <DialogDescription>
+              Tambahkan IKM (Industri Kecil Menengah) atau kelompok pengrajin baru ke daftar. IKM yang baru dibuat akan otomatis dipilih untuk produk ini.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <label htmlFor="new-ikm-name" className="text-sm font-medium">
+                Nama IKM <span className="text-destructive">*</span>
+              </label>
+              <Input
+                id="new-ikm-name"
+                value={newIkmName}
+                onChange={(e) => setNewIkmName(e.target.value)}
+                placeholder="Contoh: IKM Sari Tenun Wolojita"
+                disabled={isSubmittingIkm}
+                autoFocus
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="new-ikm-category" className="text-sm font-medium">
+                Kategori <span className="text-destructive">*</span>
+              </label>
+              <Select
+                value={newIkmCategory}
+                onValueChange={setNewIkmCategory}
+                disabled={isSubmittingIkm}
+              >
+                <SelectTrigger id="new-ikm-category" className="w-full">
+                  <SelectValue placeholder="Pilih kategori" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="tenun">Tenun Ikat</SelectItem>
+                  <SelectItem value="songket">Tenun Songket</SelectItem>
+                  <SelectItem value="kopi">Kopi Bajawa</SelectItem>
+                  <SelectItem value="bambu">Kerajinan Bambu</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Kategori IKM bisa berbeda dari kategori produk ini.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="new-ikm-description" className="text-sm font-medium">
+                Deskripsi (Opsional)
+              </label>
+              <Textarea
+                id="new-ikm-description"
+                value={newIkmDescription}
+                onChange={(e) => setNewIkmDescription(e.target.value)}
+                placeholder="Deskripsi singkat tentang IKM: lokasi, sejarah, jumlah anggota, dll."
+                className="min-h-[80px]"
+                disabled={isSubmittingIkm}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsIkmDialogOpen(false)}
+              disabled={isSubmittingIkm}
+            >
+              Batal
+            </Button>
+            <Button
+              type="button"
+              onClick={handleCreateIkm}
+              disabled={
+                isSubmittingIkm ||
+                !newIkmName.trim() ||
+                !newIkmCategory
+              }
+            >
+              {isSubmittingIkm ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Menyimpan...
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4" />
+                  Simpan IKM
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 const quickLinks = [
   { href: '/', label: 'Beranda' },
   { href: '/katalog', label: 'Katalog' },
+  { href: '/ikm', label: 'IKM' },
   { href: '/tentang', label: 'Tentang Kami' },
 ];
 

@@ -13,6 +13,8 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
     const search = searchParams.get('search');
     const featured = searchParams.get('featured');
+    const ikmId = searchParams.get('ikmId');
+    const ikmSlug = searchParams.get('ikmSlug');
 
     const where: Record<string, unknown> = {};
 
@@ -30,9 +32,21 @@ export async function GET(request: NextRequest) {
       where.isFeatured = featured === 'true';
     }
 
+    if (ikmId) {
+      where.ikmId = ikmId;
+    } else if (ikmSlug) {
+      const ikm = await db.ikm.findUnique({
+        where: { slug: ikmSlug },
+        select: { id: true },
+      });
+      if (ikm) where.ikmId = ikm.id;
+      else where.ikmId = '__not_found__';
+    }
+
     const products = await db.product.findMany({
       where,
       orderBy: { createdAt: 'desc' },
+      include: { ikm: { select: { id: true, name: true, slug: true, category: true } } },
     });
 
     return NextResponse.json(products);
@@ -58,7 +72,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, slug, category, price, description, artisanInfo, ikmName, whatsappNumber, marketplaceUrl, specifications, imageUrl, isFeatured } = body;
+    const { name, slug, category, price, description, artisanInfo, ikmId, whatsappNumber, marketplaceUrl, specifications, imageUrl, isFeatured } = body;
 
     // Validate required fields
     if (!name || !slug || !category || !price || !description || !imageUrl) {
@@ -108,13 +122,14 @@ export async function POST(request: NextRequest) {
         price: Number(price),
         description,
         artisanInfo: artisanInfo || null,
-        ikmName: ikmName || null,
+        ikmId: ikmId || null,
         whatsappNumber: whatsappNumber || null,
         marketplaceUrl: marketplaceUrl || null,
         specifications: specifications || null,
         imageUrl,
         isFeatured: isFeatured ?? false,
       },
+      include: { ikm: { select: { id: true, name: true, slug: true, category: true } } },
     });
 
     return NextResponse.json(product, { status: 201 });
