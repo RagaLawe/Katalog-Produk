@@ -138,9 +138,15 @@ export default function QuickViewModal({
 
                 {/* Description */}
                 <div className="mb-4 flex-1">
-                  <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
-                    {product.description}
-                  </p>
+                  {product.description ? (
+                    <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
+                      {product.description}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground/50 italic leading-relaxed">
+                      Deskripsi produk belum tersedia.
+                    </p>
+                  )}
                 </div>
 
                 {/* Specifications Preview */}

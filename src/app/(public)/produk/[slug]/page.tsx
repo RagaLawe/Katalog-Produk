@@ -11,6 +11,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   const product = await db.product.findUnique({
     where: { slug },
+    include: {
+      ikm: { select: { id: true, name: true, slug: true, category: true } },
+    },
   });
 
   if (!product) {
@@ -25,12 +28,18 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     },
     take: 4,
     orderBy: { createdAt: 'desc' },
+    include: {
+      ikm: { select: { id: true, name: true, slug: true, category: true } },
+    },
   });
 
   // Fetch cross-category products (from OTHER categories, limit 3, random selection)
   const crossCategoryProducts = await db.product.findMany({
     where: {
       NOT: { category: product.category },
+    },
+    include: {
+      ikm: { select: { id: true, name: true, slug: true, category: true } },
     },
   });
 
@@ -39,39 +48,29 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     .sort(() => Math.random() - 0.5)
     .slice(0, 3);
 
+  // Map a Prisma product (with ikm relation) to the shape expected by
+  // ProductDetailContent / ProductCard (which still use `ikmName`).
+  const mapProduct = (p: typeof product) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    category: p.category,
+    price: p.price,
+    description: p.description,
+    specifications: p.specifications,
+    artisanInfo: p.artisanInfo,
+    ikmName: p.ikm?.name ?? null,
+    whatsappNumber: p.whatsappNumber,
+    marketplaceUrl: p.marketplaceUrl,
+    imageUrl: p.imageUrl,
+    isFeatured: p.isFeatured,
+  });
+
   return (
     <ProductDetailContent
-      product={product}
-      relatedProducts={relatedProducts.map((p) => ({
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        category: p.category,
-        price: p.price,
-        description: p.description,
-        specifications: p.specifications,
-        artisanInfo: p.artisanInfo,
-        ikmName: p.ikmName,
-        whatsappNumber: p.whatsappNumber,
-        marketplaceUrl: p.marketplaceUrl,
-        imageUrl: p.imageUrl,
-        isFeatured: p.isFeatured,
-      }))}
-      crossCategoryProducts={shuffled.map((p) => ({
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        category: p.category,
-        price: p.price,
-        description: p.description,
-        specifications: p.specifications,
-        artisanInfo: p.artisanInfo,
-        ikmName: p.ikmName,
-        whatsappNumber: p.whatsappNumber,
-        marketplaceUrl: p.marketplaceUrl,
-        imageUrl: p.imageUrl,
-        isFeatured: p.isFeatured,
-      }))}
+      product={mapProduct(product)}
+      relatedProducts={relatedProducts.map(mapProduct)}
+      crossCategoryProducts={shuffled.map(mapProduct)}
     />
   );
 }

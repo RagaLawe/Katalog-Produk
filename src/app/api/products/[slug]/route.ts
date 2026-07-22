@@ -26,7 +26,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    return NextResponse.json(product);
+    // Include backward-compatible `ikmName` field for legacy components
+    return NextResponse.json({
+      ...product,
+      ikmName: product.ikm?.name ?? null,
+    });
   } catch (error) {
     console.error('Error fetching product:', error);
     return NextResponse.json(

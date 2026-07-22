@@ -166,9 +166,15 @@ export default function ProductCard({ product, showTrustBadge = true, imageHeigh
               showCount={true}
             />
           </div>
-          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
-            {product.description}
-          </p>
+          {product.description ? (
+            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
+              {product.description}
+            </p>
+          ) : (
+            <p className="text-xs sm:text-sm text-muted-foreground/50 italic line-clamp-2">
+              Deskripsi produk belum tersedia.
+            </p>
+          )}
         </div>
       </Link>
 

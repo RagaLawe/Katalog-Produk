@@ -70,7 +70,7 @@ const productSchema = z.object({
   slug: z.string().min(1, 'Slug wajib diisi'),
   category: z.string().min(1, 'Kategori wajib dipilih'),
   price: z.coerce.number().min(1, 'Harga wajib diisi'),
-  description: z.string().min(10, 'Deskripsi minimal 10 karakter'),
+  description: z.string().optional().or(z.literal('')),
   specifications: z.string().optional(),
   ikmId: z.string().optional(),
   artisanInfo: z.string().optional(),
@@ -579,10 +579,10 @@ function ProductFormContent() {
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Deskripsi Produk *</FormLabel>
+                        <FormLabel>Deskripsi Produk</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Jelaskan detail produk, bahan, proses pembuatan, dll."
+                            placeholder="Jelaskan detail produk, bahan, proses pembuatan, dll. (opsional)"
                             className="min-h-[120px]"
                             {...field}
                           />

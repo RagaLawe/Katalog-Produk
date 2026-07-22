@@ -49,7 +49,15 @@ export async function GET(request: NextRequest) {
       include: { ikm: { select: { id: true, name: true, slug: true, category: true } } },
     });
 
-    return NextResponse.json(products);
+    // Map products to include a backward-compatible `ikmName` field derived
+    // from the ikm relation, so legacy components (ProductCard, QuickViewModal,
+    // ProductDetailContent, IKMListSection) keep working without changes.
+    const mapped = products.map((p) => ({
+      ...p,
+      ikmName: p.ikm?.name ?? null,
+    }));
+
+    return NextResponse.json(mapped);
   } catch (error) {
     console.error('Error fetching products:', error);
     return NextResponse.json(
@@ -74,10 +82,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, slug, category, price, description, artisanInfo, ikmId, whatsappNumber, marketplaceUrl, specifications, imageUrl, isFeatured } = body;
 
-    // Validate required fields
-    if (!name || !slug || !category || !price || !description || !imageUrl) {
+    // Validate required fields (description is optional — defaults to empty string)
+    if (!name || !slug || !category || !price || !imageUrl) {
       return NextResponse.json(
-        { error: 'Missing required fields: name, slug, category, price, description, imageUrl' },
+        { error: 'Missing required fields: name, slug, category, price, imageUrl' },
         { status: 400 }
       );
     }
@@ -120,7 +128,7 @@ export async function POST(request: NextRequest) {
         slug,
         category,
         price: Number(price),
-        description,
+        description: description || '',
         artisanInfo: artisanInfo || null,
         ikmId: ikmId || null,
         whatsappNumber: whatsappNumber || null,

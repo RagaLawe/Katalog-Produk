@@ -379,14 +379,16 @@ export default function ProductDetailContent({
               </div>
 
               {/* Description */}
-              <div className="mb-6">
-                <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-3">
-                  Deskripsi Produk
-                </h2>
-                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                  {product.description}
-                </p>
-              </div>
+              {product.description ? (
+                <div className="mb-6">
+                  <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-3">
+                    Deskripsi Produk
+                  </h2>
+                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                    {product.description}
+                  </p>
+                </div>
+              ) : null}
 
               {/* Product Specifications */}
               {product.specifications && (
