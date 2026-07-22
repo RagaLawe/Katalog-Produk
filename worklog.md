@@ -2708,3 +2708,44 @@ Stage Summary:
 - ✅ Lint pass, no console errors
 - Files modified: src/app/(public)/ikm/page.tsx, src/app/(public)/katalog/page.tsx
 
+
+---
+Task ID: 11
+Agent: main (Z.ai Code)
+Task: Fix error "Gagal mengunggah gambar. Periksa koneksi internet Anda." saat upload foto di menu admin
+
+Work Log:
+- User melaporkan error saat upload foto di form produk admin (dengan screenshot)
+- Analisa screenshot via VLM: toast merah "Gagal mengunggah gambar. Periksa koneksi internet Anda." muncul di pojok kanan atas halaman /admin/dashboard/produk
+- Investigasi client code (produk/page.tsx baris 272-300): `handleFileUpload` fetch POST `/api/upload`, lalu `response.json()`. Catch block menampilkan toast "Gagal mengunggah gambar. Periksa koneksi internet Anda."
+- Cek folder `src/app/api/` → folder `upload/` TIDAK ADA. Endpoint `/api/upload` missing!
+- Git history check: `git log --diff-filter=D -- src/app/api/upload/route.ts` → commit 1438cc7 ("Deploy Bot", Jul 17 2026) menghapus file ini bersama beberapa file lain (storage route/page jadi 0 bytes, supabase-storage.ts jadi 0 bytes). File-file lain sudah direstore sebelumnya, tapi upload route terlewat.
+- Root cause: Karena `/api/upload` tidak ada, POST request return 404 HTML page (Next.js default 404). Client coba parse HTML sebagai JSON → `JSON.parse` throw → masuk catch block → toast "Gagal mengunggah gambar. Periksa koneksi internet Anda."
+- Fix: Restore `src/app/api/upload/route.ts` dari commit 1438cc7~1 (kondisi sebelum dihapus)
+  - File berisi 173 lines, handler POST dengan 3-tier strategy:
+    1. Supabase Storage (production) — upload ke bucket `product-images`, auto-bootstrap bucket jika 404
+    2. Local filesystem (dev) — simpan ke `public/uploads/<uuid>.<ext>`
+    3. Base64 data URL (last-resort fallback di Vercel tanpa Supabase config)
+  - Auth: `verifyAdmin(request)` — validasi JWT bearer token
+  - Validasi: MIME type (jpeg/png/webp/gif/avif), max 8MB
+  - Object name: `<yyyy>/<mm>/<uuid>.<ext>` untuk organizing di Supabase
+- Lint: pass (0 errors)
+- Test lokal via curl: `POST /api/upload` dengan image PNG → 200, return `{"url":"/uploads/<uuid>.png"}` (fallback ke local karena lokal tidak ada SUPABASE_URL)
+- Test lokal via agent-browser: upload via form produk → toast "Gambar berhasil diunggah" + pratinjau gambar muncul di sidebar ✅
+- Commit e32a63c + push ke GitHub → Vercel auto-deploy
+- Test production via curl:
+  - GET /api/upload → 405 (correct, only POST handler)
+  - POST /api/upload dengan image PNG + admin JWT → 200, return `{"url":"https://jscdahwphgfmfgwavhxn.supabase.co/storage/v1/object/public/product-images/2026/07/<uuid>.png"}`
+  - Verify image accessible: GET URL → 200, 164601 bytes, content-type image/png ✅
+- Test production via agent-browser: login admin → buka form produk → upload image → toast "Gambar berhasil diunggah" + pratinjau muncul ✅
+- No console errors, no dev.log errors
+
+Stage Summary:
+- ✅ Root cause: `/api/upload` route terhapus oleh "Deploy Bot" commit 1438cc7 (Jul 17), causing 404 → JSON parse error → generic catch toast
+- ✅ Fix: restore route dari git history (commit 1438cc7~1)
+- ✅ Production live: upload gambar berfungsi end-to-end di https://perindag-ngada.vercel.app/admin/dashboard/produk
+- ✅ Supabase Storage integration aktif di production (gambar tersimpan di bucket `product-images`, URL public accessible)
+- ✅ Local dev juga berfungsi (fallback ke public/uploads/)
+- Files modified: src/app/api/upload/route.ts (restored, 173 lines)
+- Lesson learned: waspada "Deploy Bot" commits yang bisa menghapus file secara tidak sengaja. Pertimbangkan menambah branch protection / code review untuk mencegah hal serupa.
+
